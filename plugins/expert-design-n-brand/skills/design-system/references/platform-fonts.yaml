@@ -1,0 +1,356 @@
+# Per-platform font availability knowledge base.
+# Used by brand-build to populate brand-identity.yaml typography.per_platform.
+# Entries marked `verify: true` should be rechecked before major releases —
+# platforms rotate their font libraries and publish policies inconsistently.
+#
+# Substitution rules live in ../references/typography-taxonomy.md and in
+# brand-export's rendering-rules.md. This file is the knowledge source, not
+# the algorithm.
+#
+# ---------------------------------------------------------------------
+# Inheritance (`inherits_from`)
+# ---------------------------------------------------------------------
+# When a platform block has `inherits_from: <other_platform_slug>`, brand-build
+# resolves its effective shape by deep-merging onto the referenced parent:
+#
+#   1. Start with a deep copy of the parent platform.
+#   2. For each key in the child: if the value is a mapping, recurse into the
+#      parent's same key and merge. If the value is a list or scalar, the child
+#      value REPLACES the parent value (no list concatenation).
+#   3. `notes` and `caveats` are lists and therefore REPLACE the parent's list
+#      when the child declares its own. If the child wants to extend rather
+#      than replace, it must re-list the parent's entries explicitly.
+#   4. `by_category` merges key-by-key: child categories override parent
+#      categories of the same name; parent-only categories are inherited
+#      untouched; child-only categories are added.
+#
+# Inheritance is single-step only — the parent is resolved before the child
+# merges; chains of length > 1 are not supported in v0.7.
+# ---------------------------------------------------------------------
+
+platforms:
+
+  web_app:
+    font_library: "Any (self-hosted via @font-face or served from Google Fonts/Fontshare CDN)"
+    custom_font_upload: true
+    notes:
+      - "Primary brand fonts render here by default. Use this as the reference platform for the brand."
+    caveats:
+      - "Self-host WOFF2 for privacy + performance; preload critical weights."
+    color_slots:
+      count: "unlimited"
+      structure: "CSS custom properties, no slot constraint"
+
+  google_slides:
+    font_library: "Google Fonts (full catalog, ~1500 families)"
+    custom_font_upload: false
+    notes:
+      - "Font picker shows a short default list; click 'More fonts' to add any Google Fonts family to the document picker."
+      - "Only Google Fonts available — no upload of Fontshare/foundry files."
+    by_category:
+      geometric-sans-light:
+        - { family: "Jost",         weights: [100,200,300,400,500,600,700,800,900], rationale: "True 300 Light; variable font; closest Satoshi substitute in Google Fonts" }
+        - { family: "Manrope",      weights: [200,300,400,500,600,700,800],         rationale: "True 300 available; modern geometric; calm character" }
+        - { family: "Nunito Sans",  weights: [200,300,400,600,700,800,900],         rationale: "True 300 + rounded terminals; friendly geometric" }
+        - { family: "Quicksand",    weights: [300,400,500,600,700],                 rationale: "True 300 + round geometric; more display-feeling" }
+      humanist-sans:
+        - { family: "Inter",        weights: [100,200,300,400,500,600,700,800,900], rationale: "Workhorse UI humanist; in Google Fonts default picker" }
+        - { family: "Source Sans 3",weights: [200,300,400,500,600,700,800,900],     rationale: "Adobe humanist sans, open-source" }
+        - { family: "IBM Plex Sans",weights: [100,200,300,400,500,600,700],         rationale: "IBM's humanist sans with technical edge" }
+        - { family: "Lato",         weights: [100,300,400,700,900],                 rationale: "Humanist with gentle warmth" }
+      neo-grotesque:
+        - { family: "Inter Tight",  weights: [100,200,300,400,500,600,700,800,900], rationale: "Tighter neo-grotesque sibling of Inter" }
+        - { family: "Arimo",        weights: [400,500,600,700],                     rationale: "Metric-compatible Arial substitute" }
+      humanist-serif:
+        - { family: "Source Serif 4", weights: [200,300,400,500,600,700,800,900], rationale: "Variable, humanist, open-source" }
+        - { family: "Lora",          weights: [400,500,600,700],                  rationale: "Calligraphic humanist serif" }
+        - { family: "Merriweather", weights: [300,400,700,900],                   rationale: "Screen-optimized humanist serif" }
+      modern-serif:
+        - { family: "Playfair Display", weights: [400,500,600,700,800,900], rationale: "Most popular Didone on Google Fonts" }
+        - { family: "DM Serif Display", weights: [400],                     rationale: "Condensed Didone, one weight" }
+      display-serif:
+        - { family: "Fraunces", weights: [100,200,300,400,500,600,700,800,900], rationale: "Variable with wonk+opsz axes; most characterful" }
+      display-sans:
+        - { family: "Bebas Neue",   weights: [400],                                rationale: "Condensed display, single weight" }
+        - { family: "Antonio",      weights: [100,200,300,400,500,600,700],        rationale: "Condensed geometric display" }
+      slab-serif:
+        - { family: "Roboto Slab",  weights: [100,200,300,400,500,600,700,800,900], rationale: "Slab companion to Roboto" }
+        - { family: "Zilla Slab",   weights: [300,400,500,600,700],                  rationale: "Mozilla's slab" }
+      mono-humanist:
+        - { family: "JetBrains Mono", weights: [100,200,300,400,500,600,700,800], rationale: "Open-source dev mono, humanist" }
+        - { family: "IBM Plex Mono",  weights: [100,200,300,400,500,600,700],     rationale: "IBM's humanist mono" }
+      mono-geometric:
+        - { family: "Space Mono",    weights: [400,700],                           rationale: "Retro geometric mono" }
+        - { family: "Roboto Mono",   weights: [100,200,300,400,500,600,700],       rationale: "Roboto-family mono" }
+    caveats:
+      - "Color picker shifts by 1–2 hue units; paste hex values rather than pick from palette."
+      - "Font must be added to document via 'More fonts' before it appears in picker."
+    color_slots:
+      count: 10
+      structure: "Theme colors (Text 1, Background 1, Text 2, Background 2, Accent 1–6) + custom hex"
+      role_mapping_defaults:
+        primary_text: "Text 1"
+        background: "Background 1"
+        anchor: "Text 2"
+        primary_brand: "Accent 1"
+
+  google_docs:
+    font_library: "Google Fonts (full catalog)"
+    custom_font_upload: false
+    inherits_from: "google_slides"
+    notes:
+      - "Same Google Fonts access as Slides. Use identical by_category mapping."
+    caveats:
+      - "Default styles sometimes override pasted font on paragraph breaks."
+
+  figma:
+    font_library: "Google Fonts (pre-installed) + local OS fonts + uploaded team fonts"
+    custom_font_upload: true
+    custom_font_upload_notes: "Team admins upload .TTF/.OTF to team/org; requires Figma font helper for desktop browser use"
+    notes:
+      - "Figma is the least-constrained platform for typography. Use brand primaries when uploaded."
+      - "If the primary is not uploaded to the team, fall back to Google Fonts (natively available) before system fonts."
+    by_category:
+      geometric-sans-light:
+        - { family: "Jost",         weights: [100,200,300,400,500,600,700,800,900], rationale: "Google Fonts; true 300 variable" }
+        - { family: "Manrope",      weights: [200,300,400,500,600,700,800],         rationale: "Google Fonts; geometric with 300" }
+        - { family: "Nunito Sans",  weights: [200,300,400,600,700,800,900],         rationale: "Google Fonts; rounded geometric" }
+      humanist-sans:
+        - { family: "Inter",        weights: [100,200,300,400,500,600,700,800,900], rationale: "Google Fonts; canonical UI humanist" }
+        - { family: "Source Sans 3",weights: [200,300,400,500,600,700,800,900],     rationale: "Google Fonts; open-source humanist" }
+        - { family: "IBM Plex Sans",weights: [100,200,300,400,500,600,700],         rationale: "Google Fonts; technical humanist" }
+      neo-grotesque:
+        - { family: "Inter Tight",  weights: [100,200,300,400,500,600,700,800,900], rationale: "Google Fonts; tighter neo-grotesque" }
+      humanist-serif:
+        - { family: "Source Serif 4", weights: [200,300,400,500,600,700,800,900], rationale: "Google Fonts; humanist serif variable" }
+        - { family: "Lora",          weights: [400,500,600,700],                  rationale: "Google Fonts; calligraphic humanist serif" }
+      modern-serif:
+        - { family: "Playfair Display", weights: [400,500,600,700,800,900], rationale: "Google Fonts; popular Didone" }
+      display-serif:
+        - { family: "Fraunces", weights: [100,200,300,400,500,600,700,800,900], rationale: "Google Fonts; wonk+opsz variable" }
+        - { family: "DM Serif Display", weights: [400], rationale: "Google Fonts; condensed Didone" }
+      display-sans:
+        - { family: "Bebas Neue", weights: [400], rationale: "Google Fonts; condensed display" }
+        - { family: "Antonio",    weights: [100,200,300,400,500,600,700], rationale: "Google Fonts; condensed geometric display" }
+      slab-serif:
+        - { family: "Roboto Slab", weights: [100,200,300,400,500,600,700,800,900], rationale: "Google Fonts" }
+      mono-humanist:
+        - { family: "JetBrains Mono", weights: [100,200,300,400,500,600,700,800], rationale: "Google Fonts; open-source dev mono" }
+        - { family: "IBM Plex Mono",  weights: [100,200,300,400,500,600,700],     rationale: "Google Fonts; humanist mono" }
+      mono-geometric:
+        - { family: "Space Mono",    weights: [400,700], rationale: "Google Fonts; retro geometric mono" }
+        - { family: "Roboto Mono",   weights: [100,200,300,400,500,600,700], rationale: "Google Fonts; Roboto-family mono" }
+    caveats:
+      - "Custom fonts require admin upload at team/org level (not individual)."
+      - "Chromebook/Linux users need org-level upload, not local install."
+    color_slots:
+      count: "unlimited"
+      structure: "Design tokens via variables; no slot constraint"
+
+  pitch:
+    font_library: "Curated Pitch font set (default) + custom fonts on paid plans"
+    custom_font_upload: "paid plans only (Pro+); free plan cannot upload"
+    notes:
+      - "Free plan is limited to Pitch's built-in font set (exact inventory not publicly documented — verify in-app)."
+      - "Custom upload requires Pro or higher. Upload .ttf/.otf via Library > Fonts."
+      - "Library is workspace-scoped: uploaded fonts appear for all team members."
+    by_category:
+      geometric-sans-light:
+        - { family: "Jost",    weights: [300,400,500,700], rationale: "If present in Pitch library", verify: true }
+        - { family: "Manrope", weights: [300,400,500,700], rationale: "Usually present", verify: true }
+      humanist-sans:
+        - { family: "Inter",        weights: [300,400,500,600,700], rationale: "Pitch's default UI font" }
+        - { family: "IBM Plex Sans",weights: [300,400,500,600,700], rationale: "Common in Pitch library", verify: true }
+      neo-grotesque:
+        - { family: "Arial", weights: [400,700], rationale: "Web-safe fallback" }
+      humanist-serif:
+        - { family: "Merriweather", weights: [300,400,700], rationale: "Typically available", verify: true }
+        - { family: "Lora",         weights: [400,500,700], rationale: "Typically available", verify: true }
+      modern-serif:
+        - { family: "Playfair Display", weights: [400,700,900], rationale: "Typically available", verify: true }
+      mono-humanist:
+        - { family: "JetBrains Mono", weights: [400,700], rationale: "Typically available", verify: true }
+    caveats:
+      - "Free-plan font list is narrower than Pro; exact inventory not publicly documented — verify in-app."
+      - "If brand primary is foundry-licensed (e.g., Satoshi), Pro plan + upload required."
+      - "HEX mode more reliable than palette picker for color-slot assignment."
+      - "Set alpha LAST when applying color to objects; altering it before fill can reset hex."
+    color_slots:
+      count: 4
+      structure: "slot1 background, slot2 primary text/anchor, slot3 accent, slot4 chart wash"
+      role_mapping_defaults:
+        primary_text: "slot2"
+        background: "slot1"
+        primary_brand: "slot3"
+        chart_wash: "slot4"
+
+  keynote:
+    font_library: "macOS system fonts + user-installed fonts via Font Book"
+    custom_font_upload: "install via Font Book; no embed in .key file"
+    notes:
+      - "Keynote does NOT embed fonts in the .key document. Anyone opening the file on another machine must have the font installed, or Keynote substitutes."
+      - "Workaround: export to .pptx (PowerPoint embeds fonts) or PDF (fonts rasterized)."
+    by_category:
+      geometric-sans-light:
+        - { family: "Avenir Next",    weights: ["UltraLight","Light","Regular","Medium","DemiBold","Bold","Heavy"], rationale: "Preinstalled macOS; geometric with true Light/UltraLight" }
+        - { family: "Futura",         weights: ["Light","Medium","Bold"], rationale: "Preinstalled macOS; classic geometric" }
+      humanist-sans:
+        - { family: "SF Pro",         weights: ["UltraLight","Thin","Light","Regular","Medium","Semibold","Bold","Heavy","Black"], rationale: "Apple system font; humanist-geometric hybrid" }
+        - { family: "Helvetica Neue", weights: ["UltraLight","Thin","Light","Regular","Medium","Bold","Heavy","Black"], rationale: "Preinstalled; neo-grotesque/humanist hybrid" }
+      neo-grotesque:
+        - { family: "Helvetica",      weights: ["Regular","Bold"], rationale: "Preinstalled; canonical neo-grotesque" }
+        - { family: "Helvetica Neue", weights: ["Light","Regular","Medium","Bold"], rationale: "Preinstalled" }
+      humanist-serif:
+        - { family: "Hoefler Text",   weights: ["Regular","Italic","Black"], rationale: "Preinstalled; humanist serif" }
+        - { family: "Palatino",       weights: ["Regular","Italic","Bold"], rationale: "Preinstalled" }
+      modern-serif:
+        - { family: "Didot",          weights: ["Regular","Italic","Bold"], rationale: "Preinstalled Didone on macOS" }
+        - { family: "Bodoni 72",      weights: ["Book","Bold","BookItalic"], rationale: "Preinstalled" }
+      display-serif:
+        - { family: "Baskerville",    weights: ["Regular","Italic","SemiBold","Bold"], rationale: "Preinstalled; transitional serif with character" }
+      display-sans:
+        - { family: "Impact",         weights: ["Regular"], rationale: "Preinstalled display" }
+      slab-serif:
+        - { family: "Rockwell",       weights: ["Regular","Bold"], rationale: "Typically preinstalled with Office; not default macOS", verify: true }
+      mono-humanist:
+        - { family: "SF Mono",        weights: ["Regular","Medium","Semibold","Bold"], rationale: "Apple system mono" }
+        - { family: "Menlo",          weights: ["Regular","Bold","Italic"], rationale: "Preinstalled default mono" }
+      mono-geometric:
+        - { family: "Courier New",    weights: ["Regular","Bold"], rationale: "Preinstalled" }
+    caveats:
+      - "No font embedding; recipients need fonts installed or Keynote substitutes."
+      - "Export to .pptx if cross-machine fidelity is required."
+    color_slots:
+      count: "unlimited"
+      structure: "Theme colors (6 slots) + custom"
+
+  powerpoint_365:
+    font_library: "OS fonts + Microsoft Cloud Fonts (700+ families)"
+    custom_font_upload: "install system-side (TTF/OTF); PowerPoint can embed in .pptx (File > Options > Save > Embed fonts)"
+    notes:
+      - "Cloud fonts auto-download on first use; available to all M365 subscribers on Windows + Mac."
+      - "Cloud font list grows; always verify against Microsoft's published list."
+    by_category:
+      geometric-sans-light:
+        - { family: "Bahnschrift",  weights: [100,200,300,400,500,600,700,800], rationale: "Variable geometric-ish sans, Windows 10+" }
+        - { family: "Grandview",    weights: [400,700], rationale: "M365 cloud font" }
+      humanist-sans:
+        - { family: "Aptos",        weights: [300,400,500,600,700], rationale: "New M365 default as of 2023 (replaces Calibri)" }
+        - { family: "Aptos Display",weights: [400,700], rationale: "M365 headline variant" }
+        - { family: "Calibri",      weights: [300,400,700], rationale: "Legacy default; still shipped" }
+        - { family: "Corbel",       weights: [400,700], rationale: "M365 humanist sans" }
+      neo-grotesque:
+        - { family: "Arial",        weights: [400,700,900], rationale: "Core web-safe" }
+        - { family: "Helvetica",    weights: [400,700], rationale: "Core (Mac side)" }
+      humanist-serif:
+        - { family: "Cambria",      weights: [400,700], rationale: "M365 humanist serif" }
+        - { family: "Aptos Serif",  weights: [400,700], rationale: "M365 cloud font" }
+      modern-serif:
+        - { family: "Georgia",      weights: [400,700], rationale: "Web-safe; more traditional than Didone" }
+      display-serif:
+        - { family: "Playfair Display", weights: [400,700,900], rationale: "Available as cloud font", verify: true }
+      slab-serif:
+        - { family: "Rockwell",     weights: [400,700], rationale: "Core Office font" }
+        - { family: "Aptos Slab",   weights: [400,700], rationale: "M365 cloud font" }
+      mono-humanist:
+        - { family: "Consolas",     weights: [400,700], rationale: "Windows mono" }
+        - { family: "Aptos Mono",   weights: [400,700], rationale: "M365 cloud font" }
+      mono-geometric:
+        - { family: "Courier New",  weights: [400,700], rationale: "Web-safe" }
+    caveats:
+      - "Embedded fonts only work on Windows PowerPoint 2016+; older Mac versions ignore."
+      - "Recipient must have same M365 subscription tier to see cloud fonts, else substitution."
+    color_slots:
+      count: 10
+      structure: "Theme colors: Text/Bg Dark 1, Light 1, Dark 2, Light 2, Accent 1–6"
+      role_mapping_defaults:
+        primary_text: "Dark 1"
+        background: "Light 1"
+        anchor: "Dark 2"
+        primary_brand: "Accent 1"
+
+  canva_free:
+    font_library: "Canva's built-in font set (hundreds of Google Fonts + licensed fonts)"
+    custom_font_upload: false
+    notes:
+      - "Free plan CANNOT upload custom fonts (Pro/Teams/Edu only)."
+      - "Free users limited to 1 basic Brand Kit with 3 palette colors; no brand-font setting."
+    by_category:
+      geometric-sans-light:
+        - { family: "Montserrat", weights: [100,200,300,400,500,600,700,800,900], rationale: "True 300 available; geometric; canonical Canva font" }
+        - { family: "Poppins",    weights: [100,200,300,400,500,600,700,800,900], rationale: "True 300 available; geometric; canonical Canva font" }
+        - { family: "Raleway",    weights: [100,200,300,400,500,600,700,800,900], rationale: "True 300; geometric display-leaning" }
+      humanist-sans:
+        - { family: "Open Sans",  weights: [300,400,500,600,700,800], rationale: "Canonical Canva body font" }
+        - { family: "Lato",       weights: [100,300,400,700,900], rationale: "Humanist warmth" }
+        - { family: "Work Sans",  weights: [100,200,300,400,500,600,700,800,900], rationale: "Humanist workhorse" }
+      neo-grotesque:
+        - { family: "Arial",      weights: [400,700], rationale: "Web-safe" }
+      humanist-serif:
+        - { family: "Lora",       weights: [400,500,600,700], rationale: "Popular Canva serif" }
+        - { family: "Merriweather", weights: [300,400,700,900], rationale: "Popular Canva serif" }
+      modern-serif:
+        - { family: "Playfair Display", weights: [400,500,600,700,800,900], rationale: "Canva's go-to Didone" }
+      display-serif:
+        - { family: "DM Serif Display", weights: [400], rationale: "Condensed Didone" }
+      mono-geometric:
+        - { family: "Roboto Mono",weights: [100,300,400,500,700], rationale: "Roboto-family mono; classified mono-geometric per taxonomy" }
+    caveats:
+      - "Free-plan users cannot set brand fonts in Brand Kit."
+      - "Font list is stable but Canva rotates in new families periodically."
+
+  canva_pro:
+    font_library: "Canva built-in set + custom TTF/OTF/WOFF upload (up to 500 per Brand Kit)"
+    custom_font_upload: true
+    inherits_from: "canva_free"
+    notes:
+      - "Upload Fontshare (Satoshi) or foundry-licensed fonts via Brand Kit."
+      - "Brand fonts auto-appear in the editor for team members."
+    caveats:
+      - "Multi-file upload: upload all weights of a family in one action."
+
+  notion:
+    font_library: "3 fixed fonts: Default (Inter), Serif (Lyon), Mono (iA Writer Mono)"
+    custom_font_upload: false
+    notes:
+      - "Page-level only — set per page via ••• > Font."
+      - "No way to override the global default; no custom fonts."
+    by_category:
+      humanist-sans:
+        - { family: "Inter", weights: [400,500,600,700], rationale: "Notion's Default" }
+      humanist-serif:
+        - { family: "Lyon",  weights: [400,600,700], rationale: "Notion's Serif (Commercial Type)" }
+      mono-humanist:
+        - { family: "iA Writer Mono", weights: [400,700], rationale: "Notion's Mono" }
+    caveats:
+      - "Constraint is fundamental; document in brand guide rather than fight it."
+      - "For brand-matching, rely on color accents + logo placement, not typography."
+    color_slots:
+      count: 9
+      structure: "Fixed palette: default + 8 colors (gray, brown, orange, yellow, green, blue, purple, pink, red) + background variants"
+
+  email_html:
+    font_library: "Web-safe fonts only (reliable cross-client)"
+    custom_font_upload: false
+    notes:
+      - "Gmail strips @font-face except Roboto/Google Sans (Google's own)."
+      - "Apple Mail supports @font-face. Outlook desktop renders fallbacks."
+      - "Always write a font-family stack ending in web-safe + system fallback."
+    by_category:
+      geometric-sans-light:
+        - { family: "Arial", weights: [400,700], rationale: "No web-safe geometric; neo-grotesque fallback" }
+      humanist-sans:
+        - { family: "Verdana",      weights: [400,700], rationale: "Web-safe humanist; high legibility" }
+        - { family: "Trebuchet MS", weights: [400,700], rationale: "Web-safe humanist" }
+      neo-grotesque:
+        - { family: "Arial",     weights: [400,700], rationale: "Universal web-safe" }
+        - { family: "Helvetica", weights: [400,700], rationale: "Mac-side" }
+      humanist-serif:
+        - { family: "Georgia", weights: [400,700], rationale: "Web-safe humanist serif" }
+      modern-serif:
+        - { family: "Times New Roman", weights: [400,700], rationale: "Web-safe but traditional, not Didone" }
+      mono-geometric:
+        - { family: "Courier New", weights: [400,700], rationale: "Web-safe mono" }
+    caveats:
+      - "Never assume a custom font renders; always provide a web-safe fallback."
+      - "Gmail mobile ignores all @font-face declarations."

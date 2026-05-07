@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ brand_name }} — Color Accent Test</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: #F8F8F8;
+      color: #1A1A1A;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #666; margin-bottom: 2rem; font-size: 0.95rem; }
+    .generated { font-size: 0.75rem; color: #999; margin-bottom: 2rem; }
+
+    .accent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .accent-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #E8E8E8;
+    }
+
+    .accent-header {
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .accent-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+
+    .accent-name {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .accent-hex {
+      font-size: 0.8rem;
+      font-family: monospace;
+      color: #777;
+    }
+
+    /* ─── Base Palette Context ─── */
+    .base-palette {
+      display: flex;
+      height: 8px;
+    }
+
+    .base-palette .bp-swatch { flex: 1; }
+
+    /* ─── Mock UI Mockups ─── */
+    .mock-section {
+      padding: 1.25rem;
+    }
+
+    .mock-section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #999;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Buttons */
+    .mock-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .mock-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+    }
+
+    /* Badge / tag */
+    .mock-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Card with accent border */
+    .mock-accent-card {
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid;
+      background: #FAFAFA;
+      margin-bottom: 0.75rem;
+    }
+
+    .mock-accent-card h4 {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .mock-accent-card p {
+      font-size: 0.8rem;
+      color: #555;
+    }
+
+    /* Link text */
+    .mock-link {
+      font-size: 0.85rem;
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    /* Progress / indicator */
+    .mock-progress-bg {
+      height: 6px;
+      border-radius: 3px;
+      background: #E8E8E8;
+      margin-top: 0.5rem;
+    }
+
+    .mock-progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 65%;
+    }
+
+    /* Nav active indicator */
+    .mock-nav-bar {
+      display: flex;
+      gap: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #EEE;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .mock-nav-bar span {
+      color: #999;
+      padding-bottom: 0.5rem;
+    }
+
+    .mock-nav-bar span.active {
+      font-weight: 700;
+      border-bottom: 2px solid;
+      margin-bottom: -2px;
+    }
+
+    /* ─── Reaction ─── */
+    .reaction {
+      padding: 1.25rem;
+      border-top: 1px solid #EEE;
+      background: #FAFAFA;
+    }
+
+    .reaction-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .reaction-options {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .reaction-options span {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid #DDD;
+      cursor: default;
+      background: white;
+    }
+
+    .instructions {
+      background: white;
+      border: 1px solid #E0E0E0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .instructions h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .instructions p { font-size: 0.9rem; color: #555; margin-bottom: 0.25rem; }
+
+    /* ─── Base Palette Display ─── */
+    .base-palette-display {
+      background: white;
+      border: 1px solid #E0E0E0;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .base-palette-display h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .base-swatches {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .base-swatch-item {
+      text-align: center;
+    }
+
+    .base-swatch-block {
+      width: 64px;
+      height: 48px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.08);
+      margin-bottom: 0.25rem;
+    }
+
+    .base-swatch-label {
+      font-size: 0.65rem;
+      color: #999;
+      font-family: monospace;
+    }
+
+    .base-swatch-role {
+      font-size: 0.7rem;
+      color: #555;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>{{ brand_name }} — Color Accent Test</h1>
+  <p class="subtitle">Your base palette is set. Now: which accent color gives it the right energy?</p>
+  <p class="generated">Generated during discovery for {{ participant_name }} &middot; {{ timestamp }}</p>
+
+  <div class="instructions">
+    <h2>How to use this</h2>
+    <p>The base palette (background, primary, anchor) is locked. Each card below shows a different <strong>accent color</strong> applied to real UI patterns.</p>
+    <p>&bull; Which accent makes buttons feel <strong>clickable</strong>?</p>
+    <p>&bull; Which accent draws your eye <strong>without screaming</strong>?</p>
+    <p>&bull; Which accent feels like it <strong>belongs</strong> with the base palette?</p>
+  </div>
+
+  <div class="base-palette-display">
+    <h3>Base Palette (locked)</h3>
+    <div class="base-swatches">
+      <div class="base-swatch-item">
+        <div class="base-swatch-block" style="background: {{ background_color }};"></div>
+        <div class="base-swatch-role">Background</div>
+        <div class="base-swatch-label">{{ background_color }}</div>
+      </div>
+      <div class="base-swatch-item">
+        <div class="base-swatch-block" style="background: {{ primary_color }};"></div>
+        <div class="base-swatch-role">Primary</div>
+        <div class="base-swatch-label">{{ primary_color }}</div>
+      </div>
+      <div class="base-swatch-item">
+        <div class="base-swatch-block" style="background: {{ anchor_color }};"></div>
+        <div class="base-swatch-role">Anchor</div>
+        <div class="base-swatch-label">{{ anchor_color }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="accent-grid">
+
+    <!-- ─── ACCENT CARD (repeat for each candidate) ─── -->
+    <div class="accent-card">
+      <div class="accent-header">
+        <div class="accent-swatch" style="background: {{ accent_color }};"></div>
+        <div>
+          <div class="accent-name">{{ accent_name }}</div>
+          <div class="accent-hex">{{ accent_color }}</div>
+        </div>
+      </div>
+
+      <div class="base-palette">
+        <div class="bp-swatch" style="background: {{ background_color }};"></div>
+        <div class="bp-swatch" style="background: {{ primary_color }};"></div>
+        <div class="bp-swatch" style="background: {{ anchor_color }};"></div>
+        <div class="bp-swatch" style="background: {{ accent_color }};"></div>
+      </div>
+
+      <div class="mock-section">
+        <div class="mock-section-label">Buttons</div>
+        <div class="mock-buttons">
+          <span class="mock-btn" style="background: {{ accent_color }}; color: white;">Get Started</span>
+          <span class="mock-btn" style="background: transparent; color: {{ accent_color }}; border: 1.5px solid {{ accent_color }};">Learn More</span>
+        </div>
+
+        <div class="mock-section-label">Tags & Badges</div>
+        <div style="margin-bottom: 1rem;">
+          <span class="mock-badge" style="background: {{ accent_color }}22; color: {{ accent_color }};">Featured</span>
+          <span class="mock-badge" style="background: {{ accent_color }}22; color: {{ accent_color }};">New</span>
+        </div>
+
+        <div class="mock-section-label">Cards with accent</div>
+        <div class="mock-accent-card" style="border-color: {{ accent_color }};">
+          <h4>Something important</h4>
+          <p>This card uses the accent as a left-border highlight to draw attention.</p>
+        </div>
+
+        <div class="mock-section-label">Links</div>
+        <div style="margin-bottom: 1rem;">
+          <span class="mock-link" style="color: {{ accent_color }};">View documentation &rarr;</span>
+        </div>
+
+        <div class="mock-section-label">Progress</div>
+        <div class="mock-progress-bg">
+          <div class="mock-progress-fill" style="background: {{ accent_color }};"></div>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <div class="mock-section-label">Navigation active state</div>
+          <div class="mock-nav-bar">
+            <span class="active" style="color: {{ accent_color }}; border-color: {{ accent_color }};">Dashboard</span>
+            <span>Projects</span>
+            <span>Settings</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reaction">
+        <div class="reaction-label">Your reaction:</div>
+        <div class="reaction-options">
+          <span>Resonates</span>
+          <span>Neutral</span>
+          <span>Wrong</span>
+        </div>
+      </div>
+    </div>
+    <!-- ─── END ACCENT CARD ─── -->
+
+  </div>
+
+  <p style="font-size: 0.75rem; color: #999; text-align: center; margin-top: 2rem;">
+    Generated by expert-design-n-brand &middot; Color Accent Checkpoint
+  </p>
+
+</body>
+</html>

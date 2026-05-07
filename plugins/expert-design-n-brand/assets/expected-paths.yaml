@@ -1,0 +1,144 @@
+# Expected Paths — Hard-Fail Floor Schema for brand-export
+#
+# This is the minimum structural contract a brand-identity.yaml must satisfy
+# before /brand-export will render artifacts. Paths listed here are REQUIRED
+# — their absence is a hard-fail (export aborts with a clear message naming
+# the missing path). Paths not listed here are optional: their presence drives
+# which sections render, their absence soft-skips those sections.
+#
+# Two floors:
+#   - discovery_floor: every participant must minimally cover this shape
+#   - system_floor:   the output of /brand-build must minimally have this
+#
+# Paths use dot notation. `*` is a literal key wildcard; `[]` means
+# "at least one element required". A top-level `any_of` group means the
+# floor is satisfied by the presence of any ONE of the listed paths.
+
+discovery_floor:
+  per_participant:
+    # Identity & attribution
+    - status                                # must exist, even as "in_progress"
+    - techniques_used[]                     # at least one technique recorded
+
+    # One technique per dimension (enforces "floor" by presence, not by
+    # specific technique — either elevator_pitch OR butterfly satisfies
+    # positioning, etc. Registry tags techniques with required_for_floor: true
+    # where they are *canonically* floor-eligible.)
+    - positioning.*                         # any subpath
+    - personality.*
+    - visual.*
+    - voice.*
+
+system_floor:
+  # These are non-negotiable — a design system without them is not a
+  # design system. brand-export must refuse to render if any are missing.
+  - meta.brand_name
+  - system.principles[]                     # at least one principle
+  - system.typography.typefaces[]           # at least one typeface
+  - system.voice                            # object must exist (contents optional)
+
+  # Palette floor — any ONE of these carries the required hexes.
+  # brand-build is expected to normalize legacy/loose shapes into
+  # canonical `system.color.palette.core[]`, but brand-export will
+  # attempt in-line normalization before hard-failing. Only if NO
+  # palette data exists in any recognized shape does this fail.
+  - any_of:
+      paths:
+        - system.color.palette.core[]       # canonical — brand-build's output shape (roles: background / primary / neutral / accent / ...)
+        - system.color.palette.*            # legacy 4-role object (background/primary/anchor/accent — anchor auto-normalizes to neutral)
+        - system.color.anchors[]            # flat named-anchor list (legacy shape)
+      satisfied_if: at_least_one_present
+      on_normalize:
+        priority: canonical_first           # use core[] if present, else normalize others
+        produces: system.color.palette.core[]
+        role_renames:
+          - { from: anchor, to: neutral }   # legacy role-name normalization
+
+# ─── OPTIONAL BUT RECOGNIZED ───────────────────────────────────────────
+# These paths are NOT required but ARE recognized by the renderer. If
+# present, they drive OPTIONAL sections in Artifact A. Missing = soft-skip.
+# Listing them here prevents the renderer from treating them as unknown
+# extension data that gets silently dropped.
+
+recognized_optional:
+  palette_layers:
+    # Beyond core[] — these unlock additional stacked subsections in
+    # the Color section of design-system.html.
+    - system.color.palette.expressions[]    # multi-modal flourish systems
+    - system.color.palette.anchors[]        # named anchor set (distinct from core)
+    - system.color.palette.scales[]         # hue-named scales (teal/flame/prismatic)
+    - system.color.palette.gradients[]      # named gradients with stops
+
+    # Legacy shadow paths — brand-build should normalize into palette.*,
+    # but brand-export also reads these directly if present.
+    - system.color.anchors                  # flat list; may be dict of name→hex
+    - system.color.scales                   # dict of family→[10 hex_steps]
+    - system.color.flourish_system          # dict of expression_name→{anchors, range, when}
+    - system.color.gradients                # list of named gradients
+
+  form_language:
+    - system.form_language.motifs[]         # named visual motifs (The Flourish, etc.)
+    - system.form_language.texture          # texture/material description block
+    - system.form_language.form_character   # one-line form summary
+
+  typography:
+    - system.typography.sample_text         # brand-relevant sample text per step
+    - system.typography.scale_name          # e.g. "Major Third"
+
+  quality:
+    - system.quality.rand_seven             # scored 7 criteria
+    - system.quality.coherence_score        # 0–30
+    - system.quality.coherence_notes
+    - synthesis.quality_assessment          # alt path some YAMLs use
+    - system.coherence_assessment           # alt path
+
+  principles_detail:
+    - system.principles[].rationale_short   # italic one-liner
+    - system.principles[].rationale         # full rationale
+
+# ─── VALIDATION BEHAVIOR ───────────────────────────────────────────────
+behavior:
+  on_missing_floor:
+    action: hard_fail
+    message_template: |
+      /brand-export aborted. The following required path is missing from
+      brand-identity.yaml:
+          {missing_path}
+      This path is part of the {floor_name} floor. Run /brand-build to
+      populate it, or /brand-discover to capture missing discovery data.
+
+  on_missing_floor_any_of:
+    action: hard_fail
+    message_template: |
+      /brand-export aborted. No palette data found in any recognized shape.
+      One of the following must be present in brand-identity.yaml:
+        - system.color.palette.core[]
+        - system.color.palette.{background,primary,anchor,accent}
+        - system.color.anchors[]
+      Run /brand-build to populate the canonical palette shape, or
+      /brand-discover to capture palette preferences.
+
+  on_missing_optional:
+    action: soft_skip
+    note: |
+      Section rendering is soft-skipped. Per-section method chips still
+      display the technique as "—" so the reader knows the omission was
+      explicit, not a template bug.
+
+  on_malformed_present:
+    action: warn_and_literal
+    note: |
+      If a driving technique's YAML paths are declared but malformed
+      (e.g. expected list, got scalar), render the section literally with
+      a visible `⚠` warning and include the malformed excerpt in the
+      verification report. Do not silently drop.
+
+  on_legacy_palette_shape:
+    action: normalize_then_render
+    note: |
+      When `system.color.palette` is a 4-role object instead of `palette.core[]`,
+      OR when `system.color.anchors` exists but `palette.core[]` doesn't,
+      brand-export reshapes the data into `palette.core[]` for rendering.
+      The source YAML is not modified — the normalization is in-memory only,
+      so `brand-build` remains the canonical normalizer. Report as INFO (not WARN)
+      in the verification report.

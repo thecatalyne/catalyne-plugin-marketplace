@@ -1,0 +1,191 @@
+# brand.md extensions — machine-enforceable rules the brand.md spec doesn't cover.
+# Consumed alongside brand.md by LLMs and automated brand-validation tools.
+#
+# This file is a supplemental sibling to brand.md, not part of the brand.md
+# v0.2.0 spec itself. The brand.md spec cascades by filesystem hierarchy
+# (parent-directory → child-directory); `sibling_of:` below is a plugin-local
+# pointer to the brand.md in the same directory, not a spec-defined cascade key.
+
+sibling_of: "./brand.md"
+
+meta:
+  brand: "{{ brand_name }}"
+  version: "{{ version_string }}"
+  generated: "{{ generated_date }}"
+  plugin_version: "{{ plugin_version }}"
+
+# --- VOCABULARY -----------------------------------------------------
+# Structured banned vocab with required replacement + reason on every entry.
+vocabulary:
+  banned:
+{{ banned_vocab_entries }}
+  preferred:
+{{ preferred_vocab_list }}
+
+# --- AAKER PERSONALITY DIMENSIONS -----------------------------------
+# Omit entirely if the Aaker technique wasn't run. Never zero-fill.
+aaker:
+  sincerity: {{ aaker_sincerity }}
+  excitement: {{ aaker_excitement }}
+  competence: {{ aaker_competence }}
+  sophistication: {{ aaker_sophistication }}
+  ruggedness: {{ aaker_ruggedness }}
+
+# --- VOICE CALIBRATION ----------------------------------------------
+voice:
+  formality:
+    home: {{ formality_home }}
+    range: [{{ formality_range_min }}, {{ formality_range_max }}]
+    scale_max: {{ formality_scale_max }}
+  inverse_length_principle: "{{ inverse_length_rule }}"
+  specificity_test:
+    rule: "Never use a word as decoration — every word must add specificity and meaning."
+    test_question: "Does this word add specificity, or is it just performing?"
+    examples:
+{{ specificity_test_examples }}
+
+# --- TONE MATRIX ----------------------------------------------------
+# Audience emotional state → register / posture / example copy
+tone_matrix:
+{{ tone_matrix_entries }}
+
+# --- OUTPUT CONSTRAINTS ---------------------------------------------
+# Machine-enforceable per-slot rules for copy generation
+output_constraints:
+  headline:
+    max_words: {{ headline_max_words }}
+    no_trailing_period: true
+    no_exclamations: {{ headline_no_exclamations }}
+    case: "{{ headline_case }}"
+  subheadline:
+    max_words: {{ subheadline_max_words }}
+    complete_sentence: true
+  body_paragraph:
+    max_sentences: {{ body_max_sentences }}
+  bullets:
+    count_range: [{{ bullets_min }}, {{ bullets_max }}]
+    max_words_per_bullet: {{ bullet_max_words }}
+    parallel_grammar: true
+  cta:
+    max_words: {{ cta_max_words }}
+    verb_first: true
+    banned_patterns: {{ cta_banned_patterns }}
+    preferred_patterns: {{ cta_preferred_patterns }}
+  legal_claims:
+    refusal_trigger: true
+    reason: "Brand does not make specific outcome guarantees unless explicitly approved."
+
+refusal_triggers:
+{{ refusal_triggers_list }}
+
+# --- CARD-SORT REFERENCE BANK ---------------------------------------
+# On-brand vs off-brand examples with rationale
+card_sort:
+{{ card_sort_entries }}
+
+# --- VISUAL LANGUAGE EXTENSIONS -------------------------------------
+# Structured rules beyond brand.md's Colors/Typography sections
+visual_language:
+  form_primitives:
+{{ form_primitives_list }}
+  forbidden_forms:
+{{ forbidden_forms_list }}
+  curvature_rationale: "{{ curvature_rationale }}"
+  composition_archetypes:
+{{ composition_archetypes_list }}
+  elevation_levels:
+{{ elevation_levels_list }}
+  translucency:
+    allowed: {{ translucency_allowed }}
+    reason: "{{ translucency_reason }}"
+  texture_material:
+    anchor_reference: "{{ texture_anchor }}"
+    adjectives: {{ texture_adjectives }}
+    digital_translation:
+      background: "{{ texture_bg_rule }}"
+      shadow_color: "{{ texture_shadow_rule }}"
+      gloss: "{{ gloss_policy }}"
+      gradient_texture_noise: "{{ gradient_noise_policy }}"
+    anti_patterns: {{ texture_anti_patterns }}
+  motion:
+    principles: {{ motion_principles }}
+    tokens:
+      ease_default: "{{ ease_default }}"
+      ease_flourish: "{{ ease_flourish }}"
+      duration_instant: "{{ duration_instant }}"
+      duration_fast: "{{ duration_fast }}"
+      duration_normal: "{{ duration_normal }}"
+      duration_slow: "{{ duration_slow }}"
+    reduced_motion_fallback: "{{ reduced_motion_rule }}"
+  gradients:
+    policy: "{{ gradient_policy }}"
+    rule: "{{ gradient_rule }}"
+    allowed_contexts: {{ gradient_allowed_contexts }}
+    forbidden_contexts: {{ gradient_forbidden_contexts }}
+  motif_library:
+{{ motif_library_entries }}
+  illustration:
+    shape_vocabulary: "{{ illustration_shape_vocab }}"
+    stroke_range_px: "{{ illustration_stroke }}"
+    perspective: "{{ illustration_perspective }}"
+    palette_constraint: "{{ illustration_palette }}"
+    emotion_inventory: {{ illustration_emotions }}
+    cultural_anchor: "{{ illustration_cultural_anchor }}"
+    forbidden_styles: {{ illustration_forbidden }}
+  photography:
+    subject_rules: {{ photo_subject_rules }}
+    lighting: "{{ photo_lighting }}"
+    crop: "{{ photo_crop }}"
+    post: "{{ photo_post }}"
+    reference_bank_url: "./photography-reference-grid.html"
+  spatial_3d:
+    policy: "{{ spatial_3d_policy }}"
+    if_added: "{{ spatial_3d_rules }}"
+
+# --- CULTURAL ANCHORS -----------------------------------------------
+# Every entry must name what property is anchored (no vapor anchors)
+cultural_anchors:
+{{ cultural_anchors_entries }}
+
+# --- PLATFORMS ------------------------------------------------------
+# Per-platform font chains, color profiles, export rules
+platforms:
+{{ platforms_list }}
+
+# --- REFERENCE + COUNTER BANKS --------------------------------------
+# LLM retrieval anchors for on-brand and off-brand examples
+reference_bank:
+  copy:
+{{ reference_bank_copy }}
+  visual:
+{{ reference_bank_visual }}
+
+counter_bank:
+  copy:
+{{ counter_bank_copy }}
+
+# --- GOVERNANCE -----------------------------------------------------
+governance:
+  owner:
+    name: "{{ owner_name }}"
+    email: "{{ owner_email }}"
+  version: "{{ version_semver }}"
+  semver_triggers:
+    major: "{{ semver_major_triggers }}"
+    minor: "{{ semver_minor_triggers }}"
+    patch: "{{ semver_patch_triggers }}"
+  deprecation_window_min_days: {{ deprecation_window_days }}
+  changelog_url: "./governance.md#changelog"
+  contribution_url: "./governance.md#contribution"
+
+# --- SELF-VALIDATION ------------------------------------------------
+# LLM pre-return checks — the LLM runs these before finalizing any
+# brand-generated copy or design
+self_validation:
+  required_keys_present: true
+  banned_vocab_absent: true
+  specificity_test_pass: true
+  formality_in_range: true
+  motif_count_per_section_leq_1: true
+  gradient_from_expressions_only: true
+  cultural_anchor_properties_named: true

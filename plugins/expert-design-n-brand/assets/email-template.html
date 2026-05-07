@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!-- TIER 1 AUTHOR NOTE — external reference.
+     This template renders to `email-template.html`, a paste-ready HTML email
+     scaffold that ships alongside the brand guidelines. Keep reader-visible
+     content in end-user language; no plugin-internal file names, build phases,
+     slash commands, or status vocabulary in the rendered output.
+
+     Self-contained; inline styles; tested across Gmail, Apple Mail, Outlook
+     desktop. Uses web-safe font stacks with the brand's character-appropriate
+     fallback. -->
+<html lang="{{ language }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>{{ brand_name }}</title>
+  <!--[if mso]>
+  <style>
+    table, td { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+  </style>
+  <![endif]-->
+</head>
+<body style="margin:0;padding:0;background-color:{{ role_bg_hex }};font-family:{{ email_body_font_stack }};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+
+  <!-- preheader -->
+  <div style="display:none;overflow:hidden;line-height:1;opacity:0;max-height:0;max-width:0;">
+    {{ preheader }}
+  </div>
+
+  <!-- wrapper -->
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:{{ role_bg_hex }};">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+
+        <!-- container -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;background-color:{{ role_surface_hex }};border-radius:{{ radius_card }};overflow:hidden;">
+
+          <!-- header: wordmark -->
+          <tr>
+            <td style="padding:24px 32px;border-bottom:1px solid {{ role_border_hex }};">
+              <div style="font-family:{{ email_heading_font_stack }};font-size:24px;font-weight:{{ heading_weight }};letter-spacing:-0.02em;color:{{ role_anchor_hex }};">
+                {{ brand_name }}
+              </div>
+            </td>
+          </tr>
+
+          <!-- hero -->
+          <tr>
+            <td style="padding:40px 32px 24px;">
+              <h1 style="margin:0 0 16px;font-family:{{ email_heading_font_stack }};font-size:28px;line-height:1.25;font-weight:{{ heading_weight }};letter-spacing:-0.01em;color:{{ role_primary_text_hex }};">
+                {{ email_headline }}
+              </h1>
+              <p style="margin:0;font-family:{{ email_body_font_stack }};font-size:16px;line-height:1.55;color:{{ role_primary_text_hex }};">
+                {{ email_body_paragraph }}
+              </p>
+            </td>
+          </tr>
+
+          <!-- CTA button -->
+          <tr>
+            <td align="left" style="padding:8px 32px 32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="background-color:{{ role_anchor_hex }};border-radius:{{ radius_interactive }};">
+                    <a href="{{ cta_url }}"
+                       style="display:inline-block;padding:14px 24px;font-family:{{ email_body_font_stack }};font-size:15px;font-weight:600;color:{{ role_inverse_text_hex }};text-decoration:none;letter-spacing:0.01em;">
+                      {{ cta_text }}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- secondary body -->
+          <tr>
+            <td style="padding:0 32px 24px;">
+              <p style="margin:0;font-family:{{ email_body_font_stack }};font-size:15px;line-height:1.55;color:{{ role_secondary_text_hex }};">
+                {{ email_secondary_paragraph }}
+              </p>
+            </td>
+          </tr>
+
+          <!-- divider -->
+          <tr>
+            <td style="padding:0 32px;">
+              <div style="border-top:1px solid {{ role_border_hex }};height:1px;line-height:1px;font-size:1px;">&nbsp;</div>
+            </td>
+          </tr>
+
+          <!-- footer -->
+          <tr>
+            <td style="padding:24px 32px 32px;">
+              <p style="margin:0 0 8px;font-family:{{ email_body_font_stack }};font-size:12px;line-height:1.5;color:{{ role_tertiary_text_hex }};">
+                {{ footer_brand_line }}
+              </p>
+              <p style="margin:0;font-family:{{ email_body_font_stack }};font-size:12px;line-height:1.5;color:{{ role_tertiary_text_hex }};">
+                <a href="{{ unsubscribe_url }}" style="color:{{ role_tertiary_text_hex }};text-decoration:underline;">Unsubscribe</a>
+                &nbsp;·&nbsp;
+                <a href="{{ preferences_url }}" style="color:{{ role_tertiary_text_hex }};text-decoration:underline;">Email preferences</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /container -->
+
+      </td>
+    </tr>
+  </table>
+  <!-- /wrapper -->
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "catalyne-plugin-marketplace",
+  "owner": {
+    "name": "Brennan Wilkerson",
+    "email": "brennan.gdwn.consulting@gmail.com"
+  },
+  "metadata": {
+    "description": "Catalyne's curated public marketplace of Claude Code plugins and skills. Each entry is independently shippable, MIT-licensed, and ready to install."
+  },
+  "plugins": [
+    {
+      "name": "expert-design-n-brand",
+      "source": "./plugins/expert-design-n-brand",
+      "version": "0.9.3",
+      "description": "Guides teams through structured brand identity discovery, multi-stakeholder synthesis, and design system generation. Produces a complete, tier-classified set of brand artifacts — canonical guidelines, tokens (W3C DTCG with industry-standard vocabulary), Tailwind config, Figma Tokens Studio import, a single consolidated cross-surface design map covering Slides/PowerPoint/Keynote/Canva, process record, and LLM-readable brand definition — from conversational elicitation.",
+      "author": {
+        "name": "Brennan Wilkerson",
+        "email": "brennan.gdwn.consulting@gmail.com"
+      },
+      "license": "MIT",
+      "keywords": ["brand", "design-system", "identity", "elicitation", "design-tokens", "brand-identity", "style-guide", "wcag", "archetypes", "dtcg-w3c", "tailwind", "figma", "cross-surface"]
+    }
+  ]
+}

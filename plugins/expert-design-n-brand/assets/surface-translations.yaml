@@ -1,0 +1,248 @@
+# surface-translations.yaml
+# ────────────────────────────────────────────────────────────────────
+# Single declarative source for cross-surface theme mapping.
+# Consumed by /brand-export.
+#
+# Two kinds of output:
+#   1. Machine artifacts — one file per surface (paste/import directly).
+#        web_css            → tokens.css
+#        tailwind_config    → tailwind.config.js
+#        figma_tokens_studio→ theme-figma.json
+#   2. Human-facing reference — ONE consolidated file for everything else.
+#        all `category: presentation` and `category: graphic` surfaces
+#        feed into the master tables AND per-platform sub-sections in platform-matrix.md.
+#
+# We do NOT render per-surface .md guides. The cross-surface map is the
+# single deliverable for designers / presenters / non-coders.
+#
+# Token-path syntax
+#   Anything wrapped in `{}` resolves against the canonical tokens.
+#   Example: `{semantic.light.color.text-primary}` → looks up the
+#   value in tokens.json. Final hex/value is substituted at render time.
+# ────────────────────────────────────────────────────────────────────
+
+source:
+  tokens:     tokens.json                   # canonical W3C DTCG token set
+  identity:   brand-identity.yaml           # brand-level identity for placeholders
+  extensions_namespace: "extensions"        # block in tokens.json that holds optional brand expression
+
+# ────────────────────────────────────────────────────────────────────
+# CONSOLIDATED HUMAN-FACING DELIVERABLE
+# ────────────────────────────────────────────────────────────────────
+# All `category: presentation` and `category: graphic` surfaces below
+# render into this single file (rows = tokens/components, columns =
+# surfaces). Web / Tailwind / Figma surfaces ALSO appear as columns
+# in the table for completeness, even though they have their own
+# machine artifacts.
+consolidated_map:
+  output: platform-matrix.md
+  template: platform-matrix-template.md
+  transform: platform-matrix
+  columns:                           # column order in the master tables
+    - web_css
+    - tailwind_config
+    - figma_tokens_studio
+    - google_slides
+    - powerpoint
+    - keynote
+    - canva
+
+# ────────────────────────────────────────────────────────────────────
+# DEFAULT SURFACES — slot mappings used by the consolidated map
+# ────────────────────────────────────────────────────────────────────
+
+surfaces:
+
+  # ─── WEB FRAMEWORKS (also produce their own machine artifacts) ───
+  - id: web_css
+    category: web
+    column_label: "CSS variable"
+    machine_output: tokens.css
+    transform: css-custom-properties
+    naming: kebab-case
+    prefix: "--"
+    notes: |
+      Universal CSS custom-property output. Every primitive, semantic,
+      and component token becomes a CSS variable. Both light and dark
+      semantic tokens emit; consumer toggles via prefers-color-scheme
+      or a [data-theme] attribute.
+    include_layers: [primitive, semantic, component, extensions]
+
+  - id: tailwind_config
+    category: web
+    column_label: "Tailwind class"
+    machine_output: tailwind.config.js
+    transform: tailwind-config
+    notes: |
+      Generates a Tailwind v4 theme config object. Maps:
+        primitive.color.scales.{family}.{step}  →  theme.colors.{family}.{step}
+        primitive.typography.fontSize.{label}   →  theme.fontSize.{label}
+        primitive.typography.fontFamily.{role}  →  theme.fontFamily.{role}
+        primitive.space.{step}                  →  theme.spacing.{step}
+        primitive.radius.{step}                 →  theme.borderRadius.{step}
+        primitive.shadow.{step}                 →  theme.boxShadow.{step}
+        primitive.borderWidth.{step}            →  theme.borderWidth.{step}
+        primitive.opacity.{step}                →  theme.opacity.{step}
+        primitive.zIndex.{slot}                 →  theme.zIndex.{slot}
+        primitive.breakpoint.{step}             →  theme.screens.{step}
+
+  # ─── DESIGN TOOL (also produces its own machine artifact) ────────
+  - id: figma_tokens_studio
+    category: design-tool
+    column_label: "Figma (TS)"
+    machine_output: theme-figma.json
+    transform: tokens-studio
+    notes: |
+      Tokens Studio JSON for Figma Variables import. Adds Tokens Studio
+      meta block on top of the canonical token set. Import via
+      Figma → Plugins → Tokens Studio → Tools → Load from JSON.
+    meta:
+      brand:     "{{ brand_name }}"
+      version:   "{{ version_semver }}"
+      generated: "{{ generated_date }}"
+    include_layers: [primitive, semantic, component]
+    skip_extensions: true     # Figma can't represent the extensions layer cleanly
+
+  # ─── PRESENTATIONS (no per-surface .md output — feed master table) ─
+  - id: google_slides
+    category: presentation
+    column_label: "Google Slides"
+    surface_type: slides
+    color_slots:    # 10 fixed Google Slides theme slots + Hyperlink/FollowedHyperlink
+      Dark1:             "{semantic.light.color.text-primary}"
+      Light1:            "{semantic.light.color.bg}"
+      Dark2:             "{semantic.light.color.text-secondary}"
+      Light2:            "{semantic.light.color.surface}"
+      Accent1:           "{primitive.color.palette.primary}"
+      Accent2:           "{primitive.color.palette.accent}"
+      Accent3:           "{primitive.color.scales.neutral.500}"
+      Accent4:           "{semantic.status.success}"
+      Accent5:           "{semantic.status.warning}"
+      Accent6:           "{semantic.status.error}"
+      Hyperlink:         "{semantic.light.color.link}"
+      FollowedHyperlink: "{primitive.color.scales.brand.800}"
+    text_styles:
+      Title:    "{primitive.typography.fontSize.h1}"
+      Heading:  "{primitive.typography.fontSize.h2}"
+      Body:     "{primitive.typography.fontSize.body}"
+      Caption:  "{primitive.typography.fontSize.caption}"
+    fonts:
+      heading: "{primitive.typography.fontFamily.heading}"
+      body:    "{primitive.typography.fontFamily.body}"
+    application_note: |
+      *Slide → Theme builder → Theme colors*. Paste hex into the slot
+      named in the column. Use HEX field directly — picker shifts hue
+      1–2 units. *Insert → More fonts* for heading + body family.
+    constraints:
+      paste_hex_literal: true
+      custom_fonts_per_doc: true
+
+  - id: powerpoint
+    category: presentation
+    column_label: "PowerPoint"
+    surface_type: slides
+    color_slots:    # 12-slot OOXML clrScheme (bg1/tx1/bg2/tx2/accent1-6/hlink/folHlink)
+      bg1:      "{semantic.light.color.bg}"
+      tx1:      "{semantic.light.color.text-primary}"
+      bg2:      "{semantic.light.color.surface}"
+      tx2:      "{semantic.light.color.text-secondary}"
+      accent1:  "{primitive.color.palette.primary}"
+      accent2:  "{primitive.color.palette.accent}"
+      accent3:  "{primitive.color.scales.neutral.500}"
+      accent4:  "{semantic.status.success}"
+      accent5:  "{semantic.status.warning}"
+      accent6:  "{semantic.status.error}"
+      hlink:    "{semantic.light.color.link}"
+      folHlink: "{primitive.color.scales.brand.800}"
+    text_styles:
+      title:    "{primitive.typography.fontSize.h1}"
+      heading1: "{primitive.typography.fontSize.h2}"
+      heading2: "{primitive.typography.fontSize.h3}"
+      body:     "{primitive.typography.fontSize.body}"
+      caption:  "{primitive.typography.fontSize.caption}"
+    fonts:
+      heading: "{primitive.typography.fontFamily.heading}"
+      body:    "{primitive.typography.fontFamily.body}"
+    application_note: |
+      *Design → Variants → Colors → Customize Colors*. Paste hexes into
+      the 12 slots. Save as "{{ brand_name }}". Embed fonts at save:
+      *File → Options → Save → Embed fonts in the file*.
+    constraints:
+      embed_fonts_on_save: "Required for cross-machine fidelity"
+
+  - id: keynote
+    category: presentation
+    column_label: "Keynote"
+    surface_type: slides
+    color_slots:    # 6-slot Keynote custom palette
+      slot_1_background: "{semantic.light.color.bg}"
+      slot_2_text:       "{semantic.light.color.text-primary}"
+      slot_3_primary:    "{primitive.color.palette.primary}"
+      slot_4_accent:     "{primitive.color.palette.accent}"
+      slot_5_neutral:    "{primitive.color.scales.neutral.500}"
+      slot_6_status:     "{semantic.status.success}"
+    paragraph_styles:
+      Title:       { font: heading, weight: bold,    size: "{primitive.typography.fontSize.h1}", color: "{semantic.light.color.text-primary}" }
+      Heading:     { font: heading, weight: bold,    size: "{primitive.typography.fontSize.h2}", color: "{semantic.light.color.text-primary}" }
+      Subheading:  { font: body,    weight: bold,    size: "{primitive.typography.fontSize.h3}", color: "{semantic.light.color.text-secondary}" }
+      Body:        { font: body,    weight: regular, size: "{primitive.typography.fontSize.body}", color: "{semantic.light.color.text-primary}" }
+      Caption:     { font: body,    weight: regular, size: "{primitive.typography.fontSize.small}", color: "{semantic.light.color.text-tertiary}" }
+    fonts:
+      heading: "{primitive.typography.fontFamily.heading}"
+      body:    "{primitive.typography.fontFamily.body}"
+    application_note: |
+      *Document inspector → Colors → Edit custom palette* for slot 1–6.
+      *View → Show Styles Drawer* to define paragraph styles. .key files
+      do NOT embed fonts; export to .pptx (with embed) or PDF for fidelity.
+    constraints:
+      font_embedding: "macOS-installed only"
+
+  # ─── NON-CODER GRAPHIC TOOL ──────────────────────────────────────
+  - id: canva
+    category: graphic
+    column_label: "Canva (Pro / Free)"
+    notes: |
+      Canva splits cleanly into two paths inside one column.
+    paths:
+      pro:
+        color_slots:
+          background: "{semantic.light.color.bg}"
+          text:       "{semantic.light.color.text-primary}"
+          primary:    "{primitive.color.palette.primary}"
+          accent:     "{primitive.color.palette.accent}"
+          neutral:    "{primitive.color.scales.neutral.500}"
+          success:    "{semantic.status.success}"
+          warning:    "{semantic.status.warning}"
+          error:      "{semantic.status.error}"
+        fonts:
+          upload: true
+          heading: "{primitive.typography.fontFamily.heading}"
+          body:    "{primitive.typography.fontFamily.body}"
+      free:
+        color_slots:    # Free plan brand kit limit: 3 colors
+          color_1: "{primitive.color.palette.primary}"
+          color_2: "{semantic.light.color.text-primary}"
+          color_3: "{primitive.color.palette.accent}"
+        fonts:
+          upload: false
+          fallback_chain_required: true
+          heading_chain: "{primitive.typography.fontFamily.heading}"
+          body_chain:    "{primitive.typography.fontFamily.body}"
+    application_note: |
+      *Pro*: Brand kit → Add new brand kit → "{{ brand_name }}". Paste
+      hexes; upload heading + body fonts. *Free*: 3-color limit and no
+      font upload — use library fallbacks matching the brand character.
+
+# ────────────────────────────────────────────────────────────────────
+# OPT-IN SURFACES (not in default render; uncomment to enable)
+# ────────────────────────────────────────────────────────────────────
+# To enable, move the block into `surfaces:` above. Adding a column
+# to the consolidated map adds it to the rendered table.
+#
+# - id: pitch                # declining usage; PowerPoint/Slides cover most needs
+# - id: ios_swiftui          # only for native-app brands
+# - id: android_compose      # only for native-app brands
+# - id: scss_variables       # declining; Tailwind covers same use case
+# - id: notion               # no real theme system; at most a style-guide page
+# - id: email_html           # specialty; inline-style requirements differ
+# - id: indesign_swatches    # print specialty

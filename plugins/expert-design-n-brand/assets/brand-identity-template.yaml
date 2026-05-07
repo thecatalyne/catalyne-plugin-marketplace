@@ -1,0 +1,296 @@
+# brand-identity.yaml — Single source of truth for brand identity
+#
+# This file is created by /brand-discover on first run.
+# Every write includes attribution (who) and timestamp (when).
+# All agents and commands read from and write to this file.
+#
+# Phase progression: discovery → synthesis → system → active
+# Commands check meta.phase before operating — e.g., /brand-build
+# requires synthesis to be complete.
+#
+# Canonical paths are declared here AND in assets/techniques-registry.yaml.
+# If you add a new technique or section, update both files.
+
+meta:
+  brand_name: ""
+  created: ""
+  last_modified: ""
+  team_members: []
+  phase: "discovery"  # discovery | synthesis | system | active
+
+# ─── DISCOVERY ──────────────────────────────────────────────
+# Per-person responses, keyed by name. Each person's section is
+# created dynamically when they first run /brand-discover.
+#
+# Structure per person:
+#
+#   {name}:
+#     status: "not_started"        # not_started | in_progress | complete
+#     last_session: ""             # ISO 8601 timestamp
+#     techniques_used: []          # slugs matching techniques-registry.yaml
+#
+#     positioning:
+#       elevator_pitch: ""
+#       landscape_grid:
+#         x_axis: ""               # e.g., "Traditional ↔ Innovative"
+#         y_axis: ""               # e.g., "Serious ↔ Playful"
+#         placement: [0.0, 0.0]    # normalized -1 to 1
+#         reasoning: ""
+#       admired_brands: []
+#       differentiator: ""
+#       butterfly:                 # Wolff Olins: what's special + what world needs
+#         special: ""
+#         world_needs: ""
+#       brand_eulogy: ""
+#       competitive_map: []        # [{name, x, y, notes}]
+#
+#     personality:
+#       method_used: ""            # first technique; techniques_used[] has the full list
+#       archetypes:
+#         primary: ""
+#         secondary: ""
+#         reasoning: ""
+#       keywords: []               # final distilled keywords (3–7)
+#       aaker_scores:              # only set if aaker-sliders was run; else omit
+#         sincerity: 0             # 1-10
+#         excitement: 0
+#         competence: 0
+#         sophistication: 0
+#         ruggedness: 0
+#       tension_spectrums: []      # optional extension technique:
+#         # - [{axis: "Warm Challenge ↔ Safe Harbor", score: 0, not_a_tension: false, note: ""}]
+#       metaphors: {}              # "if brand was a car/restaurant/song/celebrity"
+#       celebrity_cast: []         # [{celebrity, reasoning}]
+#       playlist: []               # [{song, artist, reasoning}]
+#
+#     visual:
+#       method_used: ""
+#       color_preferences:
+#         resonates: []            # [{palette_name, hex_values, reasoning}]
+#         rejects: []              # [{palette_name, hex_values, reasoning}]
+#         reasoning: ""
+#       typography_preferences:
+#         formality: ""            # formal | neutral | casual
+#         warmth: ""               # warm | neutral | cool
+#         pairings_liked: []       # [{name, heading_font, body_font, reasoning}]
+#         reasoning: ""
+#       form_language: ""          # geometric | organic | mixed
+#       mood_references: []        # described spaces/sites/apps that "feel right"
+#       anti_inspiration: []       # things they explicitly don't want
+#       texture_material: ""       # "brushed metal" / "worn leather" / etc.
+#
+#     voice:
+#       sample_tweet: ""
+#       sample_apology: ""
+#       sample_celebration: ""
+#       formality_score: 0         # integer on the chosen scale
+#       formality_scale_max: 10    # 5 or 10, whatever anchors the technique used
+#       never_say_words: []        # set by never-say-list technique
+#       specificity_test:          # set by specificity-test technique
+#         rule: ""                 # e.g. "A word passes iff it adds specificity"
+#         pass_examples: []        # words/phrases that pass the test
+#         fail_examples: []        # words/phrases that fail — and why
+#       voice_card_sort:
+#         sounds_like_us: []
+#         doesnt_sound_like_us: []
+#       competitor_voice_notes: [] # [{competitor, keep, avoid}]
+#
+#     stress_tests:                # second-pass techniques (all optional)
+#       pre_mortem: []             # [{failure_mode, disconnect}]
+#       inversion: ""              # anti-brand description
+#       stakeholder_lens: {}       # {skeptic: "", supporter: "", compatible: false}
+#       time_travel: {}            # {future_state: "", evolved: "", stayed: ""}
+#
+#     raw_notes: ""                # freeform capture
+#
+discovery: {}
+
+# ─── SYNTHESIS ──────────────────────────────────────────────
+# Produced by /brand-synthesize from all discovery entries.
+synthesis:
+  status: "not_started"  # not_started | draft | review | complete
+  last_run: ""
+
+  methods_used: []
+  # Rendered as the Methods Used ledger. Each entry:
+  #   - dimension: personality
+  #     technique: archetype-selection          # registry slug
+  #     status: used                            # used | inferred | "—"
+  #     participants: [brennan, bryan]          # who ran it
+  #     notes: ""
+
+  consensus:
+    positioning: {}
+    personality: {}
+    visual: {}
+    voice: {}
+
+  divergences: []
+  # Each divergence:
+  #   - dimension: ""
+  #     description: ""
+  #     positions: {}              # {person_name: "their position with evidence"}
+  #     resolved: false
+  #     resolution: ""
+  #     resolved_by: ""
+  #     resolved_at: ""
+
+  agreement_score: 0.0  # 0.0-1.0
+
+# ─── DESIGN SYSTEM ─────────────────────────────────────────
+# Produced by /brand-build from resolved synthesis.
+# Canonical paths consumed by brand-export templates.
+system:
+  status: "not_started"  # not_started | draft | review | complete
+  last_built: ""
+
+  principles: []
+  # Each principle:
+  #   - name: ""
+  #     rationale_short: ""        # italic one-liner for primary render
+  #     rationale: ""               # full paragraph; used in appendix
+  #     sources: []                 # e.g., [archetypes, aaker, tensions]
+
+  color:
+    # The palette supports five stacked layers. Each layer soft-skips when
+    # empty — a minimal brand uses just `core[]`; a brand with multiple named
+    # anchor hexes, named scales, or signature expressions populates additional
+    # layers. brand-export renders each non-empty layer as its own subsection
+    # of the Color section.
+    palette:
+      core: []
+      # Variable-N (any number of roles — no hardcoded max). Each entry:
+      #   - role: "primary"         # use industry-standard role names where possible:
+      #                             #   primary | neutral | accent | background | surface | secondary | success | warning | error | info
+      #                             # (legacy "anchor" is auto-normalized to "neutral" by brand-build Phase 3B)
+      #     name: "{{ core_role_example_name }}"
+      #     hex: "{{ core_role_example_hex }}"
+      #     usage: "CTAs, highlights"
+      #     percent: 30              # optional — 60/30/10-style guideline
+
+      anchors: []
+      # Optional — named anchor set distinct from core roles. Useful when
+      # a brand has more named hexes than functional roles (e.g. 8–10 named
+      # anchor hexes vs 3–4 functional roles). Each entry:
+      #   - name: "Deep Indigo"
+      #     hex: "#0F0D23"
+      #     usage: "Dark-mode ground, night sky background"
+      #     family: "indigo"          # optional — link to a scale
+
+      scales: []
+      # Optional — hue-named 10-step scales. Useful for brands with
+      # rich color systems beyond the canonical role-based scales.
+      # Each entry:
+      #   - name: "Indigo"
+      #     family: "indigo"
+      #     hex_steps: ["#F0EFF5", "#DDDBE8", ..., "#0F0D23"]   # 10 steps, 50–900
+      #     description: "Grounding ink scale"
+
+      expressions: []
+      # Optional — brands with multiple signature visual treatments (a named
+      # motif system, a decorative accent treatment, a named gradient family)
+      # declare their expressions here. Each entry:
+      #   - name: "Warm spectrum"
+      #     anchors: [{name: "Amber", hex: "#F59E0B"}, {name: "Ember", hex: "#DC2626"}]
+      #     spectral_range: "amber → coral → red"
+      #     when_to_use: "moments of urgency or activation"
+      #     gradient_ref: "warm-spectrum"    # optional — link to a gradients[] entry
+
+      gradients: []
+      # Optional — named gradients used throughout the system. brand-export
+      # emits these as `--gradient-{slug}` CSS vars and renders labeled
+      # strips in the Gradient Library subsection of Color. Each entry:
+      #   - name: "Night Sky"
+      #     slug: "night-sky"
+      #     direction: "180deg"         # CSS direction
+      #     stops:
+      #       - { color: "#0F0D23", position: "0%" }
+      #       - { color: "#1E1A3A", position: "50%" }
+      #       - { color: "#2D2B55", position: "100%" }
+      #     description: "Cover and hero backgrounds"
+      #     usage: "Dark hero panels, celestial imagery"
+
+    contrast_validated: false
+    contrast_pairs: []
+    # Each:
+    #   - fg: "#DAA520"               # placeholder — replace with a brand foreground hex
+    #     bg: "#0F0D23"
+    #     ratio: 8.2
+    #     rating: AAA                # AAA | AA | FAIL
+
+  typography:
+    typefaces: []                    # [{name, role, source, fallback}]
+    scale:
+      name: ""                       # e.g., "Major Third"
+      ratio: 0                       # e.g., 1.250
+      base_size: ""                  # e.g., "16px"
+      sizes: {}                      # {label: {size, weight, line_height, letter_spacing}}
+    sample_text:
+      # Brand-relevant specimens for typography rendering. Fallback chain:
+      #   sample_text.{step} → positioning.elevator_pitch →
+      #   voice.sample_celebration → voice.sample_apology → "The quick brown fox"
+      display: ""
+      h1: ""
+      h2: ""
+      h3: ""
+      body: ""
+      small: ""
+
+  form:
+    character: ""                    # one-line evocation: "arches", "spark motif", etc.
+    motifs: []                       # detailed motif descriptions
+    radius_interactive: ""           # e.g., "8px"
+    radius_card: ""
+    shadow: ""
+    composition: {}                  # layout patterns, hierarchy model
+
+  motif: {}
+  # Optional brand signature element beyond form.motifs. Used for hero panel.
+  #   name: ""                        # "Flourish", "Arch", "Teal Bar"
+  #   description: ""
+  #   svg_hint: ""                    # optional inline svg for hero rendering
+  #   asset_path: ""                  # or a path to a static asset
+
+  voice:
+    formality_score: 0
+    formality_scale_max: 10
+    # Voice constraints are polymorphic (see techniques-registry.yaml concept
+    # group voice_constraints). At least one of these is expected; multiples
+    # stack as subblocks in the rendered "Voice Constraints" section.
+    vocabulary:
+      prefer: []                     # legacy — free-form preferred words
+      avoid: []                      # legacy — free-form avoided words
+      never_say: []                  # from never-say-list technique
+      specificity_test: {}           # from specificity-test technique
+      #   rule: "A word passes iff it adds specificity"
+      #   pass_examples: []
+      #   fail_examples: []
+      card_sort:
+        sounds_like_us: []
+        doesnt_sound_like_us: []
+    guidelines: []                   # do/don't examples, drawn from discovery
+
+  quality:
+    rand_seven: {}
+    # Optional — populated by /brand-build if scored. Each of the 7 criteria
+    # scored 0–10, summed to 70 max.
+    #   distinctive: 0
+    #   memorable: 0
+    #   simple: 0
+    #   appropriate: 0
+    #   timeless: 0
+    #   legible: 0
+    #   reducible_to_essence: 0
+    #   total: 0
+    coherence_score: 0               # 0–30; see scoring-criteria.md
+    coherence_notes: ""
+
+# ─── CHANGELOG ──────────────────────────────────────────────
+# Append-only log of every meaningful change.
+changelog: []
+# Each entry:
+#   - timestamp: ""                  # ISO 8601
+#     author: ""                     # person name or "system"
+#     action: ""                     # discovery_started, technique_completed, synthesis_run, etc.
+#     section: ""                    # dotpath like "discovery.brennan.positioning"
+#     summary: ""

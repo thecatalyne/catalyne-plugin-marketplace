@@ -1,0 +1,148 @@
+<!-- TIER 1 AUTHOR NOTE — external reference. Renders to `brand-quickref.md` and ships as a one-page lookup card. Keep reader-visible content in end-user language; no plugin-internal file names, build phases, slash commands, or status vocabulary in the rendered output. -->
+
+# {{ brand_name }} — Brand Quick Reference
+
+> One-page reference card for designers, developers, and stakeholders.
+
+---
+
+## Methods Used
+
+*Transparent index of which elicitation techniques contributed to this system.
+"—" means the technique was not run — its corresponding section below is
+either omitted or rendered with alternative data from another technique.*
+
+| Dimension | Technique | Status |
+|---|---|:---:|
+| Positioning | Elevator Pitch | {{ status_elevator }} |
+| Positioning | Wolff-Olins Butterfly | {{ status_butterfly }} |
+| Personality | Archetype Selection | {{ status_archetype }} |
+| Personality | Aaker Sliders | {{ status_aaker }} |
+| Personality | Tension Spectrum Mapping | {{ status_tensions }} |
+| Personality | Keyword Distillation | {{ status_keywords }} |
+| Visual | Palette Recognition | {{ status_palette }} |
+| Visual | Type Pairing | {{ status_type }} |
+| Visual | Form Language | {{ status_form }} |
+| Voice | Formality Spectrum | {{ status_formality }} |
+| Voice | Never-Say List | {{ status_never_say }} |
+| Voice | Specificity Test | {{ status_specificity }} |
+| Voice | Voice Card Sort | {{ status_card_sort }} |
+| Quality | Coherence Check | {{ status_coherence }} |
+| Quality | Paul Rand's 7 | {{ status_rand }} |
+
+---
+
+## Brand Identity
+
+**Elevator Pitch**: {{ elevator_pitch }}
+
+{{ archetype_block }}
+<!-- archetype_block renders only if archetype was run:
+**Primary Archetype**: {{ primary_archetype }}
+**Secondary Archetype**: {{ secondary_archetype }}
+-->
+
+**Keywords**: {{ keywords_list }}
+
+---
+
+## Design Principles
+
+*Variable-N — render one row per principle in `system.principles[]`, no fixed count.*
+
+| # | Principle | Short rationale |
+|---|-----------|-----------------|
+| 1 | **{{ principle_1_name }}** | *{{ principle_1_rationale_short }}* |
+| 2 | **{{ principle_2_name }}** | *{{ principle_2_rationale_short }}* |
+| … | … | … |
+| N | **{{ principle_N_name }}** | *{{ principle_N_rationale_short }}* |
+
+---
+
+## Color Palette
+
+*Variable-N — render one row per entry in `system.color.palette.core[]`.
+Common roles: background, surface, primary, anchor, accent, highlight,
+neutral. Use whatever role names the brand actually uses.*
+
+| Role | Hex | Name | Usage |
+|------|-----|------|-------|
+| {{ role_1 }} | `{{ hex_1 }}` | {{ name_1 }} | {{ usage_1 }} |
+| {{ role_2 }} | `{{ hex_2 }}` | {{ name_2 }} | {{ usage_2 }} |
+| … | … | … | … |
+| {{ role_N }} | `{{ hex_N }}` | {{ name_N }} | {{ usage_N }} |
+
+**Full scales**: See `tokens.css` or `tokens.json` for 10-step scales (50–900).
+
+### Color Expressions *(optional — omit section if `palette.expressions[]` is empty)*
+
+*For multi-modal brands — each expression is a coherent named treatment
+drawing from anchors in the palette. Omit if not used.*
+
+| Expression | Anchors | Spectral range | When to use |
+|---|---|---|---|
+| {{ expr_1_name }} | {{ expr_1_anchors }} | {{ expr_1_range }} | {{ expr_1_when }} |
+| … | … | … | … |
+
+---
+
+## Typography
+
+| Role | Typeface | Weight | Fallback |
+|------|----------|--------|----------|
+| Heading | {{ heading_font }} | {{ heading_weight }} | {{ heading_fallback }} |
+| Body | {{ body_font }} | {{ body_weight }} | {{ body_fallback }} |
+
+**Scale**: {{ scale_name }} ({{ scale_ratio }}) from {{ base_size }} base
+
+| Step | Size | Use |
+|------|------|-----|
+| Display | {{ display_size }} | Hero headings |
+| H1 | {{ h1_size }} | Page titles |
+| H2 | {{ h2_size }} | Section titles |
+| H3 | {{ h3_size }} | Subsections |
+| Body | {{ body_size }} | Paragraph text |
+| Small | {{ small_size }} | Captions, labels |
+
+---
+
+## Voice
+
+### Formality *(optional — omit if no formality technique was run)*
+
+**Formality**: {{ formality_score }} / {{ formality_scale_max }}
+
+### Voice Constraints *(polymorphic — render one subblock per technique used)*
+
+*Canonical heading. Below, each technique that the team ran appears as a
+labeled subblock. If no voice-constraint technique was run, omit this
+entire section.*
+
+{{ voice_constraints_block }}
+
+<!-- voice_constraints_block assembles from registry.concepts.voice_constraints:
+
+**Never-Say** *(via Never-Say List)*
+{{ never_say_list }}
+
+**Specificity Test** *(via Specificity Test)*
+> {{ specificity_rule }}
+- Passes: {{ specificity_pass_examples }}
+- Fails: {{ specificity_fail_examples }}
+
+**Voice Card Sort** *(via Voice Card Sort)*
+- Sounds like us: {{ card_sort_sounds_like }}
+- Doesn't sound like us: {{ card_sort_doesnt }}
+-->
+
+---
+
+## Form Language
+
+- **Form character**: {{ form_character }}
+- **Border radius**: {{ radius_interactive }} (interactive), {{ radius_card }} (cards)
+- **Shadow**: `{{ shadow_value }}`
+
+---
+
+*Generated by expert-design-n-brand &middot; {{ timestamp }}*

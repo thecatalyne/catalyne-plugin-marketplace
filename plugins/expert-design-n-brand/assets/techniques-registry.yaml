@@ -1,0 +1,536 @@
+# Techniques Registry — Single source of truth
+#
+# Maps every elicitation technique to:
+#   - the dimension it serves
+#   - a one-line description (used by brand-methods.html block headers
+#     and the not-run appendix)
+#   - the YAML paths it populates (under discovery.{name}.*)
+#   - the output sections it drives (synthesis | quickref | design_system)
+#   - optional concept group (for polymorphic slots like voice_constraints)
+#   - inference edges (e.g. archetype → Aaker inference)
+#
+# Read by:
+#   - brand-synthesize: to emit the Methods Used ledger + render only
+#     sections whose techniques are present in at least one participant
+#   - brand-build: to normalize discovery → system without forcing every
+#     person's output into a single fixed shape
+#   - brand-export: to decide which optional sections render + to hard-fail
+#     against expected-paths.yaml (the "floor" schema) if canonical paths
+#     are missing. Also drives brand-methods.html block rendering —
+#     every USED technique gets a block; every `—` technique appears in
+#     the collapsed not-run appendix.
+#   - producer self-verification: cross-check that every technique the
+#     ledger marks Used produced visible content in at least one artifact.
+#
+# Every entry in technique-library.md MUST have a matching slug here.
+# Every technique MUST have a `description` field (used by Artifact B).
+# Additions (brand-specific custom techniques such as a custom tension-spectrum
+# mapping) MUST be registered here before brand-export will render them.
+#
+# ─── GOVERNING RULE (v0.4.1) ───────────────────────────────────────────
+# ALL methods appear in brand-methods.html (driven by
+# `artifact_routing.brand_methods.one_block_per_used_technique: true`).
+# ONLY canonical design-system sections and needs appear in
+# design-system.html — it is a publishable working doc real users
+# reference and use.
+#
+# Therefore: a technique's `drives_sections` may list a `design_system.*`
+# anchor ONLY IF its output is canonical (archetype labels, Aaker scores,
+# final keyword chips, elevator pitch, butterfly matrix, motif gallery,
+# texture description, anti-inspiration guardrail, voice constraints).
+# Process-record content (metaphor galleries, brand playlists, mood-board
+# refs, cultural references, pre-mortem risks, landscape grids, archetype
+# reasoning prose, keyword walkthroughs) lives in brand-methods.html only.
+
+# ─── TECHNIQUES ────────────────────────────────────────────────────────
+techniques:
+
+  # ── Positioning ──
+  landscape-grid:
+    dimension: positioning
+    label: "Landscape Grid"
+    description: "A 2x2 of axes (e.g. corporate↔indie vs safe↔provocative). Plots competitors and the brand. Surfaces whitespace."
+    yaml_paths:
+      - positioning.landscape_grid
+    drives_sections:
+      - synthesis.positioning.landscape
+      - brand_methods.positioning_frames   # process record only; not canonical design-system content
+
+  wolff-olins-butterfly:
+    dimension: positioning
+    label: "Wolff-Olins Butterfly"
+    description: "Four-wing frame: what the brand IS, ISN'T, DOES, DOESN'T. Forces differentiation in both active and negative space."
+    yaml_paths:
+      - positioning.butterfly
+    drives_sections:
+      - synthesis.positioning.butterfly
+      - design_system.positioning.butterfly
+
+  elevator-pitch:
+    dimension: positioning
+    label: "Elevator Pitch"
+    description: "The one-line version of the brand — who it serves, what it does, what makes it different. Becomes the cover headline."
+    required_for_floor: true   # at least one positioning technique is floor
+    yaml_paths:
+      - positioning.elevator_pitch
+    drives_sections:
+      - synthesis.positioning.elevator
+      - quickref.identity.elevator
+      - design_system.cover.elevator
+      - design_system.positioning.elevator
+
+  brand-eulogy:
+    dimension: positioning
+    label: "Brand Eulogy"
+    description: "Imagine the brand dies. What does its obituary say? What did people love, miss, remember? Surfaces deep-intent positioning."
+    yaml_paths:
+      - positioning.brand_eulogy
+    drives_sections:
+      - synthesis.positioning.eulogy
+
+  competitive-mapping:
+    dimension: positioning
+    label: "Competitive Mapping"
+    description: "Name competitors; describe how each brand's voice, visual, and value proposition differ. Sharpens the 'not like them' boundary."
+    yaml_paths:
+      - positioning.competitive_map
+    drives_sections:
+      - synthesis.positioning.competitive
+
+  # ── Personality ──
+  archetype-selection:
+    dimension: personality
+    label: "Archetype Selection"
+    description: "Pick primary and secondary Jungian archetypes (Sage, Caregiver, Hero, Rebel, etc.). Concentrates personality into two named patterns."
+    yaml_paths:
+      - personality.archetypes.primary
+      - personality.archetypes.secondary
+      - personality.archetypes.reasoning
+      - personality.character
+    drives_sections:
+      - synthesis.personality.archetypes
+      - quickref.identity.archetypes
+      - design_system.personality.archetypes
+      - design_system.personality.character   # short character paragraph — canonical texture, not the full reasoning dump
+      - brand_methods.personality_scoring     # reasoning prose + evidence lineage lives here
+    concept: personality_scoring
+    can_infer: [aaker-sliders]   # archetype → Aaker inference allowed
+
+  aaker-sliders:
+    dimension: personality
+    label: "Aaker Spectrum Sliders"
+    description: "Score the brand on five Aaker personality dimensions (Sincerity, Excitement, Competence, Sophistication, Ruggedness)."
+    yaml_paths:
+      - personality.aaker_scores
+    drives_sections:
+      - synthesis.personality.aaker_table
+      - design_system.personality.aaker
+    concept: personality_scoring
+    scale: { min: 1, max: 10 }
+
+  tension-spectrum-mapping:
+    dimension: personality
+    label: "Tension Spectrum Mapping"
+    description: "Pairs of opposing qualities scored on a shared axis — or flagged as synergistic (not a real tension). Richer than Aaker when the brand integrates apparent opposites."
+    yaml_paths:
+      - personality.tension_spectrums
+    drives_sections:
+      - synthesis.personality.tensions
+      - brand_methods.personality_scoring   # process only; Aaker scores cover canonical personality surface
+    concept: personality_scoring
+    notes: |
+      Extension technique. Pairs of opposing qualities scored on a shared axis,
+      with "not a real tension — these are synergistic" as a valid answer.
+      Produces richer signal than Aaker when the brand integrates apparent opposites.
+
+  keyword-distillation:
+    dimension: personality
+    label: "Keyword Distillation"
+    description: "Three to five words the brand IS. Short, specific, unpretentious. Test: if a competitor could also claim the word, swap it."
+    yaml_paths:
+      - personality.keywords
+    drives_sections:
+      - synthesis.personality.keywords
+      - quickref.identity.keywords
+      - design_system.personality.keywords
+
+  metaphors:
+    dimension: personality
+    label: "If Brand Was A…"
+    description: "Character / figure / object comparisons. 'If brand was a character, who?' Produces a gallery of aligned references + trait lists."
+    yaml_paths:
+      - personality.metaphors
+    drives_sections:
+      - synthesis.personality.metaphors
+      - brand_methods.personality_scoring   # metaphor gallery is process record, not canonical
+
+  celebrity-casting:
+    dimension: personality
+    label: "Celebrity Casting"
+    description: "Which public figures would the brand hire, and for what role? Maps celebrity personas to brand functions."
+    yaml_paths:
+      - personality.celebrity_cast
+    drives_sections:
+      - synthesis.personality.celebrity
+      - brand_methods.personality_scoring   # casting is process record, not canonical
+
+  brand-playlist:
+    dimension: personality
+    label: "Brand Playlist"
+    description: "5–10 songs that sound like the brand feels. Surfaces mood, pace, emotional register in a way words can't."
+    yaml_paths:
+      - personality.playlist
+    drives_sections:
+      - synthesis.personality.playlist
+      - brand_methods.personality_scoring   # playlist is process record, not canonical
+
+  # ── Visual ──
+  palette-recognition:
+    dimension: visual
+    label: "Palette Recognition"
+    description: "Present multiple palettes; participants pick what feels like the brand and explain why. Drives the Color section."
+    required_for_floor: true   # at least one visual palette technique
+    yaml_paths:
+      - visual.color_preferences
+    drives_sections:
+      - synthesis.visual.palette
+      - quickref.color.roles
+      - design_system.color.roles
+      - design_system.color.gradient_library
+      - design_system.color.expressions
+
+  type-pairing:
+    dimension: visual
+    label: "Type Pairing Recognition"
+    description: "Show multiple heading/body typeface pairings; participants pick what fits. Drives the Typography section."
+    required_for_floor: true
+    yaml_paths:
+      - visual.typography_preferences
+    drives_sections:
+      - synthesis.visual.type
+      - quickref.typography
+      - design_system.typography
+
+  mood-board:
+    dimension: visual
+    label: "Mood Board"
+    description: "Collection of reference images, scenes, moments that carry the brand's feeling. Cites the inspirations, not the imitations."
+    yaml_paths:
+      - visual.mood_references
+    drives_sections:
+      - synthesis.visual.mood
+      - brand_methods.visual_references   # cultural refs belong in process record, not canonical doc
+
+  form-language:
+    dimension: visual
+    label: "Form Language Cards"
+    description: "Geometry and shape preferences: rounded vs sharp, dense vs airy, organic vs geometric. Drives form tokens (radius, spacing, stroke)."
+    yaml_paths:
+      - visual.form_language
+    drives_sections:
+      - synthesis.visual.form
+      - quickref.form
+      - design_system.form
+      - design_system.visual.motif_gallery
+
+  anti-inspiration:
+    dimension: visual
+    label: "Anti-Inspiration"
+    description: "Brands the participant actively does NOT want to be confused with. Captures the visual enemy."
+    yaml_paths:
+      - visual.anti_inspiration
+    drives_sections:
+      - synthesis.visual.anti_inspiration
+      - design_system.anti_inspiration            # v0.4.2: promoted out of appendix into the Visual block
+      - brand_methods.visual_references           # also appears as a method-record block
+
+  texture-material:
+    dimension: visual
+    label: "Texture & Material"
+    description: "Physical-world analogue: matte vs glossy, paper vs metal, warm vs cool. Informs surface, shadow, and material metaphors."
+    yaml_paths:
+      - visual.texture_material
+    drives_sections:
+      - synthesis.visual.texture
+      - design_system.form.texture
+      - design_system.visual.texture_panel
+
+  # ── Voice ──
+  sample-writing:
+    dimension: voice
+    label: "Sample Writing"
+    description: "Participant writes brand-voiced samples: a celebration, an apology, a tweet. Voice observed in production, not described."
+    yaml_paths:
+      - voice.sample_tweet
+      - voice.sample_apology
+      - voice.sample_celebration
+    drives_sections:
+      - synthesis.voice.samples
+      - design_system.voice.samples
+
+  formality-spectrum:
+    dimension: voice
+    label: "Formality Spectrum"
+    description: "Score the brand on a casual↔formal axis. Scale is flexible (1–5, 1–10, 1–7) and renders on native scale."
+    yaml_paths:
+      - voice.formality_score
+      - voice.formality_scale_max
+    drives_sections:
+      - synthesis.voice.formality
+      - quickref.voice.formality
+      - design_system.voice.formality
+    scale: { min: 1, max: 10, overridable: true }   # people may use 1–5
+
+  never-say-list:
+    dimension: voice
+    label: "Never-Say List"
+    description: "Words, phrases, and cliches the brand refuses. Anti-glossary — each entry earns its place by explicit rejection."
+    yaml_paths:
+      - voice.never_say_words
+    drives_sections:
+      - synthesis.voice.constraints
+      - quickref.voice.constraints
+      - design_system.voice.constraints
+    concept: voice_constraints
+
+  specificity-test:
+    dimension: voice
+    label: "Specificity Test"
+    description: "Rule instead of list: a word passes iff it adds specificity. Illustrated with pass/fail examples from the brand's own domain."
+    yaml_paths:
+      - voice.specificity_test
+    drives_sections:
+      - synthesis.voice.constraints
+      - quickref.voice.constraints
+      - design_system.voice.constraints
+    concept: voice_constraints
+    notes: |
+      Alternative to the never-say list. Instead of an anti-list, a rule:
+      "A word passes iff it adds specificity." The test itself plus
+      illustrative pass/fail examples become the rendered content.
+
+  voice-card-sort:
+    dimension: voice
+    label: "Voice Card Sort"
+    description: "Sort phrase cards into 'sounds like us' vs 'doesn't sound like us.' Produces paired do/don't examples."
+    yaml_paths:
+      - voice.voice_card_sort.sounds_like_us
+      - voice.voice_card_sort.doesnt_sound_like_us
+    drives_sections:
+      - synthesis.voice.card_sort
+      - quickref.voice.constraints
+      - design_system.voice.card_sort
+    concept: voice_constraints
+
+  competitor-voice-comparison:
+    dimension: voice
+    label: "Competitor Voice Comparison"
+    description: "Pick 2–3 competitors; describe how their voice differs from the brand's. Sharpens the 'not like them' edge."
+    yaml_paths:
+      - voice.competitor_voice_notes
+    drives_sections:
+      - synthesis.voice.competitors
+
+  # ── Stress Tests ──
+  pre-mortem:
+    dimension: stress_test
+    label: "Pre-Mortem"
+    description: "Imagine the brand failed in two years. Why? What went wrong? Surfaces risks the positive framings missed."
+    yaml_paths:
+      - stress_tests.pre_mortem
+    drives_sections:
+      - synthesis.stress_tests.pre_mortem
+      - brand_methods.stress_tests
+    concept: stress_tests
+
+  inversion:
+    dimension: stress_test
+    label: "Inversion"
+    description: "State the brand's values; then describe the opposite brand. If the opposite still sounds plausible, the values are too generic."
+    yaml_paths:
+      - stress_tests.inversion
+    drives_sections:
+      - synthesis.stress_tests.inversion
+      - brand_methods.stress_tests
+    concept: stress_tests
+
+  stakeholder-lens:
+    dimension: stress_test
+    label: "Stakeholder Lens"
+    description: "Replay the brand through each stakeholder's POV (customer, competitor, team, investor). Surfaces misalignment."
+    yaml_paths:
+      - stress_tests.stakeholder_lens
+    drives_sections:
+      - synthesis.stress_tests.stakeholder_lens
+      - brand_methods.stress_tests
+    concept: stress_tests
+
+  time-travel:
+    dimension: stress_test
+    label: "Time Travel"
+    description: "Describe the brand as it would read in 1995 and 2045. Tests whether the brand's language is of its moment or timeless."
+    yaml_paths:
+      - stress_tests.time_travel
+    drives_sections:
+      - synthesis.stress_tests.time_travel
+      - brand_methods.stress_tests
+    concept: stress_tests
+
+  # ── Quality Checks (post-build assessments) ──
+  rand-seven:
+    dimension: quality
+    label: "Paul Rand's 7 Criteria"
+    description: "Score the mark on Rand's seven: distinctive, visible, adaptable, memorable, universal, timeless, simple. 7×10=70 max."
+    yaml_paths:
+      - quality.rand_seven
+    drives_sections:
+      - design_system.quality       # v0.4.2: unified Quality section (was design_system.quality.rand_seven)
+      - design_system.quality.rand_seven
+    scale: { min: 0, max: 10 }   # 7 criteria × 10 = 70 max
+
+  coherence-check:
+    dimension: quality
+    label: "Coherence Check"
+    description: "Six cross-dimension consistency axes (color↔personality, type↔voice, form↔energy, etc.), 5 points each. 30 max."
+    yaml_paths:
+      - quality.coherence_score
+      - quality.coherence_notes
+    drives_sections:
+      - design_system.quality       # v0.4.2: unified Quality section
+      - design_system.quality.coherence
+      - design_system.cover.coherence
+    scale: { min: 0, max: 30 }
+
+# ─── CONCEPT GROUPS ────────────────────────────────────────────────────
+# Polymorphic slots: multiple techniques can fill the same canonical section.
+# Section renders with canonical heading; each technique that was run
+# appears as a subblock with a technique-tagged italic subtitle
+# ("via Specificity Test").
+#
+# cardinality:
+#   - one_of          → exactly one technique from the group must be present
+#                       to render the section
+#   - one_or_more     → at least one; render each as a subblock
+#   - optional_one_or_more → zero is allowed; section is soft-skipped if empty
+
+concepts:
+  voice_constraints:
+    slot: "Voice Constraints"
+    anchor: voice-constraints
+    techniques: [never-say-list, specificity-test, voice-card-sort]
+    cardinality: optional_one_or_more
+    rationale: |
+      Different teams express "what not to say" differently. The section
+      heading is fixed so that any combination of methods (specificity
+      test, never-say list, voice card sort) appears in the same slot
+      across outputs; the subtitle ("via …") names the method that
+      produced the content in this brand's system.
+
+  personality_scoring:
+    slot: "Personality Scoring"
+    anchor: personality-scoring
+    techniques: [archetype-selection, aaker-sliders, tension-spectrum-mapping, keyword-distillation, metaphors, celebrity-casting, brand-playlist]
+    cardinality: one_or_more
+    rationale: |
+      Every personality technique that was run stacks as a subblock under
+      "Personality Scoring" in brand-methods.html. Canonical design-system
+      surface is thin (archetype labels + Aaker scores + 5 keywords + a
+      synthesis sentence); the rich process-record (metaphor gallery,
+      celebrity casting, playlist, tension spectra, reasoning prose,
+      keyword walkthroughs) lives here.
+
+  positioning_frames:
+    slot: "Positioning Frames"
+    anchor: positioning-frames
+    techniques: [elevator-pitch, wolff-olins-butterfly, landscape-grid]
+    cardinality: optional_one_or_more
+    rationale: |
+      Positioning takes many frames. Elevator is the one-liner; Butterfly
+      is the is/isn't/does/doesn't matrix; Landscape is the 2x2 whitespace
+      map. A brand may use any subset; each renders as a subblock inside
+      the canonical "Positioning" section.
+
+  visual_references:
+    slot: "Visual References"
+    anchor: visual-references
+    techniques: [mood-board, texture-material, anti-inspiration]
+    cardinality: optional_one_or_more
+    rationale: |
+      Three different angles on "what does it look like, without prescribing
+      a shape": mood-board (what it feels like), texture-material (what it
+      feels like physically), anti-inspiration (what it explicitly is not).
+      Each renders as a subblock inside a shared "Visual References" section
+      in brand-methods.html. Canonical design-system.html renders ONLY the
+      motif gallery + texture panel + anti-inspiration guardrail — the
+      mood-board cultural references stay in brand-methods only.
+
+  stress_tests:
+    slot: "Stress Tests"
+    anchor: stress-tests
+    techniques: [pre-mortem, inversion, stakeholder-lens, time-travel]
+    cardinality: optional_one_or_more
+    rationale: |
+      Stress-test techniques surface risks the positive framings miss. Their
+      output (pre-mortem failure scenarios, inversion tests, stakeholder POV
+      replays, time-travel legibility checks) is process-record only and
+      lives exclusively in brand-methods.html — canonical design-system.html
+      does not render stress-test content.
+
+# ─── ARTIFACT ROUTING ──────────────────────────────────────────────────
+# Which techniques contribute to which rendered artifact.
+#
+# - Artifact A (design-system.html / .pdf):
+#     Renders sections whose techniques have a `design_system.*` entry in
+#     drives_sections. Methods appear as per-section chips (not a top
+#     ledger). Used = dark chip. Not-run but within the dimension's scope
+#     = grey strikethrough chip.
+#
+# - Artifact B (brand-methods.html / .pdf):
+#     One block per USED technique, in registry declaration order. Each
+#     block uses the technique's `description` (this file) + YAML output
+#     + quotes from {Name}_Brand_Quotes.md when present. `—` techniques
+#     appear in a collapsed "Not Run" appendix with their description
+#     lines so readers see what exploration remains on the table.
+#
+# - brand-quickref.md:
+#     Compressed to Used-only (no full 30-row ledger). Methods ledger moves
+#     to Artifact B's TOC. This restores the single-page target.
+
+artifact_routing:
+  design_system:
+    includes_methods_ledger: false         # ledger lives in brand-methods
+    per_section_chips: true                # each section shows its methods inline
+    unused_chip_style: grey_strikethrough  # grey + strikethrough for not-run
+  brand_methods:
+    includes_methods_ledger: true           # the full 30-row ledger is the TOC
+    one_block_per_used_technique: true
+    not_run_appendix: true
+    quote_ingestion:
+      enabled: true
+      source_pattern: "*_Brand_Quotes.md"   # globbed from cwd
+      optional: true                        # skip silently if absent
+  quickref:
+    includes_methods_ledger: false          # "used only" line, no table
+    one_page_target: true
+
+# ─── FLOOR (minimum for export) ────────────────────────────────────────
+# See also: expected-paths.yaml for the precise path-level floor.
+# At a glance: identity + palette + typography + at least one technique
+# in each of positioning, personality, visual, voice must be present.
+#
+# Palette floor accepts ANY of these shapes (brand-build should normalize
+# to canonical, but brand-export falls back gracefully):
+#   - system.color.palette.core[]               (canonical)
+#   - system.color.palette.{background,primary,anchor,accent,...}  (legacy object)
+#   - system.color.anchors[]                    (flat named-anchor list; legacy shape)
+# Floor fails only if NO palette shape carries at least 1 usable hex.
+floor:
+  dimensions_required: [positioning, personality, visual, voice]
+  at_least_one_technique_per: true
+  required_system_paths:
+    - system.principles
+    - system.typography.typefaces
+  palette_any_of:
+    - system.color.palette.core
+    - system.color.palette      # legacy 4-role object
+    - system.color.anchors      # flat named list

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ brand_name }} — Design System (Print)</title>
+
+  <!--
+    TIER 1 AUTHOR NOTE — external reference (print).
+    This template renders the PDF of the brand guidelines. It ships to
+    clients, consultants, designers, and developers who have no context
+    about how the brand was built. Keep reader-visible strings (prose,
+    headings, labels, footer text) in end-user language. No build phases,
+    plugin-internal file names, slash commands, or status vocabulary in
+    reader-visible text.
+
+    Scaffolding notes (template authors only):
+    Print scaffold. Same canonical section order as the interactive HTML,
+    optimized for A4. Brand fonts load via {{ font_import_url }} so the
+    PDF renders in the brand's typography, not Helvetica. If the brand
+    uses fonts not on Google Fonts, export populates {{ font_face_block }}
+    with @font-face declarations. The PDF render waits for
+    `document.fonts.ready` before the headless snapshot. The Contents
+    page lists only sections that actually rendered.
+  -->
+
+  {{ font_import_url }}
+  <style>
+    {{ font_face_block }}
+
+    /* ─── PRINT OPTIMIZATIONS ─── */
+    @page {
+      margin: 2cm;
+      size: A4;
+    }
+
+    @page :first {
+      margin-top: 0;
+    }
+
+    body { counter-reset: page-number; }
+
+    .page-footer { display: none; }
+
+    @media print {
+      .page-footer {
+        display: block;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        text-align: center;
+        font-size: 9pt;
+        color: #999;
+        counter-increment: page-number;
+      }
+      .page-footer::after { content: counter(page-number); }
+
+      .no-print { display: none !important; }
+      .page-break { page-break-before: always; }
+      .avoid-break { page-break-inside: avoid; }
+
+      body {
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .swatch-color, .anchor-swatch-color, .scale-step-color, .gradient-preview,
+      .spacing-block, .hero, .cover, .badge,
+      .btn-primary, .btn-accent, .component-badge, .expression-anchors span,
+      .contrast-swatch {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* ─── TOKENS ─── */
+    :root {
+      {{ css_tokens_block }}
+      --color-bg: {{ color_bg_fallback | '#FFFFFF' }};
+      --color-fg: {{ color_fg_fallback | '#1A1A1A' }};
+      --color-primary: {{ color_primary_fallback | '#333333' }};
+      --color-text-primary: {{ color_text_primary_fallback | '#111111' }};
+      --color-accent: {{ color_accent_fallback | '#6B7280' }};
+      --font-heading: {{ font_heading | '"Helvetica Neue", Arial, sans-serif' }};
+      --font-body: {{ font_body | '"Helvetica Neue", Arial, sans-serif' }};
+
+      /* Semantic theme tokens (see design-system-template.html for rationale). */
+      --color-affirm: {{ color_affirm_fallback | '#16A34A' }};
+      --color-warn:   {{ color_warn_fallback   | '#DC2626' }};
+      --color-success: {{ color_success_fallback | 'var(--color-affirm)' }};
+      --color-warning: {{ color_warning_fallback | '#F59E0B' }};
+      --color-danger:  {{ color_danger_fallback  | 'var(--color-warn)' }};
+    }
+
+    /* ─── BASE ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 10pt;
+      line-height: 1.5;
+      color: var(--color-fg);
+      background: white;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    h1, h2, h3 { font-family: var(--font-heading); }
+    h1 { font-size: 28pt; font-weight: 700; line-height: 1.1; }
+    h2 { font-size: 16pt; font-weight: 700; margin-top: 0; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--color-fg); }
+    h3 { font-size: 12pt; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    p { margin-bottom: 0.75rem; }
+
+    .section { margin-bottom: 2rem; }
+    /* Definition + summary pair — see design-system-template.html for rationale. */
+    .section-definition { font-size: 9pt; color: #666; margin-top: 0.25rem; max-width: 44em; font-style: italic; }
+    .section-summary    { font-size: 10.5pt; line-height: 1.5; color: #222; margin-top: 0.35rem; margin-bottom: 1rem; max-width: 44em; font-weight: 500; }
+
+    /* ─── SECTION METHOD ATTRIBUTION (print-safe: inline text, greyscale-friendly) ─── */
+    .section-methods-print {
+      font-size: 7.5pt;
+      color: #888;
+      margin: -0.5rem 0 0.9rem;
+      font-style: italic;
+      letter-spacing: 0.01em;
+    }
+    /* method-chip--unrun shows strikethrough inline */
+    .method-via--unrun { text-decoration: line-through; color: #BBB; }
+
+    /* ─── COVER ─── */
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 85vh;
+      page-break-after: always;
+      padding: 2rem;
+      background: var(--color-text-primary);
+      color: #FFF;
+      border-radius: 6px;
+    }
+    .cover-meta { font-family: monospace; font-size: 9pt; opacity: 0.85; letter-spacing: 0.08em; }
+    .cover-brand { font-size: 40pt; font-weight: 700; letter-spacing: -0.02em; margin-top: 1rem; color: #FFF; }
+    .cover-elevator { font-style: italic; font-size: 12pt; margin-top: 1.5rem; max-width: 32em; opacity: 0.9; }
+    .cover-ledger {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      font-family: monospace; font-size: 8pt;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 0.75rem; margin-top: 2rem; opacity: 0.85;
+    }
+
+    /* ─── CONTENTS PAGE ─── */
+    .contents-page { page-break-after: always; padding-top: 2rem; }
+    .contents-page h2 { border: none; font-size: 24pt; margin-bottom: 2rem; }
+    .contents-list { list-style: none; counter-reset: toc; }
+    .contents-list li { counter-increment: toc; display: flex; align-items: baseline; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px dotted #DDD; font-size: 11pt; }
+    .contents-list li::before { content: counter(toc, decimal-leading-zero); font-family: monospace; font-size: 9pt; color: var(--color-primary); font-weight: 700; min-width: 1.8rem; }
+
+    /* ─── PRINCIPLES ─── */
+    .principle { padding: 0.75rem 1rem; border-left: 3px solid var(--color-primary); margin-bottom: 0.75rem; page-break-inside: avoid; }
+    .principle-name { font-weight: 700; font-size: 11pt; margin-bottom: 0.15rem; }
+    .principle-rationale-short { font-size: 9.5pt; color: #666; font-style: italic; }
+
+    /* ─── POSITIONING ─── */
+    .positioning-subblock { padding: 0.75rem 1rem; border: 1px solid #E0E0E0; border-radius: 4px; margin-bottom: 0.75rem; page-break-inside: avoid; }
+    .subblock-via { font-style: italic; font-size: 8.5pt; color: #777; margin-bottom: 0.4rem; }
+    .butterfly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; }
+    .butterfly-cell { padding: 0.5rem; border-radius: 3px; border: 1px solid #DDD; font-size: 9pt; }
+    .butterfly-cell-label { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 0.25rem; color: #888; }
+    .landscape-axes { font-size: 9pt; font-style: italic; color: #666; margin-top: 0.4rem; }
+    .landscape-placement { display: flex; gap: 1rem; padding: 0.25rem 0; border-bottom: 1px solid #EEE; font-size: 9pt; }
+    .landscape-placement-brand { font-weight: 700; min-width: 8rem; }
+
+    /* ─── PERSONALITY ─── (slim canonical surface; process-record CSS lives in brand-methods-print.html) */
+    .personality-synthesis { font-size: 10.5pt; line-height: 1.5; color: #222; margin-top: 0.5rem; max-width: 45em; page-break-inside: avoid; }
+    .personality-character { font-size: 10pt; line-height: 1.55; color: #333; margin-top: 0.4rem; padding-left: 0.75rem; border-left: 2px solid color-mix(in srgb, var(--color-primary) 45%, transparent); max-width: 45em; font-style: italic; page-break-inside: avoid; }
+    .personality-archetypes { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    .archetype-tag { padding: 0.25rem 0.75rem; border-radius: 3px; font-weight: 700; font-size: 10pt; }
+    .archetype-tag--primary { background: var(--color-text-primary); color: #FFF; }
+    .archetype-tag--secondary { background: #EEE; color: var(--color-text-primary); border: 1px solid #CCC; }
+    .archetype-tag--blend { background: transparent; color: #666; border: 1px dashed #AAA; font-style: italic; }
+    .aaker-scores { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.75rem; }
+    .aaker-score-pill { display: inline-flex; align-items: baseline; gap: 0.35rem; padding: 0.2rem 0.5rem; border: 1px solid #DDD; border-radius: 3px; font-size: 9pt; background: white; }
+    .aaker-score-pill .aaker-dim { font-weight: 600; color: #555; }
+    .aaker-score-pill .aaker-score { font-family: monospace; font-weight: 700; color: #222; }
+    .keywords-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.75rem; }
+    .keyword-chip { padding: 0.2rem 0.6rem; border-radius: 3px; background: #F0F0F0; border: 1px solid #DDD; font-weight: 600; font-size: 9pt; }
+
+    /* ─── COLOR ─── */
+    .palette { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0.75rem; margin-bottom: 1rem; }
+    .swatch { width: 108px; border: 1px solid #E0E0E0; border-radius: 4px; overflow: hidden; page-break-inside: avoid; }
+    .swatch-color { height: 56px; }
+    .swatch-label { padding: 6px 8px; font-size: 7.5pt; background: white; line-height: 1.3; }
+    .swatch-label .role { display: block; font-weight: 600; font-size: 8pt; color: #333; }
+    .swatch-label .name { display: block; font-weight: 700; font-size: 8pt; color: #222; margin-top: 1px; }
+    .swatch-label .hex-alias { display: block; font-size: 7pt; color: #777; }
+    .swatch-label code { font-family: "Courier New", monospace; font-size: 7pt; color: #555; display: block; margin-top: 2px; }
+    .swatch-label .usage { font-size: 7pt; color: #888; margin-top: 2px; }
+
+    /* Anchor set */
+    .anchor-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.6rem; margin-bottom: 0.75rem; }
+    .anchor-swatch { width: 90px; border: 1px solid #E0E0E0; border-radius: 3px; overflow: hidden; page-break-inside: avoid; }
+    .anchor-swatch-color { height: 40px; }
+    .anchor-swatch-label { padding: 4px 6px; background: white; }
+    .anchor-swatch-label .anchor-name { display: block; font-weight: 700; font-size: 7pt; color: #222; }
+    .anchor-swatch-label code { font-family: "Courier New", monospace; font-size: 6.5pt; color: #666; display: block; margin-top: 1px; }
+
+    /* Color scales */
+    .scale-strip { margin-top: 0.75rem; page-break-inside: avoid; }
+    .scale-strip h4 { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.08em; color: #777; margin-bottom: 0.25rem; }
+    .scale-steps { display: flex; gap: 0; border-radius: 3px; overflow: hidden; border: 1px solid #DDD; }
+    .scale-step { flex: 1; display: flex; flex-direction: column; }
+    .scale-step-color { height: 28px; }
+    .scale-step-label { padding: 1px 2px; font-size: 5.5pt; font-family: monospace; color: #888; text-align: center; background: white; }
+    .scale-step-name { font-size: 5pt; color: #999; text-align: center; padding: 0 1px 1px; background: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Gradient library */
+    .gradients-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-top: 0.6rem; }
+    .gradient-strip { page-break-inside: avoid; border: 1px solid #E0E0E0; border-radius: 4px; overflow: hidden; }
+    .gradient-preview { height: 36px; }
+    .gradient-meta { padding: 5px 8px; font-size: 7.5pt; background: white; }
+    .gradient-name { font-weight: 700; font-size: 8pt; }
+    .gradient-direction { font-size: 6.5pt; font-family: monospace; color: #888; margin-top: 1px; }
+    .gradient-usage { font-size: 7pt; color: #777; margin-top: 2px; }
+
+    .expressions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 0.75rem; }
+    .expression { padding: 0.75rem; border: 1px solid #E0E0E0; border-radius: 4px; page-break-inside: avoid; }
+    .expression-name { font-weight: 700; font-size: 10pt; }
+    .expression-anchors { display: flex; gap: 3px; margin: 0.35rem 0; }
+    .expression-anchors span { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #CCC; }
+    .expression-range, .expression-when { font-size: 8pt; color: #666; }
+
+    /* ─── CONTRAST BADGES ─── */
+    .contrast-table { font-size: 8.5pt; }
+    .contrast-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 2px; vertical-align: middle; margin-right: 4px; border: 1px solid #DDD; }
+    .badge { display: inline-block; padding: 1px 6px; border-radius: 10px; font-size: 7pt; font-weight: 700; font-family: var(--font-body); letter-spacing: 0.04em; text-transform: uppercase; }
+    .badge-aaa { background: var(--color-affirm); color: white; }
+    .badge-aa { background: var(--color-primary); color: var(--color-text-primary); }
+    .badge-fail { background: var(--color-warn); color: white; }
+
+    /* ─── TYPOGRAPHY ─── */
+    .type-specimen { padding: 1rem; border: 1px solid #E0E0E0; border-radius: 4px; margin-top: 0.75rem; page-break-inside: avoid; }
+    .type-sample { margin-bottom: 0.9rem; }
+    .type-label { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin-bottom: 2px; font-family: var(--font-body); }
+    .type-sample .sample { font-family: var(--font-heading); }
+    .type-sample.body .sample { font-family: var(--font-body); }
+
+    /* ─── SPACING BLOCKS (proportional, not table) ─── */
+    .spacing-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem; align-items: flex-end; }
+    .spacing-item { text-align: center; page-break-inside: avoid; }
+    .spacing-block { background: color-mix(in srgb, var(--color-primary) 18%, white); border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent); border-radius: 2px; }
+    .spacing-label { font-size: 7pt; color: #666; margin-top: 0.25rem; font-family: monospace; }
+
+    /* ─── COMPONENTS ─── */
+    .components-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 0.75rem; }
+    .component-card { padding: 0.9rem; border: 1px solid #E0E0E0; border-radius: 4px; page-break-inside: avoid; }
+    .component-card h4 { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.1em; color: #777; font-weight: 700; margin-bottom: 0.5rem; }
+    .btn { display: inline-block; padding: 0.4em 0.9em; border-radius: 3px; font-family: var(--font-body); font-weight: 600; font-size: 8.5pt; border: none; margin: 0 4px 4px 0; text-decoration: none; }
+    .btn-primary { background: var(--color-primary); color: var(--color-text-primary); }
+    .btn-secondary { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .btn-ghost { background: transparent; color: #666; }
+    .btn-accent { background: var(--color-accent); color: white; }
+    .component-badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 7.5pt; font-weight: 700; margin: 0 4px 4px 0; font-family: var(--font-body); letter-spacing: 0.02em; }
+    .status-success { background: var(--color-success); color: white; }
+    .status-info { background: var(--color-primary); color: var(--color-text-primary); }
+    .status-warning { background: var(--color-warning); color: #3A2806; }
+    .status-danger { background: var(--color-danger); color: white; }
+
+    /* ─── MOTIF GALLERY ─── */
+    .motif-gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 0.75rem; }
+    .motif-card { padding: 0.75rem; border: 1px solid #E0E0E0; border-radius: 4px; page-break-inside: avoid; }
+    .motif-card-name { font-weight: 700; font-size: 10pt; margin-bottom: 0.25rem; }
+    .motif-card-desc { font-size: 8.5pt; color: #666; margin-bottom: 0.5rem; }
+    .motif-card-svg { border: 1px dashed #CCC; border-radius: 3px; padding: 0.5rem; text-align: center; min-height: 60px; display: flex; align-items: center; justify-content: center; background: #FAFAFA; }
+
+    /* ─── TEXTURE PANEL ─── */
+    .texture-body { padding: 0.75rem 1rem; border: 1px solid #E0E0E0; border-radius: 4px; margin-top: 0.5rem; font-size: 9.5pt; page-break-inside: avoid; }
+
+    /* ─── VISUAL REFERENCES ─── */
+    .visual-reference-subblock { padding: 0.75rem 1rem; border: 1px solid #E0E0E0; border-radius: 4px; margin-bottom: 0.75rem; page-break-inside: avoid; }
+    .mood-board-list { margin-top: 0.4rem; padding-left: 1.25rem; }
+    .mood-board-list li { margin-bottom: 0.25rem; font-size: 9pt; }
+
+    /* ─── HERO ─── */
+    .hero { padding: 2rem; border-radius: 6px; background: var(--color-text-primary); color: #FFF; margin-top: 0.75rem; page-break-inside: avoid; }
+    .hero-eyebrow { font-size: 7.5pt; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-primary); font-weight: 700; }
+    .hero-headline { font-size: 20pt; font-family: var(--font-heading); font-weight: 700; margin-top: 0.3rem; line-height: 1.1; color: #FFF; }
+    .hero-sub { font-size: 10.5pt; margin-top: 0.5rem; opacity: 0.9; max-width: 32em; }
+
+    .motif-panel { margin-top: 0.75rem; padding: 1rem; border: 1px dashed #AAA; border-radius: 4px; page-break-inside: avoid; }
+
+    /* ─── VOICE ─── */
+    .voice-constraint { padding: 1rem; border: 1px solid #E0E0E0; border-radius: 4px; margin-top: 0.75rem; page-break-inside: avoid; }
+    .voice-constraint-method { font-style: italic; font-size: 8.5pt; color: #666; margin-bottom: 0.5rem; }
+    .voice-example { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; }
+    .voice-do, .voice-dont { padding: 0.6rem 0.75rem; border-radius: 3px; font-size: 9pt; }
+    .voice-do   { background: color-mix(in srgb, var(--color-affirm) 10%, white); border: 1px solid color-mix(in srgb, var(--color-affirm) 30%, transparent); }
+    .voice-dont { background: color-mix(in srgb, var(--color-warn)   10%, white); border: 1px solid color-mix(in srgb, var(--color-warn)   30%, transparent); }
+    .voice-do::before   { content: "Do";    font-weight: 700; color: var(--color-affirm); display: block; margin-bottom: 0.25rem; font-size: 7pt; letter-spacing: 0.1em; text-transform: uppercase; }
+    .voice-dont::before { content: "Don't"; font-weight: 700; color: var(--color-warn);   display: block; margin-bottom: 0.25rem; font-size: 7pt; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* ─── QUALITY ─── */
+    .quality-total { font-size: 12pt; font-weight: 700; margin-top: 0.75rem; }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; font-size: 9pt; margin-top: 0.5rem; margin-bottom: 1rem; }
+    th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid #E0E0E0; }
+    th { font-weight: 600; border-bottom: 2px solid #CCC; }
+
+    /* ─── META ─── */
+    .meta { font-size: 8pt; color: #999; margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid #E0E0E0; }
+  </style>
+</head>
+<body>
+
+  <!-- ─── COVER ─── -->
+  <section class="cover">
+    <div class="cover-meta">DESIGN SYSTEM &middot; {{ draft_label | 'DRAFT' }} &middot; {{ date }}</div>
+    <div class="cover-brand">{{ brand_name }}</div>
+    <p class="cover-elevator">{{ elevator_pitch }}</p>
+    <div class="cover-ledger">
+      <span>Primary {{ primary_hex }}</span>
+      <span>Accent {{ accent_hex }}</span>
+      <span>Type {{ heading_font_short }}/{{ body_font_short }}</span>
+      <span>Scale {{ scale_name }}</span>
+      <!-- OPTIONAL:ledger-coherence --><span>Coherence {{ coherence_score }}/30</span>
+      <!-- OPTIONAL:ledger-rand --><span>Rand {{ rand_total }}/70</span>
+    </div>
+  </section>
+
+  <!-- ─── CONTENTS PAGE ─── -->
+  <!-- The contents page lists only sections that actually rendered. Soft-skipped sections are NOT listed. -->
+  <section class="contents-page">
+    <h2>Contents</h2>
+    <ol class="contents-list">
+      <!-- REPEAT: contents_entries — one li per rendered section, in canonical order. Skip entries for soft-skipped sections. -->
+      <li>Design Principles</li>
+      <!-- OPTIONAL:positioning --><li>Positioning</li>
+      <!-- OPTIONAL:identity --><li>Identity</li>
+      <!-- OPTIONAL:personality --><li>Personality</li>
+      <li>Color</li>
+      <li>Typography</li>
+      <!-- OPTIONAL:visual-language --><li>Visual Language</li>
+      <li>Spacing &amp; Grid</li>
+      <li>Components</li>
+      <!-- OPTIONAL:motif-gallery --><li>Motif Gallery</li>
+      <!-- OPTIONAL:texture-panel --><li>Texture &amp; Material</li>
+      <!-- OPTIONAL:anti-inspiration --><li>Anti-Inspiration</li>
+      <li>In Practice</li>
+      <li>Voice Constraints</li>
+      <li>Platform &amp; Application</li>
+      <li>Governance</li>
+      <li>LLM Operating Manual</li>
+      <li>Quick Reference</li>
+      <!-- OPTIONAL:quality --><li>Quality</li>
+    </ol>
+  </section>
+
+  <!-- ─── PRINCIPLES ─── -->
+  <section class="section page-break">
+    <h2>Design Principles</h2>
+    <!-- REPEAT: methods_for_principles -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">The guiding rules that inform every design decision. Each principle traces back to personality, voice, or positioning evidence.</p>
+    <p class="section-summary">{{ principles_summary }}</p>
+    <!-- REPEAT: principles -->
+    <div class="principle avoid-break">
+      <div class="principle-name">{{ principle.name }}</div>
+      <div class="principle-rationale-short">{{ principle.rationale_short }}</div>
+    </div>
+    <!-- END -->
+  </section>
+
+  <!-- ─── POSITIONING ─── -->
+  <!-- OPTIONAL:positioning -->
+  <section class="section page-break">
+    <h2>Positioning</h2>
+    <!-- REPEAT: methods_for_positioning -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">How this brand occupies space — where it stands, what it refuses, what makes it distinct. Rendered through whatever frames were run.</p>
+    <p class="section-summary">{{ positioning_summary }}</p>
+
+    <!-- REPEAT: positioning_subblocks -->
+    <div class="positioning-subblock">
+      <div class="subblock-via">via {{ technique.label }}</div>
+      {{ subblock.content_html }}
+      <!--
+        elevator-pitch: <p>{{ pitch }}</p>
+        wolff-olins-butterfly:
+          <div class="butterfly-grid">
+            <div class="butterfly-cell"><div class="butterfly-cell-label">IS</div>{{ is }}</div>
+            <div class="butterfly-cell"><div class="butterfly-cell-label">ISN'T</div>{{ isnt }}</div>
+            <div class="butterfly-cell"><div class="butterfly-cell-label">DOES</div>{{ does }}</div>
+            <div class="butterfly-cell"><div class="butterfly-cell-label">DOESN'T</div>{{ doesnt }}</div>
+          </div>
+        landscape-grid: (routed to brand-methods.html in v0.4.1 — process record only)
+      -->
+    </div>
+    <!-- END -->
+  </section>
+
+  <!-- ─── IDENTITY ─── -->
+  <!-- OPTIONAL:identity -->
+  <section class="section page-break">
+    <h2>Identity</h2>
+    <!-- REPEAT: methods_for_identity -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">The brand's signature — wordmark, pictorial mark (if any), permitted lockups, and the rules that keep them legible. Full construction geometry and the complete misuse set live in the companion logo file; this page summarizes the rules a reader needs at a glance.</p>
+    <p class="section-summary">{{ identity_summary }}</p>
+
+    <!-- OPTIONAL:identity-wordmark -->
+    <p><strong>Wordmark:</strong> {{ wordmark_label | brand_name }} — {{ wordmark_typeface }}, weight {{ wordmark_weight }}, letter-spacing {{ wordmark_tracking }}. <em>{{ wordmark_note }}</em></p>
+
+    <!-- OPTIONAL:identity-clearspace -->
+    <p><strong>Clearspace:</strong> {{ clearspace_rule }} · <strong>Min size (digital):</strong> {{ min_size_digital_px }} px · <strong>Min size (print):</strong> {{ min_size_print_mm }} mm</p>
+
+    <!-- OPTIONAL:identity-lockups -->
+    <p><strong>Permitted lockups:</strong></p>
+    <ul>
+      <!-- REPEAT: identity_lockups -->
+      <li><strong>{{ lockup.name }}</strong> — {{ lockup.when_to_use }}</li>
+      <!-- END -->
+    </ul>
+
+    <p><em>Full construction, clearspace grids, and complete misuse set: <code>logo-construction.svg</code>.</em></p>
+  </section>
+
+  <!-- ─── PERSONALITY ─── (canonical surface only; process-record content lives in brand-methods) -->
+  <!-- OPTIONAL:personality -->
+  <section class="section page-break">
+    <h2>Personality</h2>
+    <!-- REPEAT: methods_for_personality -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+
+    <p class="section-definition">The brand's temperament in plain language — synthesis frames it in archetype and Aaker terms; the character paragraph is the human thread. Reasoning, metaphor galleries, and keyword walkthroughs are brand-methods content.</p>
+    <p class="personality-synthesis section-summary">{{ personality_synthesis }}</p>
+
+    <!-- OPTIONAL:personality-character -->
+    <p class="personality-character">{{ personality_character }}</p>
+
+    <!-- OPTIONAL:personality-archetypes -->
+    <div class="personality-archetypes">
+      <span class="archetype-tag archetype-tag--primary">{{ primary_archetype }}</span>
+      <span class="archetype-tag archetype-tag--secondary">{{ secondary_archetype }}</span>
+      <!-- OPTIONAL:personality-blend --><span class="archetype-tag archetype-tag--blend">{{ archetype_blend }}</span>
+    </div>
+
+    <!-- OPTIONAL:personality-aaker -->
+    <div class="aaker-scores">
+      <!-- REPEAT: aaker_rows -->
+      <div class="aaker-score-pill"><span class="aaker-dim">{{ dim }}</span><span class="aaker-score">{{ score }}/10</span></div>
+      <!-- END -->
+    </div>
+
+    <!-- OPTIONAL:personality-keywords -->
+    <div class="keywords-chips">
+      <!-- REPEAT: keywords -->
+      <span class="keyword-chip">{{ word }}</span>
+      <!-- END -->
+    </div>
+  </section>
+
+  <!-- ─── COLOR ─── -->
+  <section class="section page-break">
+    <h2>Color</h2>
+    <!-- REPEAT: methods_for_color -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+
+    <p class="section-definition">The brand's emotional signature in light — core roles, named anchors, full tonal scales, multi-modal expressions, declared gradients. Every hex visible here is usable.</p>
+    <p class="section-summary">{{ color_summary }}</p>
+
+    <h3>Core Roles</h3>
+    <div class="palette">
+      <!-- REPEAT: palette_core -->
+      <div class="swatch avoid-break">
+        <div class="swatch-color" style="background: {{ swatch.hex }};"></div>
+        <div class="swatch-label">
+          <span class="role">{{ swatch.role }}</span>
+          <span class="name">{{ swatch.name }}</span>
+          <span class="hex-alias">{{ swatch.hex_alias }}</span>
+          <code>{{ swatch.hex }}</code>
+          <div class="usage">{{ swatch.usage }}</div>
+        </div>
+      </div>
+      <!-- END -->
+    </div>
+
+    <!-- OPTIONAL:color-anchors -->
+    <h3>Anchor Set</h3>
+    <div class="anchor-grid">
+      <!-- REPEAT: palette_anchors -->
+      <div class="anchor-swatch avoid-break">
+        <div class="anchor-swatch-color" style="background: {{ anchor.hex }};"></div>
+        <div class="anchor-swatch-label">
+          <span class="anchor-name">{{ anchor.name }}</span>
+          <code>{{ anchor.hex }}</code>
+        </div>
+      </div>
+      <!-- END -->
+    </div>
+
+    <!-- OPTIONAL:color-scales -->
+    <h3>Color Scales</h3>
+    <!-- REPEAT: palette_scales -->
+    <div class="scale-strip avoid-break">
+      <h4>{{ scale.family }}</h4>
+      <div class="scale-steps">
+        <!-- REPEAT: scale.steps -->
+        <div class="scale-step">
+          <div class="scale-step-color" style="background: {{ step.hex }};"></div>
+          <div class="scale-step-label">{{ step.stop }}</div>
+          <div class="scale-step-name">{{ step.name }}</div>
+        </div>
+        <!-- END -->
+      </div>
+    </div>
+    <!-- END -->
+
+    <!-- OPTIONAL:color-expressions -->
+    <h3>Expressions</h3>
+    <div class="expressions">
+      <!-- REPEAT: palette_expressions -->
+      <div class="expression">
+        <div class="expression-name">{{ expr.name }}</div>
+        <div class="expression-anchors"><!-- REPEAT: expr.anchors --></div>
+        <div class="expression-range">{{ expr.spectral_range }}</div>
+        <div class="expression-when">{{ expr.when_to_use }}</div>
+      </div>
+      <!-- END -->
+    </div>
+
+    <!-- OPTIONAL:color-gradient-library -->
+    <h3>Gradient Library</h3>
+    <div class="gradients-grid">
+      <!-- REPEAT: palette_gradients -->
+      <div class="gradient-strip avoid-break">
+        <div class="gradient-preview" style="background: linear-gradient({{ gradient.direction }}, {{ gradient.stops_css }});"></div>
+        <div class="gradient-meta">
+          <div class="gradient-name">{{ gradient.name }}</div>
+          <div class="gradient-direction">{{ gradient.direction }} &middot; {{ gradient.stops_summary }}</div>
+          <div class="gradient-usage">{{ gradient.usage }}</div>
+        </div>
+      </div>
+      <!-- END -->
+    </div>
+
+    <!-- OPTIONAL:contrast-validation -->
+    <h3>Contrast</h3>
+    <table class="contrast-table">
+      <thead><tr><th>Pair</th><th>Ratio</th><th>Rating</th></tr></thead>
+      <tbody>
+        <!-- REPEAT: contrast_pairs -->
+        <tr>
+          <td>
+            <span class="contrast-swatch" style="background: {{ pair.fg }}"></span> on
+            <span class="contrast-swatch" style="background: {{ pair.bg }}"></span>
+            <code>{{ pair.fg }} / {{ pair.bg }}</code>
+          </td>
+          <td><code>{{ pair.ratio }}</code></td>
+          <td><span class="badge badge-{{ pair.rating_class }}">{{ pair.rating_label }}</span></td>
+        </tr>
+        <!-- END -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ─── TYPOGRAPHY ─── -->
+  <section class="section page-break">
+    <h2>Typography</h2>
+    <!-- REPEAT: methods_for_typography -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+
+    <p class="section-definition">The brand's typographic voice — the pair of typefaces, their weights and roles, the modular scale. Specimens render in brand sample text.</p>
+    <p class="section-summary">{{ typography_summary }}</p>
+
+    <table>
+      <tr><th>Role</th><th>Typeface</th><th>Weight</th><th>Fallback</th></tr>
+      <tr><td>Heading</td><td>{{ heading_font }}</td><td>{{ heading_weight }}</td><td><code>{{ heading_fallback }}</code></td></tr>
+      <tr><td>Body</td><td>{{ body_font }}</td><td>{{ body_weight }}</td><td><code>{{ body_fallback }}</code></td></tr>
+    </table>
+
+    <h3>Type Scale — {{ scale_name }} ({{ scale_ratio }})</h3>
+    <div class="type-specimen">
+      <div class="type-sample"><div class="type-label">Display — {{ display_size }}</div><div class="sample" style="font-size: {{ display_size }}; line-height: 1.1; font-weight: 700;">{{ sample_display }}</div></div>
+      <div class="type-sample"><div class="type-label">H1 — {{ h1_size }}</div><div class="sample" style="font-size: {{ h1_size }}; line-height: 1.2; font-weight: 700;">{{ sample_h1 }}</div></div>
+      <div class="type-sample"><div class="type-label">H2 — {{ h2_size }}</div><div class="sample" style="font-size: {{ h2_size }}; line-height: 1.2; font-weight: 700;">{{ sample_h2 }}</div></div>
+      <div class="type-sample"><div class="type-label">H3 — {{ h3_size }}</div><div class="sample" style="font-size: {{ h3_size }}; line-height: 1.3; font-weight: 600;">{{ sample_h3 }}</div></div>
+      <div class="type-sample body"><div class="type-label">Body — {{ body_size }}</div><div class="sample" style="font-size: {{ body_size }}; line-height: 1.6;">{{ sample_body }}</div></div>
+      <div class="type-sample body"><div class="type-label">Small — {{ small_size }}</div><div class="sample" style="font-size: {{ small_size }}; line-height: 1.5;">{{ sample_small }}</div></div>
+    </div>
+  </section>
+
+  <!-- ─── VISUAL LANGUAGE ─── -->
+  <!-- OPTIONAL:visual-language -->
+  <section class="section page-break">
+    <h2>Visual Language</h2>
+    <!-- REPEAT: methods_for_visual_language -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">The grammar that governs every surface — allowed shapes, composition, elevation, material, motion, gradients, motif grammar, photography, illustration. Specific galleries (motifs, textures, anti-inspiration) and companion systems (photography, illustration) have their own pages; this is the umbrella.</p>
+    <p class="section-summary">{{ visual_language_summary }}</p>
+
+    <!-- OPTIONAL:vl-form-primitives -->
+    <h3>Form primitives</h3>
+    <table>
+      <tr><th>Primitive</th><th>Construction</th><th>Stroke (px)</th></tr>
+      <!-- REPEAT: visual_language_form_primitives -->
+      <tr><td><strong>{{ primitive.name }}</strong></td><td>{{ primitive.construction }}</td><td>{{ primitive.stroke_range_px }}</td></tr>
+      <!-- END -->
+    </table>
+
+    <!-- OPTIONAL:vl-composition -->
+    <h3>Composition archetypes</h3>
+    <table>
+      <tr><th>Archetype</th><th>Trigger</th><th>Layout</th></tr>
+      <!-- REPEAT: visual_language_composition_archetypes -->
+      <tr><td><strong>{{ arch.name }}</strong></td><td>{{ arch.trigger }}</td><td>{{ arch.layout_description }}</td></tr>
+      <!-- END -->
+    </table>
+
+    <!-- OPTIONAL:vl-elevation -->
+    <h3>Elevation</h3>
+    <table>
+      <tr><th>Level</th><th>Class</th><th>Token</th></tr>
+      <!-- REPEAT: visual_language_elevation_levels -->
+      <tr><td><strong>{{ elev.level }}</strong></td><td><code>{{ elev.class }}</code></td><td><code>{{ elev.shadow_token }}</code></td></tr>
+      <!-- END -->
+    </table>
+
+    <!-- OPTIONAL:vl-translucency -->
+    <h3>Translucency &amp; material</h3>
+    <p><strong>Translucency:</strong> {{ translucency_allowed_label }} — <em>{{ translucency_reason }}</em></p>
+
+    <!-- OPTIONAL:vl-motion -->
+    <h3>Motion</h3>
+    <p>{{ motion_principles_summary }}</p>
+
+    <!-- OPTIONAL:vl-gradients -->
+    <h3>Gradient policy</h3>
+    <p><strong>Policy:</strong> {{ gradient_policy_label }} — <em>{{ gradient_policy_rule }}</em></p>
+
+    <!-- OPTIONAL:vl-motif-grammar -->
+    <h3>Motif grammar</h3>
+    {{ motif_grammar_body_html }}
+
+    <!-- OPTIONAL:vl-spatial-3d -->
+    <h3>3D &amp; spatial</h3>
+    <p><strong>Policy:</strong> {{ spatial_3d_policy_label }}</p>
+
+    <h3>Photography</h3>
+    <p>Subject, lighting, crop, and post rules; reference bank; decision tree. Full system: <code>photography-reference-grid.html</code>.</p>
+
+    <h3>Illustration</h3>
+    <p>Shape vocabulary, stroke weights, perspective, palette constraint, emotion inventory, cultural anchors. Full system: <code>illustration-system.html</code>.</p>
+  </section>
+
+  <!-- ─── SPACING & GRID ─── (proportional blocks, NOT a table; grid subsection added in v0.7.0) -->
+  <section class="section avoid-break">
+    <h2>Spacing &amp; Grid</h2>
+    <!-- REPEAT: methods_for_spacing -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">The brand's rhythm — a proportional scale governing gaps, padding, composition density — and the grid system those units compose into. Blocks below render at actual token size; grid values describe container and column rules.</p>
+    <p class="section-summary">{{ spacing_summary }}</p>
+
+    <h3>Spacing scale</h3>
+    <div class="spacing-grid">
+      <div class="spacing-item"><div class="spacing-block" style="width: 4px; height: 4px;"></div><div class="spacing-label">1 · 4px</div></div>
+      <div class="spacing-item"><div class="spacing-block" style="width: 8px; height: 8px;"></div><div class="spacing-label">2 · 8px</div></div>
+      <div class="spacing-item"><div class="spacing-block" style="width: 12px; height: 12px;"></div><div class="spacing-label">3 · 12px</div></div>
+      <div class="spacing-item"><div class="spacing-block" style="width: 16px; height: 16px;"></div><div class="spacing-label">4 · 16px</div></div>
+      <div class="spacing-item"><div class="spacing-block" style="width: 24px; height: 24px;"></div><div class="spacing-label">6 · 24px</div></div>
+      <div class="spacing-item"><div class="spacing-block" style="width: 32px; height: 32px;"></div><div class="spacing-label">8 · 32px</div></div>
+      <div class="spacing-item"><div class="spacing-block" style="width: 48px; height: 48px;"></div><div class="spacing-label">12 · 48px</div></div>
+      <div class="spacing-item"><div class="spacing-block" style="width: 64px; height: 64px;"></div><div class="spacing-label">16 · 64px</div></div>
+    </div>
+
+    <!-- OPTIONAL:grid-system -->
+    <h3>Grid system</h3>
+    <table>
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td>Columns</td><td><code>{{ grid_columns | '12' }}</code></td></tr>
+      <tr><td>Gutter</td><td><code>{{ grid_gutter | '24px' }}</code></td></tr>
+      <tr><td>Max container</td><td><code>{{ grid_container_max | '1200px' }}</code></td></tr>
+      <tr><td>Outer margin</td><td><code>{{ grid_outer_margin | '32px' }}</code></td></tr>
+    </table>
+
+    <!-- OPTIONAL:breakpoints -->
+    <h3>Breakpoints</h3>
+    <table>
+      <tr><th>Name</th><th>Min width</th><th>Typical use</th></tr>
+      <!-- REPEAT: breakpoints -->
+      <tr><td><strong>{{ bp.name }}</strong></td><td><code>{{ bp.min_width }}</code></td><td>{{ bp.usage }}</td></tr>
+      <!-- END -->
+    </table>
+  </section>
+
+  <!-- ─── COMPONENTS ─── -->
+  <section class="section page-break">
+    <h2>Components</h2>
+    <!-- REPEAT: methods_for_components -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">Primitives rendered in the brand's own palette and form language — to show the system behaving, not to prescribe a component library.</p>
+    <p class="section-summary">{{ components_summary }}</p>
+    <div class="components-grid">
+      <div class="component-card">
+        <h4>Buttons</h4>
+        <span class="btn btn-primary">Primary</span>
+        <span class="btn btn-secondary">Secondary</span>
+        <span class="btn btn-ghost">Ghost</span>
+        <span class="btn btn-accent">Accent</span>
+      </div>
+      <div class="component-card">
+        <h4>Status badges</h4>
+        <span class="component-badge status-info">Active</span>
+        <span class="component-badge status-success">Shipped</span>
+        <span class="component-badge status-warning">Review</span>
+        <span class="component-badge status-danger">Blocked</span>
+      </div>
+      <div class="component-card">
+        <h4>Input</h4>
+        <div style="border: 1px solid #CCC; border-radius: 3px; padding: 6px 8px; font-size: 9pt; background: white;">{{ sample_input_placeholder | 'you@example.com' }}</div>
+        <div class="btn btn-primary" style="display:block; text-align:center; margin-top: 6px;">{{ sample_input_cta | 'Continue' }}</div>
+      </div>
+      <div class="component-card">
+        <h4>Content card</h4>
+        <div style="padding: 0.6rem; background: color-mix(in srgb, var(--color-primary) 8%, white); border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent); border-radius: 4px; font-size: 9pt;">
+          <strong>{{ sample_card_title }}</strong>
+          <p style="font-size: 8.5pt; margin-top: 4px; margin-bottom: 0;">{{ sample_card_body }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── MOTIF GALLERY ─── -->
+  <!-- OPTIONAL:motif-gallery -->
+  <section class="section page-break">
+    <h2>Motif Gallery</h2>
+    <!-- REPEAT: methods_for_motif_gallery -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">Recurring formal elements — shapes, patterns, structural motifs. Each motif renders in the color spectrum its name implies.</p>
+    <p class="section-summary">{{ motif_gallery_summary }}</p>
+    <div class="motif-gallery-grid">
+      <!-- REPEAT: form_motifs -->
+      <div class="motif-card">
+        <div class="motif-card-name">{{ motif.name }}</div>
+        <div class="motif-card-desc">{{ motif.description }}</div>
+        <div class="motif-card-svg">{{ motif.svg_or_placeholder }}</div>
+      </div>
+      <!-- END -->
+    </div>
+  </section>
+
+  <!-- ─── TEXTURE & MATERIAL ─── -->
+  <!-- OPTIONAL:texture-panel -->
+  <section class="section avoid-break">
+    <h2>Texture &amp; Material</h2>
+    <!-- REPEAT: methods_for_texture_panel -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">The physical-world analogue — how this brand would feel if you could touch it. Informs surface treatment and shadow quality.</p>
+    <p class="section-summary">{{ texture_summary }}</p>
+    <div class="texture-body">
+      {{ texture_body_html }}
+    </div>
+  </section>
+
+  <!-- ─── ANTI-INSPIRATION ─── (v0.4.2: moved from appendix into the Visual block as guardrail) -->
+  <!-- OPTIONAL:anti-inspiration -->
+  <section class="section page-break">
+    <h2>Anti-Inspiration</h2>
+    <!-- REPEAT: methods_for_anti_inspiration -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">What this brand deliberately is not — a visual guardrail alongside motif and texture.</p>
+    <p class="section-summary">{{ anti_inspiration_summary }}</p>
+    {{ anti_inspiration_list_html }}
+  </section>
+
+  <!-- ─── HERO / IN PRACTICE ─── -->
+  <section class="section page-break">
+    <h2>In Practice</h2>
+    <!-- REPEAT: methods_for_in_practice -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">A single rendered example showing principles, palette, and type working together. Hero motif placement is rule-driven — never overlapping headline words at full opacity.</p>
+    <p class="section-summary">{{ in_practice_summary }}</p>
+    <div class="hero">
+      <div class="hero-eyebrow">{{ hero_eyebrow }}</div>
+      <div class="hero-headline">{{ hero_headline }}</div>
+      <p class="hero-sub">{{ hero_sub }}</p>
+    </div>
+    <!-- OPTIONAL:motif-panel -->
+    <div class="motif-panel">
+      <h3 style="margin-top: 0;">Motif &middot; {{ motif_name }}</h3>
+      <p>{{ motif_description }}</p>
+      {{ motif_svg_hint }}
+    </div>
+  </section>
+
+  <!-- ─── VOICE CONSTRAINTS ─── -->
+  <section class="section page-break">
+    <h2>Voice Constraints</h2>
+    <!-- REPEAT: methods_for_voice_constraints -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">How this brand decides what to say — and what not to. The specificity-test principle carries both halves: never use a word as decoration, AND every word must add specificity and meaning.</p>
+    <p class="section-summary">{{ voice_summary }}</p>
+
+    <!-- OPTIONAL:voice-formality -->
+    <p><strong>Formality:</strong> {{ formality_score }} / {{ formality_scale_max }}</p>
+
+    <!-- REPEAT: voice_constraint_blocks -->
+    <div class="voice-constraint">
+      <div class="voice-constraint-method">via {{ constraint.technique_label }}</div>
+      {{ constraint.body_html }}
+    </div>
+    <!-- END -->
+  </section>
+
+  <!-- ─── PLATFORM & APPLICATION ─── -->
+  <section class="section page-break">
+    <h2>Platform &amp; Application</h2>
+    <p class="section-definition">How the brand translates into the places real work gets done. Every platform has a font library, a color-slot structure, and quirks that shape how the system renders. Each companion is paste-ready — open, follow the steps, the target platform carries the brand.</p>
+    <p class="section-summary">{{ platforms_summary }}</p>
+
+    <p><strong>Cross-surface companions:</strong></p>
+    <ul>
+      <li><code>platform-matrix.md</code> — single consolidated cross-surface reference. Master tables (rows = tokens, columns = surfaces) for color / typography / form &amp; spacing, plus per-platform sub-sections (Google Slides, PowerPoint, Keynote, Canva Pro &amp; Free, Figma) covering setup steps, typography fallback chains, probe notes, and caveats.</li>
+      <li><code>tokens.css</code> — universal CSS custom properties for any web tool.</li>
+      <li><code>tailwind.config.js</code> — Tailwind v4 theme config.</li>
+      <li><code>theme-figma.json</code> — Tokens Studio-compatible Figma import.</li>
+      <li><code>email-template.html</code> — HTML email scaffold with inline styles.</li>
+    </ul>
+  </section>
+
+  <!-- ─── GOVERNANCE ─── -->
+  <section class="section avoid-break">
+    <h2>Governance</h2>
+    <p class="section-definition">Who owns the brand system, how it evolves, and how changes are published and deprecated. Full ownership table, SemVer policy, deprecation window, contribution flow, and health checklist live on the companion page.</p>
+    <p class="section-summary">{{ governance_summary }}</p>
+    <p><strong>Owner:</strong> {{ governance_owner_name }} · <strong>Version:</strong> {{ governance_version | version }} · <strong>Deprecation window:</strong> {{ governance_deprecation_window_days | '90' }} days</p>
+    <p>Full document: <code>governance.md</code>.</p>
+  </section>
+
+  <!-- ─── LLM OPERATING MANUAL ─── -->
+  <section class="section avoid-break">
+    <h2>LLM Operating Manual</h2>
+    <p class="section-definition">A machine-readable sibling to this document — everything a language model needs to produce on-brand copy, respond in the brand's voice, and refuse off-brand requests. Follows the brand.md specification (v0.2.0).</p>
+    <p class="section-summary">{{ llm_manual_summary }}</p>
+    <p><strong><code>brand.md</code></strong> — canonical brand definition (strategy, voice, visual sections) for model ingestion.</p>
+    <p><strong><code>brand.extensions.yaml</code></strong> — machine-enforceable rules the spec doesn't cover (tone matrix, output constraints, banned vocabulary with replacements, cultural anchors, platform chains, self-validation).</p>
+  </section>
+
+  <!-- ─── QUICK REFERENCE ─── -->
+  <section class="section avoid-break">
+    <h2>Quick Reference</h2>
+    <p class="section-definition">A one-page lookup card pulling the essentials — palette, type pair, principles, voice constraints — into a single printable surface.</p>
+    <p class="section-summary">{{ quickref_summary }}</p>
+    <p>One-pager: <code>brand-quickref.md</code>.</p>
+  </section>
+
+  <!-- ─── QUALITY ─── (Coherence + Rand's Seven grouped under one heading) -->
+  <!-- OPTIONAL:quality -->
+  <section class="section avoid-break">
+    <h2>Quality</h2>
+    <!-- REPEAT: methods_for_quality -->
+    <p class="section-methods-print">&middot; via <span class="method-via--{{ technique.status }}">{{ technique.label }}</span></p>
+    <!-- END -->
+    <p class="section-definition">Self-assessment against two rubrics — Coherence (cross-dimension consistency) and Rand's Seven (mark-level craft). Both are signals, not pass/fail grades.</p>
+    <p class="section-summary">{{ quality_summary }}</p>
+
+    <!-- OPTIONAL:quality-coherence -->
+    <h3>Coherence</h3>
+    <div class="quality-total">{{ coherence_score }} / 30</div>
+    <p>{{ coherence_notes }}</p>
+
+    <!-- OPTIONAL:quality-rand -->
+    <h3>Paul Rand's Seven Criteria</h3>
+    <table>
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Distinctive</td><td>{{ rand_distinctive }}/10</td><td>{{ rand_distinctive_notes }}</td></tr>
+        <tr><td>Memorable</td><td>{{ rand_memorable }}/10</td><td>{{ rand_memorable_notes }}</td></tr>
+        <tr><td>Simple</td><td>{{ rand_simple }}/10</td><td>{{ rand_simple_notes }}</td></tr>
+        <tr><td>Appropriate</td><td>{{ rand_appropriate }}/10</td><td>{{ rand_appropriate_notes }}</td></tr>
+        <tr><td>Timeless</td><td>{{ rand_timeless }}/10</td><td>{{ rand_timeless_notes }}</td></tr>
+        <tr><td>Legible</td><td>{{ rand_legible }}/10</td><td>{{ rand_legible_notes }}</td></tr>
+        <tr><td>Reducible to essence</td><td>{{ rand_reducible }}/10</td><td>{{ rand_reducible_notes }}</td></tr>
+      </tbody>
+    </table>
+    <div class="quality-total">Total: {{ rand_total }}/70</div>
+  </section>
+
+  <!-- (Anti-Inspiration moved into the Visual block — see #anti-inspiration above.) -->
+
+  <div class="meta">
+    <p>{{ brand_name }} — Brand Guidelines · version {{ version }} · Print edition</p>
+    <p>Last updated: {{ timestamp }}</p>
+  </div>
+
+  <div class="page-footer">{{ brand_name }} Design System &mdash; Page </div>
+
+</body>
+</html>

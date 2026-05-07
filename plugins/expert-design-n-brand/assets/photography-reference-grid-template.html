@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{brand_name}} — Photography reference grid</title>
+<!-- TIER 1 AUTHOR NOTE — external reference. Renders to a Tier 1 companion file that ships to clients / consultants / designers / developers. Keep reader-visible content in end-user language; no plugin-internal file names, build phases, slash commands, or status vocabulary in the rendered output. -->
+<style>
+  :root { --bg:{{color_background}}; --color-text-primary:{{color_text_primary}}; --accent:{{color_primary}}; --accent-2:{{color_accent}}; --red:#DC2626; --stone-700:#44403C; --stone-300:#D5D0CB; }
+  * { box-sizing:border-box; }
+  body { font-family:{{body_font_stack}}; color:#000; background:var(--bg); margin:0; padding:2rem 3rem; max-width:1200px; font-size:16px; line-height:1.5; }
+  h1, h2, h3 { font-family:{{heading_font_stack}}; font-weight:300; color:var(--color-text-primary); letter-spacing:-0.02em; }
+  h1 { font-size:3.052rem; margin:0 0 0.25rem; }
+  h2 { font-size:2.441rem; margin:3rem 0 0.5rem; border-top:1px solid var(--stone-300); padding-top:2rem; }
+  h3 { font-size:1.563rem; margin:1.5rem 0 0.5rem; }
+  .eyebrow { color:var(--stone-700); text-transform:uppercase; letter-spacing:0.08em; font-size:0.8rem; font-weight:500; }
+  p { margin:0.5rem 0; max-width:72ch; }
+  p.lead { font-size:1.25rem; max-width:60ch; }
+  .grid { display:grid; gap:1.25rem; margin:1.5rem 0; }
+  .grid-3 { grid-template-columns:repeat(3, 1fr); }
+  .ref { background:#fff; border:1px solid var(--stone-300); border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(26,26,46,0.06); }
+  .ref .frame { aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; position:relative; color:#666666; font-size:0.8rem; background:linear-gradient(135deg,#E8E3DE,#D5D0CB); }
+  .ref.ok .frame::after { content:"✓"; position:absolute; top:8px; right:10px; background:#16A34A; color:#fff; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-weight:700; }
+  .ref.no .frame::after { content:"✗"; position:absolute; top:8px; right:10px; background:#DC2626; color:#fff; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-weight:700; }
+  .ref .body { padding:1rem; }
+  .ref .title { font-weight:600; color:var(--color-text-primary); font-size:0.95rem; margin-bottom:0.25rem; }
+  .ref .why { font-size:0.85rem; color:var(--stone-700); }
+  .ref .tag { display:inline-block; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; padding:0.15em 0.5em; border-radius:9999px; margin-top:0.35rem; font-weight:600; }
+  .ref.ok .tag { background:rgba(22,163,74,0.1); color:#16A34A; }
+  .ref.no .tag { background:rgba(220,38,38,0.1); color:#DC2626; }
+  table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.9rem; }
+  th, td { text-align:left; padding:0.6rem 0.5rem; border-bottom:1px solid var(--stone-300); vertical-align:top; }
+  th { background:rgba(26,26,46,0.03); font-weight:600; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--stone-700); }
+  .rule { background:rgba(52,217,197,0.06); border-left:3px solid var(--accent-2); padding:0.6rem 0.9rem; margin:0.5rem 0; border-radius:0 4px 4px 0; }
+  .rule::before { content:"RULE — "; font-weight:600; color:#0D9488; }
+  footer { margin-top:4rem; padding-top:1rem; border-top:1px solid var(--stone-300); color:var(--stone-700); font-size:0.8rem; }
+</style>
+</head>
+<body>
+
+<div class="eyebrow">{{brand_name}} · {{version}} · {{generated_date}}</div>
+<h1>Photography reference grid</h1>
+<p class="lead">{{photography_lead}}</p>
+
+<h2>The four rules</h2>
+<table>
+<thead><tr><th>Rule</th><th>Specification</th></tr></thead>
+<tbody>
+<tr><td><b>Subject</b></td><td>{{subject_rule}}</td></tr>
+<tr><td><b>Lighting</b></td><td>{{lighting_rule}}</td></tr>
+<tr><td><b>Crop</b></td><td>{{crop_rule}}</td></tr>
+<tr><td><b>Post</b></td><td>{{post_rule}}</td></tr>
+</tbody>
+</table>
+
+<p class="rule">{{when_in_doubt_rule}}</p>
+
+<h2>Approved — 5 references</h2>
+<div class="grid grid-3">
+<!-- Generate exactly 5 .ref.ok cards. Each has .frame (with category label), .title, .why, .tag. -->
+{{approved_reference_cards}}
+</div>
+
+<h2>Rejected — 5 references</h2>
+<div class="grid grid-3">
+<!-- Generate exactly 5 .ref.no cards. Each has .frame (with category label), .title, .why (explains why off-brand), .tag. -->
+{{rejected_reference_cards}}
+</div>
+
+<h2>Lighting diagrams</h2>
+<div class="grid grid-3">
+<!-- 3 .ref cards with lighting diagram SVGs: preferred / acceptable / forbidden. -->
+{{lighting_diagram_cards}}
+</div>
+
+<h2>Post-processing targets</h2>
+<table>
+<thead><tr><th>Parameter</th><th>Target range</th><th>Note</th></tr></thead>
+<tbody>
+{{post_processing_rows}}
+</tbody>
+</table>
+
+<h2>Decision tree — photography vs illustration vs type-only</h2>
+<table>
+<thead><tr><th>Context</th><th>Choice</th></tr></thead>
+<tbody>
+{{decision_tree_rows}}
+</tbody>
+</table>
+
+<footer>
+{{brand_name}} — Photography reference grid · {{version}} · {{generated_date}} · <a href="./brand-guidelines.html">brand-guidelines.html</a> · <a href="./illustration-system.html">illustration-system.html</a> · <a href="./brand.md">brand.md</a>
+</footer>
+
+</body>
+</html>

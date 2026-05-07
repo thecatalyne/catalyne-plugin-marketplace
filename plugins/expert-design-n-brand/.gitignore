@@ -1,0 +1,9 @@
+# Generated artifacts
+brand-assets/
+brand-identity.yaml
+
+# OS
+.DS_Store
+
+# Local plugin settings
+.claude/*.local.md

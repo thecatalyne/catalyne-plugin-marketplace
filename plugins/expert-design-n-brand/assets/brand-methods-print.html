@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ brand_name }} — Process Record (Print)</title>
+
+  <!--
+    Artifact B — Brand Methods / Process Record (Print)
+    Read by /brand-export to render the print/PDF edition of the evidence trail.
+
+    No sidebar, no sticky nav — the Methods Ledger table acts as the table of
+    contents (with anchor refs for screen viewing before headless print).
+
+    Page breaks:
+      - After cover section
+      - After methods ledger section
+      - Before each technique block whose dimension differs from the previous
+        (dimension transition = page-break-before: always on that block)
+      - break-inside: avoid on every .technique-block
+
+    Font: loaded via {{ font_import_url }} (Google Fonts URL) or
+    {{ font_face_block }} (custom @font-face declarations) so the PDF renders
+    in the brand's typography. brand-export waits for document.fonts.ready
+    before invoking Chromium headless.
+
+    CSS vars: {{ css_tokens_block }} inlined in :root so all brand tokens
+    are available for color/accent rendering.
+
+    Visually distinct from design-system-print.html — reads as analytical /
+    academic; serif headings, mono labels, information-dense layout.
+  -->
+
+  {{ font_import_url }}
+  <style>
+    {{ font_face_block }}
+
+    /* ─── PAGE SETUP ─── */
+    @page {
+      size: A4;
+      margin: 1.2cm 1.8cm;
+    }
+
+    @page :first {
+      margin-top: 0;
+    }
+
+    body { counter-reset: page-number; }
+
+    /* ─── PRINT MEDIA ─── */
+    @media print {
+      .page-footer {
+        display: block;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        text-align: center;
+        font-size: 7.5pt;
+        color: #AAA;
+        counter-increment: page-number;
+        font-family: "SFMono-Regular", "Consolas", monospace;
+        letter-spacing: 0.05em;
+      }
+      .page-footer::after { content: counter(page-number); }
+
+      .no-print { display: none !important; }
+
+      body {
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Force all color surfaces to print faithfully */
+      .cover,
+      .dim-bar,
+      .status-chip,
+      .technique-dim-tag,
+      .not-run-dim-chip,
+      .technique-block-header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .technique-block { break-inside: avoid; }
+
+      /* Dimension transitions — brand-export adds .dim-break class to first
+         block of each new dimension to trigger a page break */
+      .technique-block.dim-break { page-break-before: always; }
+
+      .cover { page-break-after: always; }
+      .methods-ledger-section { page-break-after: always; }
+    }
+
+    /* ─── TOKENS ─── */
+    :root {
+      {{ css_tokens_block }}
+      --color-bg: #FFFFFF;
+      --color-fg: #1A1A1A;
+      --color-primary: {{ color_primary_fallback | '#333333' }};
+      --color-text-primary: {{ color_text_primary_fallback | '#111111' }};
+      --color-accent: {{ color_accent_fallback | '#6B7280' }};
+      --font-heading: Georgia, "Times New Roman", serif;
+      --font-body: "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "Courier New", monospace;
+
+      /* Dimension accents */
+      --dim-positioning: #2563EB;
+      --dim-personality: #7C3AED;
+      --dim-visual:      #D97706;
+      --dim-voice:       #0D9488;
+      --dim-stress_test: #DC2626;
+      --dim-quality:     #16A34A;
+    }
+
+    /* ─── BASE ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 9.5pt;
+      line-height: 1.5;
+      color: var(--color-fg);
+      background: white;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    h1, h2, h3, h4 { font-family: var(--font-heading); }
+    h1 { font-size: 28pt; font-weight: 700; line-height: 1.1; }
+    h2 { font-size: 14pt; font-weight: 700; margin-top: 0; margin-bottom: 0.6rem; border-bottom: 1.5px solid var(--color-fg); padding-bottom: 0.3rem; }
+    h3 { font-size: 10.5pt; font-weight: 700; margin-top: 1rem; margin-bottom: 0.35rem; }
+    p { margin-bottom: 0.6rem; }
+
+    /* ─── COVER ─── */
+    .cover {
+      background: var(--color-text-primary);
+      color: #FFF;
+      padding: 2.5cm 1.8cm 2cm;
+      min-height: 22cm;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .cover-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 0.6rem;
+    }
+
+    .cover-brand {
+      font-size: 40pt;
+      font-weight: 700;
+      line-height: 1.05;
+      color: #FFF;
+      margin-bottom: 0.25rem;
+    }
+
+    .cover-subtitle {
+      font-family: var(--font-mono);
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 1.5cm;
+    }
+
+    .cover-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 0.6rem;
+      margin-top: 0.75rem;
+    }
+
+    .cover-meta-item {
+      font-family: var(--font-mono);
+      font-size: 7.5pt;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .cover-meta-item strong {
+      display: block;
+      font-size: 6.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 0.1rem;
+    }
+
+    .cover-technique-count {
+      display: inline-block;
+      margin-top: 0.75rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 2px;
+      padding: 0.18rem 0.55rem;
+      font-family: var(--font-mono);
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #FFF;
+    }
+
+    /* ─── METHODS LEDGER ─── */
+    .methods-ledger-section {
+      padding: 1.2cm 0 1cm;
+    }
+
+    .methods-ledger-section h2 {
+      font-size: 18pt;
+      border: none;
+      border-bottom: 2px solid var(--color-fg);
+      margin-bottom: 0.5rem;
+    }
+
+    .ledger-intro {
+      font-size: 8pt;
+      color: #777;
+      margin-bottom: 0.75rem;
+      font-style: italic;
+    }
+
+    table.methods-ledger {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+    }
+
+    table.methods-ledger thead th {
+      font-family: var(--font-mono);
+      font-size: 6.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #777;
+      text-align: left;
+      padding: 0.3rem 0.4rem;
+      border-bottom: 1.5px solid #CCC;
+      font-weight: 700;
+    }
+
+    table.methods-ledger tbody tr:nth-child(even) { background: #F7F5F2; }
+
+    table.methods-ledger td {
+      padding: 0.28rem 0.4rem;
+      border-bottom: 1px solid #E8E3DC;
+      vertical-align: middle;
+    }
+
+    td.ledger-dim {
+      width: 90pt;
+      font-family: var(--font-mono);
+      font-size: 6.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      border-left: 3px solid #DDD;
+      padding-left: 0.5rem;
+    }
+
+    td.ledger-dim[data-dim="positioning"] { border-left-color: var(--dim-positioning); color: var(--dim-positioning); }
+    td.ledger-dim[data-dim="personality"] { border-left-color: var(--dim-personality); color: var(--dim-personality); }
+    td.ledger-dim[data-dim="visual"]      { border-left-color: var(--dim-visual);      color: var(--dim-visual); }
+    td.ledger-dim[data-dim="voice"]       { border-left-color: var(--dim-voice);       color: var(--dim-voice); }
+    td.ledger-dim[data-dim="stress_test"] { border-left-color: var(--dim-stress_test); color: var(--dim-stress_test); }
+    td.ledger-dim[data-dim="quality"]     { border-left-color: var(--dim-quality);     color: var(--dim-quality); }
+
+    td.ledger-label { font-size: 8.5pt; color: #2A2A2A; }
+    td.ledger-label a { color: var(--color-text-primary); text-decoration: none; font-weight: 600; }
+
+    tr.ledger-row--not-run td { color: #BBB; }
+    tr.ledger-row--not-run td.ledger-dim { opacity: 0.4; }
+
+    td.ledger-status { width: 52pt; text-align: center; }
+
+    .status-chip {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .status-chip--used {
+      background: #D1FAE5;
+      color: #065F46;
+      border: 1px solid #6EE7B7;
+    }
+
+    .status-chip--not-run {
+      background: #F3F4F6;
+      color: #9CA3AF;
+      border: 1px solid #E5E7EB;
+    }
+
+    /* ─── TECHNIQUE BLOCKS ─── */
+    .technique-block {
+      border: 1px solid #DDD8CF;
+      border-radius: 3px;
+      background: #FFFFFF;
+      margin-bottom: 0.75rem;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .technique-block-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      padding: 0.5rem 0.75rem 0.4rem;
+      border-bottom: 1px solid #E8E3D8;
+      background: #FAFAF7;
+    }
+
+    .technique-block-header h2 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0;
+      border: none;
+      padding: 0;
+      line-height: 1.2;
+    }
+
+    .technique-dim-tag {
+      display: inline-block;
+      padding: 0.08rem 0.4rem;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .technique-dim-tag[data-dim="positioning"] { background: #DBEAFE; color: var(--dim-positioning); }
+    .technique-dim-tag[data-dim="personality"] { background: #EDE9FE; color: var(--dim-personality); }
+    .technique-dim-tag[data-dim="visual"]      { background: #FEF3C7; color: var(--dim-visual); }
+    .technique-dim-tag[data-dim="voice"]       { background: #CCFBF1; color: var(--dim-voice); }
+    .technique-dim-tag[data-dim="stress_test"] { background: #FEE2E2; color: var(--dim-stress_test); }
+    .technique-dim-tag[data-dim="quality"]     { background: #DCFCE7; color: var(--dim-quality); }
+
+    .technique-block-body { padding: 0.6rem 0.75rem; }
+
+    p.technique-description {
+      font-size: 7.5pt;
+      color: #666;
+      font-style: italic;
+      margin-bottom: 0.5rem;
+      border-left: 2px solid #DDD;
+      padding-left: 0.5rem;
+      line-height: 1.45;
+    }
+
+    /* ─── TECHNIQUE OUTPUT ─── */
+    section.technique-output { margin-bottom: 0.5rem; }
+
+    .technique-output-label {
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #AAA;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .technique-output-body {
+      font-size: 8.5pt;
+      line-height: 1.45;
+      color: #2A2A2A;
+    }
+
+    /* Shared output sub-elements — mirrors interactive variant */
+
+    /* ─── BUTTERFLY (Wolff-Olins only) ───────────────────────────────────
+       INVARIANT: .output-butterfly REQUIRES exactly 4 children
+       (IS / ISN'T / DOES / DOESN'T). For generic 2-up content, use
+       .output-pairing-grid — never reuse .output-butterfly for ≠4 cells. */
+    .output-butterfly {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+    }
+
+    .output-butterfly-cell {
+      padding: 0.35rem 0.45rem;
+      border: 1px solid #E0E0E0;
+      border-radius: 2px;
+      font-size: 8pt;
+      page-break-inside: avoid;
+      min-height: 2.8rem;
+    }
+
+    .output-butterfly-cell-label {
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: #999;
+      margin-bottom: 0.15rem;
+    }
+
+    /* ─── PAIRING GRID (generic 2-up; print variant) ───────────────────── */
+    .output-pairing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      align-items: stretch;
+    }
+
+    .output-pairing-grid > * {
+      padding: 0.4rem 0.5rem;
+      border: 1px solid #E0E0E0;
+      border-radius: 2px;
+      font-size: 8.5pt;
+      page-break-inside: avoid;
+      min-height: 3.2rem;
+    }
+
+    .output-pairing-grid-label {
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: #999;
+      margin-bottom: 0.2rem;
+      display: block;
+    }
+
+    .output-archetype-tags { display: flex; gap: 0.4rem; margin-bottom: 0.25rem; }
+
+    .output-archetype-tag {
+      padding: 0.15rem 0.5rem;
+      border-radius: 2px;
+      font-weight: 700;
+      font-size: 8.5pt;
+    }
+
+    .output-archetype-tag--primary { background: var(--color-text-primary); color: #FFF; }
+    .output-archetype-tag--secondary { background: #EEE; color: var(--color-text-primary); border: 1px solid #CCC; }
+
+    .output-archetype-reasoning { font-size: 8pt; color: #555; }
+
+    .output-metaphors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.35rem;
+    }
+
+    .output-metaphor-card {
+      padding: 0.4rem 0.5rem;
+      border: 1px solid #E0E0E0;
+      border-radius: 2px;
+      font-size: 8pt;
+      page-break-inside: avoid;
+    }
+
+    .output-metaphor-name { font-weight: 700; margin-bottom: 0.1rem; }
+    .output-metaphor-traits { color: #666; font-size: 7.5pt; margin-bottom: 0.05rem; }
+    .output-metaphor-usage { color: #888; font-size: 7.5pt; font-style: italic; }
+
+    .output-playlist-list, .output-risk-list { list-style: none; }
+
+    .output-playlist-row, .output-risk-row {
+      display: flex;
+      gap: 0.6rem;
+      padding: 0.2rem 0;
+      border-bottom: 1px solid #EEE;
+      font-size: 8pt;
+      page-break-inside: avoid;
+    }
+
+    .output-playlist-song { font-weight: 600; min-width: 8rem; }
+    .output-playlist-artist { color: #666; }
+    .output-risk-label { font-weight: 600; min-width: 7rem; }
+
+    .output-keywords-chips { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+
+    .output-keyword-chip {
+      padding: 0.15rem 0.45rem;
+      border-radius: 2px;
+      background: #F0F0F0;
+      border: 1px solid #DDD;
+      font-weight: 600;
+      font-size: 8pt;
+    }
+
+    /* ─── TECHNIQUE QUOTES ─── */
+    section.technique-quotes {
+      border-top: 1px solid #EAE5DC;
+      padding-top: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .technique-quotes-label {
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #AAA;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    /* <!-- REPEAT: technique_quotes --> */
+    blockquote.technique-quote {
+      margin: 0 0 0.4rem;
+      padding: 0.35rem 0.5rem;
+      border-left: 2px solid #DDD8CF;
+      background: #FAFAF7;
+      page-break-inside: avoid;
+    }
+
+    blockquote.technique-quote p {
+      font-size: 8pt;
+      color: #3A3A3A;
+      font-style: italic;
+      margin-bottom: 0.15rem;
+      line-height: 1.45;
+    }
+
+    .quote-attribution {
+      font-family: var(--font-mono);
+      font-size: 6.5pt;
+      color: #888;
+    }
+
+    .quote-context {
+      font-size: 6.5pt;
+      color: #AAA;
+      margin-left: 0.4rem;
+    }
+
+    /* ─── NOT-RUN APPENDIX (print: collapsed section, no <details>) ─── */
+    .not-run-appendix {
+      border: 1px solid #E0D8CC;
+      border-radius: 3px;
+      background: #FAFAF7;
+      margin-top: 1.5rem;
+      padding: 0.75rem 0.9rem;
+      page-break-before: always;
+    }
+
+    .not-run-appendix h2 {
+      font-size: 13pt;
+      color: #888;
+      border-bottom-color: #CCC;
+      margin-bottom: 0.4rem;
+    }
+
+    .not-run-intro {
+      font-size: 7.5pt;
+      color: #888;
+      margin-bottom: 0.6rem;
+      font-style: italic;
+    }
+
+    /* <!-- REPEAT: not_run_list --> */
+    .not-run-entry {
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid #EEE;
+      font-size: 8pt;
+      page-break-inside: avoid;
+    }
+
+    .not-run-entry:last-child { border-bottom: none; }
+
+    .not-run-dim-chip {
+      flex-shrink: 0;
+      width: 70pt;
+      font-family: var(--font-mono);
+      font-size: 5.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding-top: 0.1rem;
+    }
+
+    .not-run-dim-chip[data-dim="positioning"] { color: var(--dim-positioning); }
+    .not-run-dim-chip[data-dim="personality"] { color: var(--dim-personality); }
+    .not-run-dim-chip[data-dim="visual"]      { color: var(--dim-visual); }
+    .not-run-dim-chip[data-dim="voice"]       { color: var(--dim-voice); }
+    .not-run-dim-chip[data-dim="stress_test"] { color: var(--dim-stress_test); }
+    .not-run-dim-chip[data-dim="quality"]     { color: var(--dim-quality); }
+
+    .not-run-content { flex: 1; }
+
+    .not-run-label {
+      font-weight: 600;
+      color: #666;
+      display: block;
+      margin-bottom: 0.1rem;
+    }
+
+    .not-run-description {
+      font-size: 7.5pt;
+      color: #999;
+      line-height: 1.4;
+    }
+
+    /* ─── FOOTER ─── */
+    .page-footer { display: none; }
+
+    .doc-meta {
+      font-family: var(--font-mono);
+      font-size: 7pt;
+      color: #CCC;
+      margin-top: 1.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid #EEE;
+    }
+
+    /* ─── TABLE (generic fallback) ─── */
+    table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+    th, td { text-align: left; padding: 0.25rem 0.4rem; border-bottom: 1px solid #E0E0E0; }
+    th { font-weight: 600; border-bottom: 2px solid #CCC; font-family: var(--font-mono); font-size: 7pt; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  </style>
+</head>
+<body>
+
+  <!-- ─── COVER ─── -->
+  <section class="cover">
+    <div class="cover-eyebrow">Brand Process Record &middot; Print Edition</div>
+    <div class="cover-brand">{{ brand_name }}</div>
+    <div class="cover-subtitle">Methods &amp; Evidence Trail</div>
+
+    <div class="cover-meta-row">
+      <div class="cover-meta-item">
+        <strong>Build Date</strong>
+        {{ build_date }}
+      </div>
+      <div class="cover-meta-item">
+        <strong>Participants</strong>
+        {{ participants }}
+      </div>
+      <div class="cover-meta-item">
+        <strong>Registry</strong>
+        {{ techniques_total }} techniques
+      </div>
+    </div>
+
+    <div class="cover-technique-count">
+      {{ techniques_used_count }} of {{ techniques_total }} techniques used
+    </div>
+  </section>
+
+  <!-- ─── METHODS LEDGER ─── -->
+  <!-- Acts as the print table of contents. Anchor links resolve on screen; print ignores them. -->
+  <section class="methods-ledger-section" id="methods-ledger">
+    <h2>Methods Ledger</h2>
+    <p class="ledger-intro">All {{ techniques_total }} registry techniques. Green rows are documented in blocks below. Grey rows were not run and appear in the Not-Run appendix.</p>
+
+    <table class="methods-ledger">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Technique</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- REPEAT: methods_ledger_all -->
+        <tr class="ledger-row ledger-row--{{ row.status_class }}">
+          <td class="ledger-dim" data-dim="{{ row.dimension }}">{{ row.dimension }}</td>
+          <td class="ledger-label">
+            <!-- brand-export renders Used rows as <a href="#{{ row.anchor }}">{{ row.label }}</a>
+                 and — rows as <span>{{ row.label }}</span> -->
+            {{ row.label_linked }}
+          </td>
+          <td class="ledger-status">
+            <span class="status-chip status-chip--{{ row.status_class }}">{{ row.status }}</span>
+          </td>
+        </tr>
+        <!-- END -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ─── PER-TECHNIQUE BLOCKS ─── -->
+  <!-- brand-export adds class="dim-break" to first block in each new dimension,
+       triggering page-break-before: always on print. -->
+
+  <!-- REPEAT: technique_blocks -->
+  <article class="technique-block" id="{{ technique.slug }}">
+    <div class="technique-block-header">
+      <h2>{{ technique.label }}</h2>
+      <span class="technique-dim-tag" data-dim="{{ technique.dimension }}">{{ technique.dimension }}</span>
+    </div>
+
+    <div class="technique-block-body">
+
+      <p class="technique-description">{{ technique.description }}</p>
+
+      <section class="technique-output">
+        <div class="technique-output-label">Output</div>
+        <div class="technique-output-body">
+          {{ technique.output_html }}
+        </div>
+      </section>
+
+      <!-- technique_quotes is optional — omit if no quotes present -->
+      <section class="technique-quotes">
+        <div class="technique-quotes-label">Discovery Quotes</div>
+
+        <!-- REPEAT: technique_quotes -->
+        <blockquote class="technique-quote">
+          <p>{{ quote.text }}</p>
+          <footer>
+            <span class="quote-attribution">— {{ quote.speaker }}</span>
+            <span class="quote-context">{{ quote.context }}</span>
+          </footer>
+        </blockquote>
+        <!-- END -->
+
+      </section>
+
+    </div>
+  </article>
+  <!-- END -->
+
+  <!-- ─── NOT-RUN APPENDIX (print: static section, not a <details> element) ─── -->
+  <section class="not-run-appendix">
+    <h2>Techniques Not Run ({{ techniques_total | minus: techniques_used_count }})</h2>
+    <p class="not-run-intro">These techniques were available but not run in this build. Each description explains what running it would have contributed to the brand evidence.</p>
+
+    <!-- REPEAT: not_run_list -->
+    <div class="not-run-entry">
+      <span class="not-run-dim-chip" data-dim="{{ technique.dimension }}">{{ technique.dimension }}</span>
+      <div class="not-run-content">
+        <span class="not-run-label">{{ technique.label }}</span>
+        <span class="not-run-description">{{ technique.description }}</span>
+      </div>
+    </div>
+    <!-- END -->
+
+  </section>
+
+  <div class="doc-meta">
+    Generated by <strong>expert-design-n-brand</strong> &middot; Artifact B &middot; Print edition &middot; Built: {{ build_date }}
+  </div>
+
+  <div class="page-footer">{{ brand_name }} Process Record &mdash; Page </div>
+
+</body>
+</html>

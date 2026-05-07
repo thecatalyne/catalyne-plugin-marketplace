@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{brand_name}} — Illustration System</title>
+<!-- TIER 1 AUTHOR NOTE — external reference. Renders to a Tier 1 companion file that ships to clients / consultants / designers / developers. Keep reader-visible content in end-user language; no plugin-internal file names, build phases, slash commands, or status vocabulary in the rendered output. -->
+<style>
+  :root { --bg: {{color_background}}; --color-text-primary: {{color_text_primary}}; --accent: {{color_primary}}; --accent-2: {{color_accent}}; --red:#DC2626; --stone-700:#44403C; --stone-300:#D5D0CB; --stone-200:#E8E3DE; }
+  * { box-sizing: border-box; }
+  body { font-family:{{body_font_stack}}; color:#000; background:var(--bg); margin:0; padding:2rem 3rem; max-width:1200px; font-size:16px; line-height:1.5; }
+  h1, h2, h3, h4 { font-family:{{heading_font_stack}}; font-weight:300; color:var(--color-text-primary); letter-spacing:-0.02em; }
+  h1 { font-size:3.052rem; margin:0 0 0.25rem; }
+  h2 { font-size:2.441rem; margin:3rem 0 0.5rem; border-top:1px solid var(--stone-300); padding-top:2rem; }
+  h3 { font-size:1.563rem; margin:1.5rem 0 0.5rem; }
+  h4 { font-size:1.1rem; font-weight:400; margin:1rem 0 0.5rem; }
+  .eyebrow { color:var(--stone-700); text-transform:uppercase; letter-spacing:0.08em; font-size:0.8rem; font-weight:500; }
+  p { margin:0.5rem 0; max-width:72ch; }
+  p.lead { font-size:1.25rem; max-width:60ch; }
+  .grid { display:grid; gap:1.5rem; margin:1.5rem 0; }
+  .grid-4 { grid-template-columns:repeat(4, 1fr); }
+  .grid-3 { grid-template-columns:repeat(3, 1fr); }
+  .card { background:#fff; border:1px solid var(--stone-300); border-radius:10px; padding:1.25rem; box-shadow:0 1px 3px rgba(26,26,46,0.06); }
+  .card svg { display:block; width:100%; background:var(--bg); border-radius:6px; margin-bottom:0.75rem; }
+  .card .label { font-size:0.85rem; font-weight:600; color:var(--color-text-primary); margin-bottom:0.25rem; }
+  .card .note { font-size:0.8rem; color:var(--stone-700); }
+  .rule { background:rgba(52,217,197,0.06); border-left:3px solid var(--accent-2); padding:0.6rem 0.9rem; margin:0.5rem 0; border-radius:0 4px 4px 0; }
+  .rule::before { content:"RULE — "; font-weight:600; color:#0D9488; }
+  .forbid { background:rgba(229,72,72,0.06); border-left:3px solid var(--red); padding:0.6rem 0.9rem; margin:0.5rem 0; border-radius:0 4px 4px 0; }
+  .forbid::before { content:"FORBIDDEN — "; font-weight:600; color:var(--red); }
+  .anchor { background:rgba(245,158,11,0.07); border-left:3px solid var(--accent); padding:0.6rem 0.9rem; margin:0.5rem 0; border-radius:0 4px 4px 0; }
+  .anchor::before { content:"CULTURAL ANCHOR — "; font-weight:600; color:#B45309; }
+  table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.9rem; }
+  th, td { text-align:left; padding:0.6rem 0.5rem; border-bottom:1px solid var(--stone-300); vertical-align:top; }
+  th { background:rgba(26,26,46,0.03); font-weight:600; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--stone-700); }
+  footer { margin-top:4rem; padding-top:1rem; border-top:1px solid var(--stone-300); color:var(--stone-700); font-size:0.8rem; }
+</style>
+</head>
+<body>
+
+<div class="eyebrow">{{brand_name}} · {{version}} · {{generated_date}}</div>
+<h1>Illustration system</h1>
+<p class="lead">{{illustration_lead}}</p>
+
+<h2>Primitives</h2>
+<p>{{primitives_intro}}</p>
+<div class="grid grid-4">
+<!-- One .card per shape primitive (N=3-5). Each card shows the shape as inline SVG, its name, and its construction note. -->
+{{primitive_cards}}
+</div>
+<p class="rule">{{primitives_rule}}</p>
+<p class="forbid">{{primitives_forbidden}}</p>
+
+<h2>Stroke</h2>
+<table>
+<thead><tr><th>Stroke weight</th><th>Use</th><th>Notes</th></tr></thead>
+<tbody>
+{{stroke_rows}}
+</tbody>
+</table>
+<p class="rule">{{stroke_rule}}</p>
+
+<h2>Perspective</h2>
+<p>{{perspective_description}}</p>
+<p class="rule">{{perspective_rule}}</p>
+<p class="forbid">{{perspective_forbidden}}</p>
+
+<h2>Palette constraint</h2>
+<p>{{palette_constraint_description}}</p>
+<p class="rule">{{palette_constraint_rule}}</p>
+
+<h2>Emotion inventory</h2>
+<p>{{emotion_intro}}</p>
+<div class="grid grid-4">
+<!-- One .card per emotion state (N=4-8). Each card shows an illustrative SVG and a brief note. -->
+{{emotion_cards}}
+</div>
+
+<!-- Cultural anchors block: ≥ 3 entries. Each uses .anchor — must name what property is anchored. -->
+{{cultural_anchor_blocks}}
+
+<h2>Composition rules</h2>
+<table>
+<thead><tr><th>Rule</th><th>Why</th></tr></thead>
+<tbody>
+{{composition_rule_rows}}
+</tbody>
+</table>
+
+<h2>Decision tree — when to illustrate vs when not to</h2>
+<table>
+<thead><tr><th>Question</th><th>If yes</th><th>If no</th></tr></thead>
+<tbody>
+{{decision_tree_rows}}
+</tbody>
+</table>
+
+<footer>
+{{brand_name}} — Illustration System · {{version}} · {{generated_date}} · <a href="./brand-guidelines.html">brand-guidelines.html</a> · <a href="./brand.md">brand.md</a> · <a href="./photography-reference-grid.html">photography-reference-grid.html</a>
+</footer>
+
+</body>
+</html>

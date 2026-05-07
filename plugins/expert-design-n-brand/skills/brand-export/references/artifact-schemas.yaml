@@ -1,0 +1,350 @@
+# artifact-schemas.yaml — Declarative structural oracle for rendered brand artifacts
+#
+# Used by: scripts/validate-structure.py
+# Referenced from: skills/brand-export/SKILL.md (Rendering step 8)
+#                  skills/brand-export/references/verification-protocol.md (Step S)
+#                  assets/export-verification-checklist.md (§S gates)
+#
+# Each entry defines the minimum structural invariants an artifact must preserve
+# from its template. The validator checks PRESENCE and ORDER of these anchors,
+# not the content inside them — content is the LLM's creative surface per Rule 0.
+#
+# Schema entry shape:
+#   type:               html | css | json | yaml | md | svg
+#   arg_aliases:        list of user-facing slugs that the skill exposes as synonyms for this
+#                       oracle key (e.g. `logo` → `logo-construction`). The validator resolves
+#                       `--schema <alias>` to the owning entry.
+#   template:           relative path to the source template (under plugins/expert-design-n-brand/)
+#   required_sections:  list of {id, optional?, required_anatomy?} (HTML only)
+#   required_headings:  list of {text, level?, optional?, substring_match?} (Markdown / HTML headings)
+#   required_keys:      list of dotted.paths (JSON / YAML only)
+#   required_variables: list of CSS custom-property names (CSS only)
+#   required_classes:   list of CSS class selectors that must appear (HTML, for class-anchored templates)
+#   required_patterns:  list of {pattern, description} regex patterns that MUST match (all types)
+#   forbidden_patterns: list of {pattern, description} regex patterns that must NOT match (all types)
+#   required_frontmatter: list of top-level YAML-frontmatter keys (Markdown only)
+#   enforce_order:      true/false — if true, anchors must appear in the declared order
+#   require_all:        true/false — if true, every declared anchor must appear (vs. "at least one")
+#
+# Keep this file machine-readable. The validator greps by anchor value, so every
+# anchor here must match the literal string the template emits.
+
+# ─── Tier 1 — External reference ───────────────────────────────────────────────
+
+brand-guidelines:
+  type: html
+  template: assets/design-system-template.html
+  enforce_order: true
+  required_sections:
+    - { id: cover, required_anatomy: [] }
+    - { id: principles, optional: true, required_anatomy: [section-definition, section-summary] }
+    - { id: positioning, optional: true, required_anatomy: [section-definition, section-summary] }
+    - { id: identity, required_anatomy: [section-definition, section-summary] }
+    - { id: personality, required_anatomy: [section-definition, section-summary, personality-synthesis, personality-character, personality-archetype-in-action, personality-do-dont] }
+    - { id: color, required_anatomy: [section-definition, section-summary] }
+    - { id: typography, required_anatomy: [section-definition, section-summary] }
+    - { id: visual-language, required_anatomy: [section-definition, section-summary] }
+    - { id: spacing, required_anatomy: [section-definition, section-summary] }
+    - { id: components, required_anatomy: [section-definition, section-summary] }
+    - { id: motif-gallery, optional: true, required_anatomy: [section-definition, section-summary] }
+    - { id: texture-panel, optional: true, required_anatomy: [section-definition, section-summary] }
+    - { id: anti-inspiration, optional: true, required_anatomy: [section-definition, section-summary] }
+    - { id: in-practice, optional: true, required_anatomy: [section-definition, section-summary] }
+    - { id: voice-constraints, required_anatomy: [section-definition, section-summary] }
+    - { id: platforms, required_anatomy: [section-definition, section-summary] }
+    - { id: governance, required_anatomy: [section-definition, section-summary] }
+    - { id: llm-manual, required_anatomy: [section-definition, section-summary] }
+    - { id: quickref, required_anatomy: [section-definition, section-summary] }
+    - { id: quality, optional: true, required_anatomy: [section-definition, section-summary] }
+
+brand-quickref:
+  type: md
+  template: assets/brand-quickref-template.md
+  enforce_order: true
+  required_headings:
+    - { text: "Methods Used", level: 2 }
+    - { text: "Brand Identity", level: 2 }
+    - { text: "Design Principles", level: 2 }
+    - { text: "Color Palette", level: 2 }
+    - { text: "Typography", level: 2 }
+    - { text: "Voice", level: 2 }
+    - { text: "Form Language", level: 2 }
+
+tokens-css:
+  type: css
+  template: null  # generated programmatically; no static template
+  require_all: true
+  required_variables:
+    # Standard semantic role names (these are the contract; canonical floor)
+    - --color-bg
+    - --color-surface
+    - --color-text-primary
+    - --color-text-secondary
+    - --color-text-tertiary
+    - --color-text-inverse
+    - --color-primary
+    - --color-accent
+    - --color-border
+    - --color-link
+    - --color-success
+    - --color-warning
+    - --color-error
+    - --color-info
+    # Legacy aliases (back-compat — emitted alongside canonical for older consumers)
+    - --color-fg
+    - --color-affirm
+    - --color-warn
+    - --color-danger
+    # Typography
+    - --font-heading
+    - --font-body
+    - --font-size-base
+    - --scale-ratio
+    # Spacing & form
+    - --space-1
+    - --space-2
+    - --space-4
+    - --space-8
+    - --radius-sm
+    - --radius-md
+    - --radius-lg
+
+tokens-json:
+  type: json
+  template: assets/tokens-template.json
+  require_all: true
+  required_keys:
+    - $schema
+    - $meta.brand
+    - $meta.version
+    - $meta.generated
+    - primitive.color.palette
+    - primitive.color.scales
+    - primitive.typography.fontFamily
+    - semantic
+    - component
+
+logo-construction:
+  type: svg
+  arg_aliases: [logo]
+  template: assets/logo-construction-template.svg
+  # The logo-construction template expresses its sections via <text class="eyebrow">
+  # headings and <g id="..."> grouping, not CSS classes. Anchors here match the
+  # actual literal strings the template emits (see verification-protocol.md:94 —
+  # "the oracle is derived from the TEMPLATE, not from an existing rendered output").
+  require_all: true
+  required_patterns:
+    - { pattern: 'id="wordmark"', description: "wordmark signature group present" }
+    - { pattern: "Primary signature", description: "primary signature section heading" }
+    - { pattern: "Clearspace", description: "clearspace section heading" }
+    - { pattern: "Minimum size", description: "minimum-size section heading" }
+    - { pattern: "Variants", description: "variants section heading" }
+    - { pattern: "misuse", description: "misuse-grid section heading" }
+
+illustration-system:
+  type: html
+  arg_aliases: [illustration]
+  template: assets/illustration-system-template.html
+  enforce_order: true
+  required_headings:
+    - { text: "Illustration system", level: 1 }
+    - { text: "Primitives", level: 2 }
+    - { text: "Stroke", level: 2 }
+    - { text: "Perspective", level: 2 }
+    - { text: "Palette constraint", level: 2 }
+    - { text: "Emotion inventory", level: 2 }
+    - { text: "Composition rules", level: 2 }
+    - { text: "Decision tree", level: 2, substring_match: true }
+
+photography-reference-grid:
+  type: html
+  arg_aliases: [photography]
+  template: assets/photography-reference-grid-template.html
+  enforce_order: true
+  required_headings:
+    - { text: "Photography reference grid", level: 1 }
+    - { text: "The four rules", level: 2 }
+    - { text: "Approved", level: 2, substring_match: true }
+    - { text: "Rejected", level: 2, substring_match: true }
+    - { text: "Lighting diagrams", level: 2 }
+    - { text: "Post-processing targets", level: 2 }
+    - { text: "Decision tree", level: 2, substring_match: true }
+
+platform-matrix:
+  type: md
+  # The single consolidated cross-surface reference. Replaces the prior
+  # per-surface theme-*.md guides (theme-google-slides, theme-powerpoint,
+  # theme-keynote, theme-canva, theme-pitch) AND the prior platform-matrix.html
+  # per-platform-card layout. Master tables (rows = tokens, cols = surfaces)
+  # at top; per-platform deep-dive sections below carry fallback chains and caveats.
+  arg_aliases:
+    - platforms
+    - cross-surface-map
+    - brand-cross-surface-map
+    - theme-slides
+    - theme-google-slides
+    - theme-powerpoint
+    - theme-keynote
+    - theme-canva
+    - theme-pitch
+    - themes
+  template: assets/platform-matrix-template.md
+  enforce_order: true
+  required_headings:
+    # H2s are matched as substrings so the template's leading "1. ", "2. " section
+    # numbers stay valid — those numbers are load-bearing (the body prose references
+    # them as "§1", "§2", "§3", "§4"). The substring oracle accepts both
+    # "## 1. Color tokens" and a future un-numbered "## Color tokens".
+    - { text: "Platform matrix", level: 1, substring_match: true }
+    - { text: "Color tokens", level: 2, substring_match: true }
+    - { text: "Typography tokens", level: 2, substring_match: true }
+    - { text: "Form & spacing tokens", level: 2, substring_match: true }
+    - { text: "Per-platform details", level: 2, substring_match: true }
+    - { text: "Where the source values come from", level: 2, substring_match: true }
+  # Each default surface MUST have a per-platform sub-section under §4.
+  required_patterns:
+    - { pattern: '### Google Slides',  description: "Google Slides per-platform sub-section" }
+    - { pattern: '### PowerPoint',     description: "PowerPoint per-platform sub-section" }
+    - { pattern: '### Keynote',        description: "Keynote per-platform sub-section" }
+    - { pattern: '### Canva \(Pro\)',  description: "Canva Pro per-platform sub-section" }
+    - { pattern: '### Canva \(Free\)', description: "Canva Free per-platform sub-section" }
+    - { pattern: '### Figma',          description: "Figma per-platform sub-section" }
+    # Each per-platform sub-section must contain typography fallback + caveats.
+    - { pattern: '\*\*Typography fallback chain\*\*', description: "Fallback chain block in per-platform details" }
+    - { pattern: '\*\*Caveats\*\*',     description: "Caveats block in per-platform details" }
+  # Render-shape rule: every surface column declared in surface-translations.yaml
+  # must appear as a column header in §1, §2, and §3 master tables.
+  surface_column_parity: true
+
+governance:
+  type: md
+  template: assets/governance-template.md
+  enforce_order: true
+  required_headings:
+    - { text: "Ownership", level: 2 }
+    - { text: "Versioning", level: 2, substring_match: true }
+    - { text: "Changelog", level: 2 }
+    - { text: "Deprecation policy", level: 2 }
+    - { text: "Contribution flow", level: 2 }
+    - { text: "Decision log", level: 2, substring_match: true }
+    - { text: "Health checks", level: 2 }
+    - { text: "File inventory", level: 2 }
+
+theme-figma:
+  type: json
+  template: assets/theme-figma-template.json
+  require_all: true
+  required_keys:
+    - $schema
+    - $description
+    - meta.brand
+    - meta.version
+    - color.primitive
+    - color.semantic
+    - typography.family.heading
+    - typography.family.body
+    - typography.size
+
+tailwind-config:
+  type: js
+  arg_aliases: [tailwind]
+  template: null   # generated programmatically; no static template
+  require_all: true
+  required_keys:
+    # JS module — validator parses with esprima or node --check
+    - module.exports
+    - theme.colors
+    - theme.fontFamily
+    - theme.fontSize
+    - theme.spacing
+    - theme.borderRadius
+
+email-template:
+  type: html
+  arg_aliases: [email]
+  template: assets/email-template.html
+  # Email HTML uses inline styles + tables; low structural variance.
+  # Check that the document retains an outer wrapper table and contains no external stylesheet links.
+  require_all: true
+  required_patterns:
+    - { pattern: "<table", description: "at least one table element (email layout convention)" }
+    - { pattern: 'role="presentation"', description: "tables marked as presentational for accessibility" }
+  forbidden_patterns:
+    - { pattern: '<link[^>]*rel="stylesheet"', description: "no external stylesheets; email must be self-contained" }
+
+# ─── Tier 2 — Operator / process record ──────────────────────────────────────
+
+brand-methods:
+  type: html
+  template: assets/brand-methods-template.html
+  enforce_order: true
+  required_sections:
+    - { id: methods-ledger }
+  # Additionally require at least one .technique-block article (variable-N)
+  required_classes:
+    - technique-block
+    - technique-description
+    - technique-output
+    - technique-quotes
+  require_all: true
+
+synthesis:
+  type: md
+  arg_aliases: [synthesis-report]
+  template: assets/synthesis-report-template.md
+  enforce_order: true
+  required_headings:
+    - { text: "Methods Used", level: 2 }
+    - { text: "Section 1", level: 2, substring_match: true }
+    - { text: "Positioning", level: 3 }
+    - { text: "Personality Profile", level: 3 }
+    - { text: "Visual", level: 3 }
+    - { text: "Voice", level: 3 }
+    - { text: "Section 2", level: 2, substring_match: true }
+    - { text: "Consensus", level: 3 }
+    - { text: "Divergences", level: 3 }
+    - { text: "Recommended Next Steps", level: 3 }
+
+# ─── Tier 3 — LLM-optimized ─────────────────────────────────────────────────
+
+brand-md:
+  type: md
+  template: assets/brand-template.md
+  enforce_order: true
+  required_frontmatter:
+    - name
+    - tagline
+    - version
+    - language
+  required_headings:
+    - { text: "Strategy", level: 2 }
+    - { text: "Overview", level: 3 }
+    - { text: "Positioning", level: 3 }
+    - { text: "Personality", level: 3 }
+    - { text: "Promise", level: 3 }
+    - { text: "Guardrails", level: 3 }
+    - { text: "Voice", level: 2 }
+    - { text: "Identity", level: 3 }
+    - { text: "Tagline & Slogans", level: 3 }
+    - { text: "Message Pillars", level: 3 }
+    - { text: "Phrases", level: 3 }
+    - { text: "Tonal Rules", level: 3 }
+    - { text: "Visual", level: 2 }
+    - { text: "Colors", level: 3 }
+    - { text: "Typography", level: 3 }
+
+brand-extensions:
+  type: yaml
+  template: assets/brand-extensions-template.yaml
+  require_all: true
+  required_keys:
+    - sibling_of
+    - meta
+    - vocabulary
+    - voice
+    - tone_matrix
+    - output_constraints
+    - visual_language
+    - cultural_anchors
+    - platforms
+    - governance

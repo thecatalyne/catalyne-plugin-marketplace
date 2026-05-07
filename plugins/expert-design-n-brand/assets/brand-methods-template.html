@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ brand_name }} — Process Record</title>
+  <!--
+    Artifact B — Brand Methods / Process Record (Interactive)
+    Read by /brand-export to render the evidence trail for a brand build.
+
+    This file is a structural scaffold. The skill replaces {{ placeholders }},
+    expands `<!-- REPEAT:* -->` blocks for variable-N collections, and renders
+    one per-technique block per USED technique. `—` techniques appear only in
+    the collapsed Not-Run appendix.
+
+    This artifact is the analytical companion to design-system.html (Artifact A).
+    Artifact A = curated, usage-ready design system.
+    Artifact B = evidence trail — full methods ledger, raw technique outputs,
+                 and quotes from discovery sessions.
+
+    Section order: Cover → Methods Ledger TOC → Per-Technique Blocks → Not-Run Appendix.
+    Technique blocks appear in registry declaration order (techniques-registry.yaml).
+
+    Placeholder notes:
+      {{ technique.output_html }} — the rendering skill substitutes per-technique
+      content. Shape varies by technique (butterfly grid, archetype tags, playlist
+      rows, risk list, etc.).
+
+    See assets/techniques-registry.yaml for the full 30-technique registry.
+  -->
+  <style>
+
+    /* ─── TOKENS ─── */
+    :root {
+      {{ css_tokens_block }}
+      --color-bg: #F8F7F4;
+      --color-fg: #1A1A1A;
+      --color-primary: {{ color_primary_fallback | '#333333' }};
+      --color-text-primary: {{ color_text_primary_fallback | '#111111' }};
+      --color-accent: {{ color_accent_fallback | '#6B7280' }};
+      --font-heading: Georgia, "Times New Roman", serif;
+      --font-body: "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+
+      /* ─── DIMENSION ACCENT COLORS ─── */
+      --dim-positioning: #2563EB;        /* blue */
+      --dim-personality: #7C3AED;        /* purple */
+      --dim-visual:      #D97706;        /* amber */
+      --dim-voice:       #0D9488;        /* teal */
+      --dim-stress_test: #DC2626;        /* red */
+      --dim-quality:     #16A34A;        /* green */
+
+      --sidebar-width: 240px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--color-fg);
+      background: var(--color-bg);
+      display: grid;
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+      gap: 0;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: #FFFFFF;
+      border-right: 1px solid #E5E0D8;
+      padding: 1.25rem 0;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #888;
+      padding: 0 1rem 0.75rem;
+      border-bottom: 1px solid #E5E0D8;
+      margin-bottom: 0.75rem;
+    }
+
+    .sidebar-dim-group { margin-bottom: 0.25rem; }
+
+    .sidebar-dim-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      padding: 0.4rem 1rem 0.2rem;
+      display: block;
+      color: #AAA;
+    }
+
+    .sidebar-dim-label[data-dim="positioning"] { color: var(--dim-positioning); }
+    .sidebar-dim-label[data-dim="personality"]  { color: var(--dim-personality); }
+    .sidebar-dim-label[data-dim="visual"]       { color: var(--dim-visual); }
+    .sidebar-dim-label[data-dim="voice"]        { color: var(--dim-voice); }
+    .sidebar-dim-label[data-dim="stress_test"]  { color: var(--dim-stress_test); }
+    .sidebar-dim-label[data-dim="quality"]      { color: var(--dim-quality); }
+
+    .sidebar nav a {
+      display: block;
+      padding: 0.2rem 1rem 0.2rem 1.5rem;
+      font-size: 0.78rem;
+      color: #555;
+      text-decoration: none;
+      line-height: 1.35;
+      transition: color 0.12s;
+    }
+
+    .sidebar nav a:hover { color: var(--color-text-primary); }
+
+    .sidebar nav a.not-used {
+      color: #CCC;
+      text-decoration: line-through;
+      font-style: italic;
+    }
+
+    .sidebar-ledger-link {
+      display: block;
+      padding: 0.4rem 1rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      text-decoration: none;
+      border-bottom: 1px solid #E5E0D8;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ─── MAIN ─── */
+    main {
+      min-width: 0;
+      padding: 2rem 2.5rem 4rem;
+    }
+
+    /* ─── COVER ─── */
+    .cover {
+      background: var(--color-text-primary);
+      color: #FFF;
+      border-radius: 6px;
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .cover-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.5rem;
+    }
+
+    .cover-brand {
+      font-family: var(--font-heading);
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: #FFF;
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+
+    .cover-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.5rem;
+    }
+
+    .cover-meta-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .cover-meta-item {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .cover-meta-item strong {
+      display: block;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 0.15rem;
+    }
+
+    .cover-technique-count {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 3px;
+      padding: 0.2rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #FFF;
+      margin-top: 1rem;
+    }
+
+    /* ─── METHODS LEDGER TABLE ─── */
+    .methods-ledger-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .methods-ledger-section h2 {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .ledger-intro {
+      font-size: 0.8rem;
+      color: #777;
+      margin-bottom: 1rem;
+    }
+
+    table.methods-ledger {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    table.methods-ledger thead th {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888;
+      text-align: left;
+      padding: 0.4rem 0.6rem;
+      border-bottom: 2px solid #D0C8BC;
+      background: transparent;
+      font-weight: 600;
+    }
+
+    table.methods-ledger tbody tr:nth-child(even) { background: rgba(0,0,0,0.025); }
+    table.methods-ledger tbody tr:hover { background: rgba(0,0,0,0.04); }
+
+    table.methods-ledger td {
+      padding: 0.38rem 0.6rem;
+      border-bottom: 1px solid #EAE5DC;
+      vertical-align: middle;
+    }
+
+    /* Dimension bar — left-colored cell */
+    td.ledger-dim {
+      width: 110px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      border-left: 3px solid #DDD;
+      padding-left: 0.6rem;
+    }
+
+    td.ledger-dim[data-dim="positioning"] { border-left-color: var(--dim-positioning); color: var(--dim-positioning); }
+    td.ledger-dim[data-dim="personality"] { border-left-color: var(--dim-personality); color: var(--dim-personality); }
+    td.ledger-dim[data-dim="visual"]      { border-left-color: var(--dim-visual);      color: var(--dim-visual); }
+    td.ledger-dim[data-dim="voice"]       { border-left-color: var(--dim-voice);       color: var(--dim-voice); }
+    td.ledger-dim[data-dim="stress_test"] { border-left-color: var(--dim-stress_test); color: var(--dim-stress_test); }
+    td.ledger-dim[data-dim="quality"]     { border-left-color: var(--dim-quality);     color: var(--dim-quality); }
+
+    td.ledger-label { color: #2A2A2A; }
+    td.ledger-label a { color: var(--color-text-primary); text-decoration: none; font-weight: 600; }
+    td.ledger-label a:hover { text-decoration: underline; }
+
+    td.ledger-status { width: 70px; text-align: center; }
+
+    .status-chip {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.63rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .status-chip--used {
+      background: #D1FAE5;
+      color: #065F46;
+      border: 1px solid #6EE7B7;
+    }
+
+    .status-chip--not-run {
+      background: #F3F4F6;
+      color: #9CA3AF;
+      border: 1px solid #E5E7EB;
+    }
+
+    /* Not-used rows are visually dimmed */
+    tr.ledger-row--not-run td { color: #BBB; }
+    tr.ledger-row--not-run td.ledger-dim { opacity: 0.5; }
+
+    /* ─── TECHNIQUE BLOCKS ─── */
+    .techniques-section { margin-bottom: 3rem; }
+
+    .techniques-section > h2 {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .technique-block {
+      border: 1px solid #DDD8CF;
+      border-radius: 5px;
+      background: #FFFFFF;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+
+    .technique-block-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      padding: 0.85rem 1.1rem 0.75rem;
+      border-bottom: 1px solid #E8E3D8;
+      background: #FAFAF7;
+    }
+
+    .technique-block-header h2 {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .technique-dim-tag {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .technique-dim-tag[data-dim="positioning"] { background: #DBEAFE; color: var(--dim-positioning); }
+    .technique-dim-tag[data-dim="personality"] { background: #EDE9FE; color: var(--dim-personality); }
+    .technique-dim-tag[data-dim="visual"]      { background: #FEF3C7; color: var(--dim-visual); }
+    .technique-dim-tag[data-dim="voice"]       { background: #CCFBF1; color: var(--dim-voice); }
+    .technique-dim-tag[data-dim="stress_test"] { background: #FEE2E2; color: var(--dim-stress_test); }
+    .technique-dim-tag[data-dim="quality"]     { background: #DCFCE7; color: var(--dim-quality); }
+
+    .technique-block-body { padding: 1rem 1.1rem; }
+
+    p.technique-description {
+      font-size: 0.82rem;
+      color: #666;
+      font-style: italic;
+      margin-bottom: 0.9rem;
+      line-height: 1.5;
+      border-left: 2px solid #DDD;
+      padding-left: 0.65rem;
+    }
+
+    /* ─── TECHNIQUE OUTPUT ─── */
+    section.technique-output {
+      margin-bottom: 0.85rem;
+    }
+
+    .technique-output-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #AAA;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    /* Output content — the rendering skill populates {{ technique.output_html }} */
+    .technique-output-body {
+      font-size: 0.875rem;
+      line-height: 1.55;
+      color: #2A2A2A;
+    }
+
+    /* Shared sub-element styles for output_html content */
+
+    /* ─── BUTTERFLY (Wolff-Olins only) ───────────────────────────────────
+       INVARIANT: .output-butterfly REQUIRES exactly 4 children
+       (IS / ISN'T / DOES / DOESN'T). For generic 2-up content
+       (voice card sort pairs, texture base/flourish, etc.), use
+       .output-pairing-grid — never reuse .output-butterfly for ≠4 cells. */
+    .output-butterfly {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .output-butterfly-cell {
+      padding: 0.5rem 0.6rem;
+      border: 1px solid #E0E0E0;
+      border-radius: 3px;
+      font-size: 0.83rem;
+      min-height: 4.5rem;
+    }
+
+    .output-butterfly-cell-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: #999;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ─── PAIRING GRID (generic 2-up; replaces the .butterfly reuse that
+       produced sloppy layouts in pre-v0.4.1 renders) ───────────────────── */
+    .output-pairing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+
+    .output-pairing-grid > * {
+      padding: 0.65rem 0.75rem;
+      border: 1px solid #E0E0E0;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      min-height: 5rem;
+    }
+
+    .output-pairing-grid-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: #999;
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+
+    .output-archetype-tags { display: flex; gap: 0.5rem; margin-bottom: 0.4rem; }
+
+    .output-archetype-tag {
+      padding: 0.2rem 0.7rem;
+      border-radius: 3px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .output-archetype-tag--primary { background: var(--color-text-primary); color: #FFF; }
+    .output-archetype-tag--secondary { background: #EEE; color: var(--color-text-primary); border: 1px solid #CCC; }
+
+    .output-archetype-reasoning { font-size: 0.82rem; color: #555; }
+
+    .output-metaphors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .output-metaphor-card {
+      padding: 0.6rem;
+      border: 1px solid #E0E0E0;
+      border-radius: 3px;
+      font-size: 0.82rem;
+    }
+
+    .output-metaphor-name { font-weight: 700; margin-bottom: 0.15rem; }
+    .output-metaphor-traits { color: #666; font-size: 0.78rem; margin-bottom: 0.1rem; }
+    .output-metaphor-usage { color: #888; font-size: 0.78rem; font-style: italic; }
+
+    .output-playlist-list, .output-risk-list { list-style: none; }
+
+    .output-playlist-row, .output-risk-row {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid #EEE;
+      font-size: 0.83rem;
+    }
+
+    .output-playlist-song { font-weight: 600; min-width: 9rem; }
+    .output-playlist-artist { color: #666; }
+
+    .output-risk-label { font-weight: 600; min-width: 8rem; }
+
+    .output-keywords-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+    .output-keyword-chip {
+      padding: 0.2rem 0.6rem;
+      border-radius: 3px;
+      background: #F0F0F0;
+      border: 1px solid #DDD;
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+
+    /* ─── TECHNIQUE QUOTES ─── */
+    section.technique-quotes {
+      border-top: 1px solid #EAE5DC;
+      padding-top: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .technique-quotes-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #AAA;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    /* <!-- REPEAT: technique_quotes --> */
+    blockquote.technique-quote {
+      margin: 0 0 0.65rem;
+      padding: 0.5rem 0.75rem;
+      border-left: 3px solid #DDD8CF;
+      background: #FAFAF7;
+      border-radius: 0 3px 3px 0;
+    }
+
+    blockquote.technique-quote p {
+      font-size: 0.85rem;
+      color: #3A3A3A;
+      font-style: italic;
+      margin-bottom: 0.25rem;
+      line-height: 1.5;
+    }
+
+    .quote-attribution {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: #888;
+    }
+
+    .quote-context {
+      font-size: 0.72rem;
+      color: #AAA;
+      margin-left: 0.5rem;
+    }
+
+    /* ─── NOT-RUN APPENDIX ─── */
+    details.not-run-appendix {
+      border: 1px solid #E0D8CC;
+      border-radius: 5px;
+      background: #FFFFFF;
+      margin-top: 2rem;
+      overflow: hidden;
+    }
+
+    details.not-run-appendix summary {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.8rem 1.1rem;
+      cursor: pointer;
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      color: #777;
+      list-style: none;
+      user-select: none;
+      background: #FAF8F4;
+      border-bottom: 1px solid transparent;
+      transition: background 0.1s;
+    }
+
+    details.not-run-appendix[open] summary {
+      border-bottom-color: #E0D8CC;
+    }
+
+    details.not-run-appendix summary::before {
+      content: "▶";
+      font-size: 0.6rem;
+      color: #BBB;
+      transition: transform 0.15s;
+    }
+
+    details.not-run-appendix[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    details.not-run-appendix summary::-webkit-details-marker { display: none; }
+
+    .not-run-appendix-body {
+      padding: 1rem 1.1rem;
+    }
+
+    .not-run-intro {
+      font-size: 0.8rem;
+      color: #888;
+      margin-bottom: 0.85rem;
+      font-style: italic;
+    }
+
+    /* <!-- REPEAT: not_run_list --> */
+    .not-run-entry {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #F0EBE2;
+      font-size: 0.83rem;
+    }
+
+    .not-run-entry:last-child { border-bottom: none; }
+
+    .not-run-dim {
+      flex-shrink: 0;
+      width: 90px;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding-top: 0.15rem;
+    }
+
+    .not-run-dim[data-dim="positioning"] { color: var(--dim-positioning); }
+    .not-run-dim[data-dim="personality"] { color: var(--dim-personality); }
+    .not-run-dim[data-dim="visual"]      { color: var(--dim-visual); }
+    .not-run-dim[data-dim="voice"]       { color: var(--dim-voice); }
+    .not-run-dim[data-dim="stress_test"] { color: var(--dim-stress_test); }
+    .not-run-dim[data-dim="quality"]     { color: var(--dim-quality); }
+
+    .not-run-content { flex: 1; }
+
+    .not-run-label {
+      font-weight: 600;
+      color: #666;
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    .not-run-description {
+      font-size: 0.8rem;
+      color: #999;
+      line-height: 1.45;
+    }
+
+    /* ─── FOOTER ─── */
+    .doc-footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid #DDD8CF;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #AAA;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 700px) {
+      body {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #E5E0D8;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ─── SIDEBAR (sticky navigation) ─── -->
+  <aside class="sidebar">
+    <div class="sidebar-title">{{ brand_name }} &middot; Process Record</div>
+    <nav>
+      <a class="sidebar-ledger-link" href="#methods-ledger">Methods Ledger</a>
+
+      <!-- Dimension groups — brand-export populates one sidebar-dim-group per dimension
+           containing used techniques. Unused dimensions are omitted from the sidebar. -->
+
+      <div class="sidebar-dim-group">
+        <span class="sidebar-dim-label" data-dim="positioning">Positioning</span>
+        <!-- REPEAT: sidebar_positioning_links -->
+        <a href="#{{ technique.slug }}" class="{{ technique.used | '' : 'not-used' }}">{{ technique.label }}</a>
+        <!-- END -->
+      </div>
+
+      <div class="sidebar-dim-group">
+        <span class="sidebar-dim-label" data-dim="personality">Personality</span>
+        <!-- REPEAT: sidebar_personality_links -->
+        <a href="#{{ technique.slug }}" class="{{ technique.used | '' : 'not-used' }}">{{ technique.label }}</a>
+        <!-- END -->
+      </div>
+
+      <div class="sidebar-dim-group">
+        <span class="sidebar-dim-label" data-dim="visual">Visual</span>
+        <!-- REPEAT: sidebar_visual_links -->
+        <a href="#{{ technique.slug }}" class="{{ technique.used | '' : 'not-used' }}">{{ technique.label }}</a>
+        <!-- END -->
+      </div>
+
+      <div class="sidebar-dim-group">
+        <span class="sidebar-dim-label" data-dim="voice">Voice</span>
+        <!-- REPEAT: sidebar_voice_links -->
+        <a href="#{{ technique.slug }}" class="{{ technique.used | '' : 'not-used' }}">{{ technique.label }}</a>
+        <!-- END -->
+      </div>
+
+      <div class="sidebar-dim-group">
+        <span class="sidebar-dim-label" data-dim="stress_test">Stress Tests</span>
+        <!-- REPEAT: sidebar_stress_test_links -->
+        <a href="#{{ technique.slug }}" class="{{ technique.used | '' : 'not-used' }}">{{ technique.label }}</a>
+        <!-- END -->
+      </div>
+
+      <div class="sidebar-dim-group">
+        <span class="sidebar-dim-label" data-dim="quality">Quality</span>
+        <!-- REPEAT: sidebar_quality_links -->
+        <a href="#{{ technique.slug }}" class="{{ technique.used | '' : 'not-used' }}">{{ technique.label }}</a>
+        <!-- END -->
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <main>
+
+    <!-- ─── COVER ─── -->
+    <section class="cover">
+      <div class="cover-eyebrow">Brand Process Record</div>
+      <div class="cover-brand">{{ brand_name }}</div>
+      <div class="cover-subtitle">Methods &amp; Evidence Trail</div>
+
+      <div class="cover-meta-grid">
+        <div class="cover-meta-item">
+          <strong>Build Date</strong>
+          {{ build_date }}
+        </div>
+        <div class="cover-meta-item">
+          <strong>Participants</strong>
+          {{ participants }}
+        </div>
+        <div class="cover-meta-item">
+          <strong>Registry Version</strong>
+          {{ techniques_total }} techniques
+        </div>
+      </div>
+
+      <div class="cover-technique-count">
+        {{ techniques_used_count }} of {{ techniques_total }} techniques used
+      </div>
+    </section>
+
+    <!-- ─── METHODS LEDGER ─── -->
+    <section class="methods-ledger-section" id="methods-ledger">
+      <h2>Methods Ledger</h2>
+      <p class="ledger-intro">Full registry of {{ techniques_total }} techniques. Green rows link to per-technique blocks below. Grey rows were not run in this build and appear in the Not-Run appendix.</p>
+
+      <table class="methods-ledger">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Technique</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- REPEAT: methods_ledger_all -->
+          <tr class="ledger-row ledger-row--{{ row.status_class }}">
+            <td class="ledger-dim" data-dim="{{ row.dimension }}">{{ row.dimension }}</td>
+            <td class="ledger-label">
+              <!-- status Used: link to block; status —: plain text -->
+              {{ row.label_linked }}
+              <!-- brand-export renders as:
+                   Used: <a href="#{{ row.anchor }}">{{ row.label }}</a>
+                   —:    <span>{{ row.label }}</span>
+              -->
+            </td>
+            <td class="ledger-status">
+              <span class="status-chip status-chip--{{ row.status_class }}">{{ row.status }}</span>
+            </td>
+          </tr>
+          <!-- END -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ─── PER-TECHNIQUE BLOCKS ─── -->
+    <section class="techniques-section">
+      <h2>Technique Outputs</h2>
+
+      <!-- REPEAT: technique_blocks -->
+      <article class="technique-block" id="{{ technique.slug }}">
+        <div class="technique-block-header">
+          <h2>{{ technique.label }}</h2>
+          <span class="technique-dim-tag" data-dim="{{ technique.dimension }}">{{ technique.dimension }}</span>
+        </div>
+
+        <div class="technique-block-body">
+
+          <p class="technique-description">{{ technique.description }}</p>
+
+          <section class="technique-output">
+            <div class="technique-output-label">Output</div>
+            <div class="technique-output-body">
+              {{ technique.output_html }}
+            </div>
+          </section>
+
+          <!-- technique_quotes is optional — omit this section if no quotes exist -->
+          <section class="technique-quotes">
+            <div class="technique-quotes-label">Discovery Quotes</div>
+
+            <!-- REPEAT: technique_quotes -->
+            <blockquote class="technique-quote">
+              <p>{{ quote.text }}</p>
+              <footer>
+                <span class="quote-attribution">— {{ quote.speaker }}</span>
+                <span class="quote-context">{{ quote.context }}</span>
+              </footer>
+            </blockquote>
+            <!-- END -->
+
+          </section>
+
+        </div>
+      </article>
+      <!-- END -->
+
+    </section>
+
+    <!-- ─── NOT-RUN APPENDIX ─── -->
+    <details class="not-run-appendix">
+      <summary>Techniques Not Run ({{ techniques_total | minus: techniques_used_count }})</summary>
+
+      <div class="not-run-appendix-body">
+        <p class="not-run-intro">These techniques were available but not run in this build. Each description explains what running it would have added to the brand evidence.</p>
+
+        <!-- REPEAT: not_run_list -->
+        <div class="not-run-entry">
+          <span class="not-run-dim" data-dim="{{ technique.dimension }}">{{ technique.dimension }}</span>
+          <div class="not-run-content">
+            <span class="not-run-label">{{ technique.label }}</span>
+            <span class="not-run-description">{{ technique.description }}</span>
+          </div>
+        </div>
+        <!-- END -->
+
+      </div>
+    </details>
+
+    <!-- ─── FOOTER ─── -->
+    <div class="doc-footer">
+      <span>Generated by <strong>expert-design-n-brand</strong> &middot; Artifact B &middot; Interactive edition</span>
+      &middot; <span>Built: {{ build_date }}</span>
+    </div>
+
+  </main>
+
+</body>
+</html>

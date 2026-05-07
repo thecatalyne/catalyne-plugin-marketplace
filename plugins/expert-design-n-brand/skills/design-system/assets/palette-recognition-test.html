@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ brand_name }} — Palette Recognition Test</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: #F8F8F8;
+      color: #1A1A1A;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #666; margin-bottom: 2rem; font-size: 0.95rem; }
+    .generated { font-size: 0.75rem; color: #999; margin-bottom: 2rem; }
+
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .palette-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #E8E8E8;
+    }
+
+    .palette-swatches {
+      display: flex;
+      height: 120px;
+    }
+
+    .palette-swatches .swatch {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      padding: 0.5rem;
+    }
+
+    .palette-swatches .swatch span {
+      font-size: 0.65rem;
+      font-family: monospace;
+      padding: 2px 4px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.85);
+      color: #333;
+    }
+
+    .palette-info {
+      padding: 1.25rem;
+    }
+
+    .palette-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .palette-character {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    /* ─── Mock UI Section ─── */
+    .mock-ui {
+      border-top: 1px solid #EEE;
+      padding: 1.25rem;
+    }
+
+    .mock-ui-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #999;
+      margin-bottom: 0.75rem;
+    }
+
+    .mock-button {
+      display: inline-block;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .mock-nav {
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .mock-nav span { opacity: 0.7; }
+    .mock-nav span.active { opacity: 1; font-weight: 700; }
+
+    .mock-card {
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+
+    .mock-card h4 {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ─── Reaction Section ─── */
+    .reaction {
+      padding: 1.25rem;
+      border-top: 1px solid #EEE;
+      background: #FAFAFA;
+    }
+
+    .reaction-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .reaction-options {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .reaction-options span {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid #DDD;
+      cursor: default;
+      background: white;
+    }
+
+    /* ─── Instructions ─── */
+    .instructions {
+      background: white;
+      border: 1px solid #E0E0E0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .instructions h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .instructions p {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>{{ brand_name }} — Palette Recognition Test</h1>
+  <p class="subtitle">Which palette feels like your brand? Look at the swatches, then the mock UI below each one.</p>
+  <p class="generated">Generated during discovery for {{ participant_name }} &middot; {{ timestamp }}</p>
+
+  <div class="instructions">
+    <h2>How to use this</h2>
+    <p>Open this file in your browser. For each palette, ask yourself:</p>
+    <p>&bull; Does this <strong>resonate</strong>, feel <strong>neutral</strong>, or feel <strong>wrong</strong>?</p>
+    <p>&bull; What specifically draws you in or pushes you away?</p>
+    <p>&bull; Look at the mock UI &mdash; does the palette work in context, or only as swatches?</p>
+  </div>
+
+  <div class="palette-grid">
+
+    <!-- ─── PALETTE CARD (repeat for each candidate) ─── -->
+    <div class="palette-card">
+      <div class="palette-swatches">
+        <div class="swatch" style="background: {{ color_1 }};"><span>{{ color_1 }}</span></div>
+        <div class="swatch" style="background: {{ color_2 }};"><span>{{ color_2 }}</span></div>
+        <div class="swatch" style="background: {{ color_3 }};"><span>{{ color_3 }}</span></div>
+        <div class="swatch" style="background: {{ color_4 }};"><span>{{ color_4 }}</span></div>
+        <div class="swatch" style="background: {{ color_5 }};"><span>{{ color_5 }}</span></div>
+      </div>
+
+      <div class="palette-info">
+        <div class="palette-name">{{ palette_name }}</div>
+        <div class="palette-character">{{ palette_character }}</div>
+      </div>
+
+      <div class="mock-ui">
+        <div class="mock-ui-label">In context</div>
+        <div class="mock-nav" style="background: {{ color_1 }}; color: {{ color_5 }};">
+          <span class="active">Home</span>
+          <span>About</span>
+          <span>Work</span>
+          <span>Contact</span>
+        </div>
+        <div class="mock-card" style="background: {{ color_5 }}; color: {{ color_1 }};">
+          <h4>{{ brand_name }}</h4>
+          <p style="opacity: 0.7;">A brief tagline lives here to show how text feels on this surface.</p>
+        </div>
+        <div style="margin-top: 0.75rem;">
+          <span class="mock-button" style="background: {{ color_3 }}; color: {{ color_5 }};">Primary Action</span>
+          <span class="mock-button" style="background: transparent; color: {{ color_3 }}; border: 1.5px solid {{ color_3 }};">Secondary</span>
+        </div>
+      </div>
+
+      <div class="reaction">
+        <div class="reaction-label">Your reaction:</div>
+        <div class="reaction-options">
+          <span>Resonates</span>
+          <span>Neutral</span>
+          <span>Wrong</span>
+        </div>
+      </div>
+    </div>
+    <!-- ─── END PALETTE CARD ─── -->
+
+  </div>
+
+  <p style="font-size: 0.75rem; color: #999; text-align: center; margin-top: 2rem;">
+    Generated by expert-design-n-brand &middot; Palette Recognition Checkpoint
+  </p>
+
+</body>
+</html>

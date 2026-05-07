@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ brand_name }} — Design System</title>
+  <!--
+    TIER 1 AUTHOR NOTE — external reference.
+    The rendered version of this template ships to clients, consultants,
+    designers, and developers who have no prior context about how the brand
+    system was built. Keep every reader-visible string (prose, headings,
+    labels, link text) in end-user language. Do not surface build phases,
+    plugin-internal file names, slash commands, or internal status
+    vocabulary in the rendered output. When in doubt, read a draft as if
+    you had never opened this plugin.
+
+    Scaffolding notes (template authors only):
+    Placeholders are {{ like_this }}; `<!-- REPEAT:* -->` blocks expand for
+    variable-N collections; `<!-- OPTIONAL:* -->` sections are omitted
+    entirely when their driving technique was not used. Section order and
+    slug IDs are FIXED — do not rename or reorder. Optional sections drop
+    out; they do not get relocated. The Methods Used ledger lives in the
+    process-record companion; per-section method chips appear under each
+    section h2 here.
+  -->
+  <style>
+    /* ─── TOKENS (replaced by generated values) ─── */
+    :root {
+      {{ css_tokens_block }}
+      /* Fallbacks used only if the token block is missing — keeps preview legible. */
+      --color-bg: {{ color_bg_fallback | '#FAFAFA' }};
+      --color-fg: {{ color_fg_fallback | '#171717' }};
+      --color-primary: {{ color_primary_fallback | '#6B7280' }};
+      --color-text-primary: {{ color_text_primary_fallback | '#111111' }};
+      --color-accent: {{ color_accent_fallback | '#6B7280' }};
+      --font-heading: {{ font_heading | 'system-ui, sans-serif' }};
+      --font-body: {{ font_body | 'system-ui, sans-serif' }};
+      --font-size-base: 1rem;
+      --scale-ratio: {{ scale_ratio | 1.250 }};
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+      --space-4: 1rem; --space-6: 1.5rem; --space-8: 2rem;
+      --space-12: 3rem; --space-16: 4rem;
+      --radius-sm: 0.125rem; --radius-md: 0.375rem; --radius-lg: 0.5rem;
+
+      /* Semantic theme tokens — brand-export emits these from system.semantic.* if
+         present, else derives from expressions: "affirm" prefers a positive/electric
+         expression; "warn" prefers a flame/alert expression. If no semantic mapping
+         is available, falls back to the neutral WCAG palette below. Do/Don't blocks,
+         rating badges, and status colors all route through these vars so every brand's
+         rendered system carries its own voice instead of generic green/red.  */
+      --color-affirm: {{ color_affirm_fallback | '#16A34A' }};
+      --color-warn:   {{ color_warn_fallback   | '#DC2626' }};
+      --color-success: {{ color_success_fallback | 'var(--color-affirm)' }};
+      --color-warning: {{ color_warning_fallback | '#F59E0B' }};
+      --color-danger:  {{ color_danger_fallback  | 'var(--color-warn)' }};
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--font-size-base);
+      line-height: 1.6;
+      color: var(--color-fg);
+      background: var(--color-bg);
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: var(--space-8);
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-4);
+    }
+
+    main { min-width: 0; }
+
+    h1, h2, h3, h4 { font-family: var(--font-heading); line-height: 1.2; margin-top: var(--space-12); margin-bottom: var(--space-4); font-weight: 700; }
+    h1 { font-size: 3.05rem; }
+    h2 { font-size: 1.95rem; }
+    h3 { font-size: 1.56rem; }
+    h4 { font-size: 1.25rem; }
+    p { margin-bottom: var(--space-4); }
+    hr { border: none; border-top: 1px solid color-mix(in srgb, var(--color-fg) 15%, transparent); margin: var(--space-8) 0; }
+
+    /* ─── COVER ─── */
+    .cover {
+      padding: var(--space-12) var(--space-8);
+      background: var(--color-text-primary);
+      color: color-mix(in srgb, white 92%, var(--color-primary));
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-12);
+    }
+    .cover h1 { margin-top: 0; color: inherit; }
+    .cover-meta { font-family: monospace; font-size: 0.85rem; opacity: 0.85; margin-top: var(--space-4); }
+    .cover-ledger { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6); font-family: monospace; font-size: 0.75rem; opacity: 0.85; border-top: 1px solid color-mix(in srgb, white 20%, transparent); padding-top: var(--space-4); }
+    .cover-ledger span { white-space: nowrap; }
+    .cover-elevator { font-style: italic; font-size: 1.15rem; margin-top: var(--space-6); max-width: 48rem; }
+
+    /* ─── CONTENTS SIDEBAR ─── */
+    .contents {
+      position: sticky; top: var(--space-4); align-self: start;
+      font-size: 0.8rem;
+      border-left: 2px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+      padding-left: var(--space-4);
+    }
+    .contents ol { list-style: none; counter-reset: toc; }
+    .contents li { counter-increment: toc; margin-bottom: var(--space-2); display: flex; align-items: baseline; gap: var(--space-2); }
+    .contents li::before {
+      content: counter(toc, decimal-leading-zero);
+      font-family: monospace; font-size: 0.65rem;
+      width: 1.6rem; height: 1.6rem; border-radius: 50%;
+      background: var(--color-primary); color: var(--color-text-primary);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; flex-shrink: 0;
+    }
+    .contents a { color: var(--color-fg); text-decoration: none; }
+    .contents a:hover { color: var(--color-primary); }
+
+    /* ─── SECTION METHOD CHIPS ─── */
+    .section-methods { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: -0.75rem 0 1.5rem; }
+    .method-chip { font-size: 0.7rem; padding: 0.15rem 0.55rem; border-radius: 999px; font-family: var(--font-body); letter-spacing: 0.02em; }
+    .method-chip--used { background: var(--color-text-primary); color: var(--color-bg); }
+    .method-chip--unrun { background: transparent; color: var(--color-neutral-400, #a8a29e); text-decoration: line-through; border: 1px solid currentColor; }
+
+    /* ─── SECTION STYLES ─── */
+    .section { margin-bottom: var(--space-16); }
+    .section-title { font-size: 1.95rem; color: var(--color-fg); border-bottom: 2px solid var(--color-primary); padding-bottom: var(--space-2); margin-top: var(--space-12); }
+    /* Every canonical section opens with a pair:
+         .section-definition — fixed template copy explaining what the section defines
+                               (what the slot IS in a brand system — generic, not brand-specific)
+         .section-summary    — the brand's own one-sentence answer for this slot
+                               (filled from YAML; auto-composed if missing)
+       The pair mirrors what Personality does (synthesis sentence + archetype-character
+       paragraph) and gives canonical readers both the frame and the answer at a glance. */
+    .section-definition { font-size: 0.92rem; color: color-mix(in srgb, var(--color-fg) 60%, transparent); margin-top: var(--space-2); max-width: 48rem; font-style: italic; }
+    .section-summary    { font-size: 1.05rem; line-height: 1.55; color: var(--color-fg); margin-top: var(--space-3); margin-bottom: var(--space-6); max-width: 48rem; font-weight: 500; }
+
+    /* ─── PRINCIPLES ─── */
+    .principle { padding: var(--space-6); background: color-mix(in srgb, var(--color-bg) 50%, white); border-left: 4px solid var(--color-primary); border-radius: 0 var(--radius-lg) var(--radius-lg) 0; margin-top: var(--space-4); }
+    .principle-name { font-weight: 700; font-size: 1.25rem; margin-bottom: var(--space-2); }
+    .principle-rationale-short { font-size: 0.95rem; color: color-mix(in srgb, var(--color-fg) 70%, transparent); font-style: italic; }
+
+    /* ─── POSITIONING ─── */
+    .positioning-subblock { padding: var(--space-6); background: white; border-radius: var(--radius-lg); margin-top: var(--space-4); border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); }
+    .subblock-via { font-style: italic; font-size: 0.85rem; color: color-mix(in srgb, var(--color-fg) 60%, transparent); margin-bottom: var(--space-3); }
+    .butterfly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-top: var(--space-3); }
+    .butterfly-cell { padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid color-mix(in srgb, var(--color-fg) 12%, transparent); }
+    .butterfly-cell-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: var(--space-2); color: color-mix(in srgb, var(--color-fg) 55%, transparent); }
+    .butterfly-cell--is { background: color-mix(in srgb, var(--color-primary) 8%, white); }
+    .butterfly-cell--isnt { background: color-mix(in srgb, var(--color-accent, currentColor) 6%, white); }
+    .butterfly-cell--does { background: color-mix(in srgb, var(--color-primary) 5%, white); }
+    .butterfly-cell--doesnt { background: color-mix(in srgb, var(--color-accent, currentColor) 4%, white); }
+    .landscape-axes { display: flex; gap: var(--space-4); margin-top: var(--space-3); font-size: 0.85rem; font-style: italic; }
+    .landscape-placements { margin-top: var(--space-3); }
+    .landscape-placement { display: flex; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 8%, transparent); font-size: 0.85rem; }
+    .landscape-placement-brand { font-weight: 700; min-width: 8rem; }
+
+    /* ─── PERSONALITY ─── (slim canonical surface; process-record CSS lives in brand-methods-template.html) */
+    .personality-synthesis { font-size: 1.02rem; line-height: 1.55; color: var(--color-fg); margin-top: var(--space-4); max-width: 48rem; }
+    /* Character paragraph = the human thread behind the archetype. Soft-skipped if personality.character is absent. */
+    .personality-character { font-size: 0.98rem; line-height: 1.6; color: color-mix(in srgb, var(--color-fg) 85%, transparent); margin-top: var(--space-3); padding-left: var(--space-4); border-left: 2px solid color-mix(in srgb, var(--color-primary) 45%, transparent); max-width: 48rem; font-style: italic; }
+    .personality-archetypes { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+    .archetype-tag { padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); font-weight: 700; font-size: 0.95rem; }
+    .archetype-tag--primary { background: var(--color-text-primary); color: color-mix(in srgb, white 95%, var(--color-primary)); }
+    .archetype-tag--secondary { background: color-mix(in srgb, var(--color-text-primary) 15%, white); color: var(--color-text-primary); border: 1px solid color-mix(in srgb, var(--color-text-primary) 30%, transparent); }
+    .archetype-tag--blend { background: transparent; color: color-mix(in srgb, var(--color-fg) 70%, transparent); border: 1px dashed color-mix(in srgb, var(--color-fg) 30%, transparent); font-style: italic; }
+    .aaker-scores { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-5); }
+    .aaker-score-pill { display: inline-flex; align-items: baseline; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: 1px solid color-mix(in srgb, var(--color-fg) 15%, transparent); border-radius: var(--radius-md); font-size: 0.86rem; background: white; }
+    .aaker-score-pill .aaker-dim { font-weight: 600; color: color-mix(in srgb, var(--color-fg) 75%, transparent); }
+    .aaker-score-pill .aaker-score { font-family: monospace; font-weight: 700; color: var(--color-fg); }
+    .keywords-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-5); }
+    .keyword-chip { padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-primary) 12%, white); border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent); font-weight: 600; font-size: 0.9rem; }
+
+    /* Archetype in action — worked examples of voice by context */
+    .personality-archetype-in-action { margin-top: var(--space-8); }
+    .personality-archetype-in-action > p { color: color-mix(in srgb, var(--color-fg) 70%, transparent); font-size: 0.95rem; max-width: 48rem; }
+    .archetype-example-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+    .archetype-example { padding: var(--space-4) var(--space-5); background: color-mix(in srgb, var(--color-bg) 70%, white); border-left: 3px solid var(--color-primary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .archetype-example h4 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: color-mix(in srgb, var(--color-fg) 60%, transparent); margin: 0 0 var(--space-2); font-weight: 700; }
+    .archetype-example p { margin: 0; font-size: 0.98rem; line-height: 1.55; color: var(--color-fg); }
+
+    /* Do / Don't voice exemplars — paired columns with semantic coloring */
+    .personality-do-dont { margin-top: var(--space-8); }
+    .do-dont-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-top: var(--space-4); }
+    .do-dont-col { padding: var(--space-5); border-radius: var(--radius-md); border: 1px solid transparent; }
+    .do-dont-col--do { background: color-mix(in srgb, var(--color-affirm) 7%, white); border-color: color-mix(in srgb, var(--color-affirm) 30%, transparent); }
+    .do-dont-col--dont { background: color-mix(in srgb, var(--color-warn) 6%, white); border-color: color-mix(in srgb, var(--color-warn) 28%, transparent); }
+    .do-dont-col h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 var(--space-3); font-weight: 700; }
+    .do-dont-col--do h4 { color: var(--color-affirm); }
+    .do-dont-col--dont h4 { color: var(--color-warn); }
+    .do-dont-col ul { list-style: none; padding: 0; margin: 0; }
+    .do-dont-col li { margin-bottom: var(--space-2); padding-left: 1.2rem; position: relative; font-size: 0.95rem; line-height: 1.5; }
+    .do-dont-col--do li::before { content: "✓"; position: absolute; left: 0; color: var(--color-affirm); font-weight: 700; }
+    .do-dont-col--dont li::before { content: "✗"; position: absolute; left: 0; color: var(--color-warn); font-weight: 700; }
+
+    /* Color Role Playbook — explicit role-to-token-to-usage mapping */
+    .color-role-playbook { margin-top: var(--space-8); }
+    .color-role-playbook > p { color: color-mix(in srgb, var(--color-fg) 70%, transparent); font-size: 0.95rem; max-width: 48rem; }
+    .role-playbook-table { width: 100%; margin-top: var(--space-4); border-collapse: collapse; font-size: 0.92rem; }
+    .role-playbook-table th { text-align: left; font-weight: 700; padding: var(--space-3) var(--space-4); background: color-mix(in srgb, var(--color-text-primary) 5%, white); border-bottom: 2px solid var(--color-primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: color-mix(in srgb, var(--color-fg) 70%, transparent); }
+    .role-playbook-table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); vertical-align: top; }
+    .role-playbook-table td .role-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: var(--space-2); border: 1px solid color-mix(in srgb, var(--color-fg) 15%, transparent); }
+    .role-playbook-table td code { font-family: monospace; font-size: 0.82rem; color: color-mix(in srgb, var(--color-fg) 65%, transparent); background: color-mix(in srgb, var(--color-text-primary) 5%, white); padding: 1px 6px; border-radius: 3px; }
+
+    /* ─── COLOR ─── */
+    .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
+    .swatch { border-radius: var(--radius-lg); overflow: hidden; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); background: white; }
+    .swatch-color { height: 100px; }
+    .swatch-label { padding: var(--space-3); font-size: 0.8rem; }
+    .swatch-label .role { font-weight: 700; color: var(--color-fg); }
+    .swatch-label .name { display: block; font-weight: 700; font-size: 0.85rem; color: var(--color-fg); margin-top: var(--space-1); }
+    .swatch-label .hex-alias { color: color-mix(in srgb, var(--color-fg) 65%, transparent); font-size: 0.78rem; }
+    .swatch-label code { font-family: monospace; color: color-mix(in srgb, var(--color-fg) 60%, transparent); display: block; margin-top: var(--space-1); }
+    .swatch-label .usage { font-size: 0.75rem; color: color-mix(in srgb, var(--color-fg) 55%, transparent); margin-top: var(--space-1); }
+
+    /* Anchor set (named hexes distinct from core roles) */
+    .anchor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
+    .anchor-swatch { border-radius: var(--radius-lg); overflow: hidden; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); background: white; }
+    .anchor-swatch-color { height: 70px; }
+    .anchor-swatch-label { padding: var(--space-2) var(--space-3); font-size: 0.75rem; }
+    .anchor-swatch-label .anchor-name { font-weight: 700; display: block; color: var(--color-fg); }
+    .anchor-swatch-label code { font-family: monospace; color: color-mix(in srgb, var(--color-fg) 60%, transparent); font-size: 0.7rem; display: block; margin-top: 2px; }
+
+    /* Color scales (10-step strips) */
+    .scale-strip { margin-top: var(--space-6); }
+    .scale-strip h4 { margin-top: 0; margin-bottom: var(--space-2); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: color-mix(in srgb, var(--color-fg) 60%, transparent); }
+    .scale-steps { display: flex; gap: 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); }
+    .scale-step { flex: 1; display: flex; flex-direction: column; }
+    .scale-step-color { height: 48px; }
+    .scale-step-label { padding: 2px 4px; font-size: 0.6rem; font-family: monospace; color: color-mix(in srgb, var(--color-fg) 60%, transparent); text-align: center; white-space: nowrap; overflow: hidden; background: white; }
+    .scale-step-name { font-size: 0.58rem; color: color-mix(in srgb, var(--color-fg) 50%, transparent); text-align: center; padding: 0 2px 2px; background: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Gradient library */
+    .gradient-strip { margin-top: var(--space-4); padding: var(--space-4); border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); border-radius: var(--radius-lg); background: white; }
+    .gradient-preview { height: 60px; border-radius: var(--radius-md); margin-bottom: var(--space-3); }
+    .gradient-name { font-weight: 700; font-size: 0.9rem; }
+    .gradient-direction { font-size: 0.78rem; font-family: monospace; color: color-mix(in srgb, var(--color-fg) 60%, transparent); margin-top: 2px; }
+    .gradient-usage { font-size: 0.78rem; color: color-mix(in srgb, var(--color-fg) 65%, transparent); margin-top: var(--space-2); }
+    .gradients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+
+    .expressions { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+    .expression { padding: var(--space-4); border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); border-radius: var(--radius-lg); background: white; }
+    .expression-name { font-weight: 700; font-size: 1rem; }
+    .expression-anchors { display: flex; gap: var(--space-1); margin: var(--space-2) 0; }
+    .expression-anchors span { width: 24px; height: 24px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--color-fg) 15%, transparent); }
+    .expression-range, .expression-when { font-size: 0.8rem; color: color-mix(in srgb, var(--color-fg) 65%, transparent); }
+
+    /* ─── CONTRAST BADGES ─── */
+    .contrast-table { width: 100%; border-collapse: collapse; margin-top: var(--space-4); font-size: 0.85rem; }
+    .contrast-table th, .contrast-table td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); }
+    .contrast-swatch { display: inline-block; width: 18px; height: 18px; border-radius: 3px; vertical-align: middle; margin-right: var(--space-2); border: 1px solid color-mix(in srgb, var(--color-fg) 20%, transparent); }
+    .badge { display: inline-block; padding: 0.2em 0.6em; border-radius: 999px; font-size: 0.7rem; font-weight: 700; font-family: var(--font-body); letter-spacing: 0.03em; text-transform: uppercase; }
+    /* Contrast ratings are semantic. AAA = affirm (passes bar); fail = warn; AA = primary (neutral good). */
+    .badge-aaa { background: var(--color-affirm); color: white; }
+    .badge-aa { background: var(--color-primary); color: var(--color-text-primary); }
+    .badge-fail { background: var(--color-warn); color: white; }
+
+    /* ─── TYPOGRAPHY ─── */
+    .type-specimen { padding: var(--space-6); background: white; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); border-radius: var(--radius-lg); margin-top: var(--space-4); }
+    .type-sample { display: flex; align-items: baseline; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 8%, transparent); }
+    .type-sample:last-child { border-bottom: none; }
+    .type-label { font-size: 0.7rem; color: color-mix(in srgb, var(--color-fg) 55%, transparent); min-width: 72px; font-family: monospace; text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0; }
+
+    /* ─── SPACING ─── */
+    .spacing-grid { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-4); align-items: flex-end; }
+    .spacing-item { text-align: center; }
+    .spacing-block { background: color-mix(in srgb, var(--color-primary) 20%, white); border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent); border-radius: var(--radius-sm); }
+    .spacing-label { font-size: 0.7rem; color: color-mix(in srgb, var(--color-fg) 60%, transparent); margin-top: var(--space-1); font-family: monospace; }
+
+    /* ─── COMPONENTS ─── */
+    .components-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-6); margin-top: var(--space-4); }
+    .component-card { padding: var(--space-6); background: white; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); border-radius: var(--radius-lg); }
+    .component-card h4 { margin-top: 0; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: color-mix(in srgb, var(--color-fg) 55%, transparent); font-weight: 700; }
+    .btn { display: inline-block; padding: 0.6em 1.2em; border-radius: var(--radius-md); font-family: var(--font-body); font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; margin: 0 var(--space-2) var(--space-2) 0; text-decoration: none; }
+    .btn-primary { background: var(--color-primary); color: var(--color-text-primary); }
+    .btn-secondary { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .btn-ghost { background: transparent; color: color-mix(in srgb, var(--color-fg) 70%, transparent); }
+    .btn-accent { background: var(--color-accent); color: white; }
+    .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+    /* Status badges render in the brand body font — they're UI copy, not monospace data. */
+    .component-badge { display: inline-block; padding: 0.25em 0.7em; border-radius: 999px; font-size: 0.72rem; font-weight: 700; margin: 0 var(--space-2) var(--space-2) 0; font-family: var(--font-body); letter-spacing: 0.02em; }
+    .status-success { background: var(--color-success); color: white; }
+    .status-info { background: var(--color-primary); color: var(--color-text-primary); }
+    .status-warning { background: var(--color-warning); color: #3A2806; }
+    .status-danger { background: var(--color-danger); color: white; }
+    .sample-card { padding: var(--space-4); background: color-mix(in srgb, var(--color-primary) 6%, white); border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent); border-radius: var(--radius-md); }
+    .sample-input { display: block; width: 100%; padding: 0.6em 0.9em; border: 1px solid color-mix(in srgb, var(--color-fg) 20%, transparent); border-radius: var(--radius-md); font-family: var(--font-body); font-size: 0.9rem; background: white; margin-bottom: var(--space-2); }
+    .sample-input:focus { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+
+    /* ─── MOTIF GALLERY ─── */
+    .motif-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-6); margin-top: var(--space-4); }
+    .motif-card { padding: var(--space-6); background: white; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); border-radius: var(--radius-lg); }
+    .motif-card-name { font-weight: 700; font-size: 1rem; margin-bottom: var(--space-2); }
+    .motif-card-desc { font-size: 0.85rem; color: color-mix(in srgb, var(--color-fg) 70%, transparent); margin-bottom: var(--space-4); }
+    .motif-card-svg { border: 1px dashed color-mix(in srgb, var(--color-primary) 40%, transparent); border-radius: var(--radius-md); padding: var(--space-4); text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--color-primary) 4%, white); }
+
+    /* ─── TEXTURE PANEL ─── */
+    .texture-body { padding: var(--space-6); background: white; border-radius: var(--radius-lg); border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); margin-top: var(--space-4); }
+
+    /* ─── VISUAL REFERENCES ─── */
+    .visual-reference-subblock { padding: var(--space-6); background: white; border-radius: var(--radius-lg); margin-top: var(--space-4); border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); }
+    .mood-board-list { margin-top: var(--space-3); padding-left: var(--space-6); }
+    .mood-board-list li { margin-bottom: var(--space-2); font-size: 0.9rem; }
+
+    /* ─── HERO / MOTIF ─── */
+    .hero { padding: var(--space-16) var(--space-8); border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--color-text-primary), color-mix(in srgb, var(--color-text-primary) 70%, var(--color-primary))); color: color-mix(in srgb, white 95%, var(--color-primary)); margin-top: var(--space-4); }
+    .hero-eyebrow { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-primary); font-weight: 700; }
+    .hero-headline { font-size: 2.8rem; font-family: var(--font-heading); font-weight: 700; margin-top: var(--space-2); line-height: 1.1; }
+    .hero-sub { max-width: 42rem; margin-top: var(--space-4); font-size: 1.1rem; opacity: 0.9; }
+    .hero-cta { margin-top: var(--space-6); }
+
+    .motif-panel { margin-top: var(--space-6); padding: var(--space-8); border: 1px dashed color-mix(in srgb, var(--color-primary) 40%, transparent); border-radius: var(--radius-lg); }
+
+    /* ─── VOICE ─── */
+    .voice-constraint { padding: var(--space-6); background: white; border-radius: var(--radius-lg); margin-top: var(--space-4); border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); }
+    .voice-constraint-method { font-style: italic; font-size: 0.85rem; color: color-mix(in srgb, var(--color-fg) 60%, transparent); margin-bottom: var(--space-3); }
+    /* Do/Don't pairs carry the brand's affirm/warn semantic — each brand's own tokens render
+       here (resolved via the semantic resolution chain in rendering-rules.md). color-mix() gives
+       a soft tinted background without needing a separate bg token for every brand. */
+    .voice-example { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-top: var(--space-4); }
+    .voice-do, .voice-dont { padding: var(--space-4); border-radius: var(--radius-md); }
+    .voice-do   { background: color-mix(in srgb, var(--color-affirm) 10%, white); border: 1px solid color-mix(in srgb, var(--color-affirm) 30%, transparent); }
+    .voice-dont { background: color-mix(in srgb, var(--color-warn)   10%, white); border: 1px solid color-mix(in srgb, var(--color-warn)   30%, transparent); }
+    .voice-do::before   { content: "Do";    font-weight: 700; color: var(--color-affirm); display: block; margin-bottom: var(--space-2); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .voice-dont::before { content: "Don't"; font-weight: 700; color: var(--color-warn);   display: block; margin-bottom: var(--space-2); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* ─── QUALITY ─── */
+    .quality-table { width: 100%; border-collapse: collapse; margin-top: var(--space-4); }
+    .quality-table th, .quality-table td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); }
+    .quality-score { font-family: monospace; font-weight: 700; }
+    .quality-total { font-size: 1.3rem; font-weight: 700; margin-top: var(--space-3); }
+
+    /* ─── IDENTITY ─── */
+    .identity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+    .identity-card { padding: var(--space-4) var(--space-6); background: white; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); border-radius: var(--radius-lg); }
+    .identity-card h3 { margin-top: 0; font-size: 1.05rem; font-weight: 600; margin-bottom: var(--space-3); color: var(--color-text-primary); }
+    .identity-card p { margin-bottom: var(--space-2); font-size: 0.95rem; }
+    .identity-note { font-style: italic; color: color-mix(in srgb, var(--color-fg) 65%, transparent); font-size: 0.88rem; margin-top: var(--space-2); }
+    .identity-list, .identity-misuse-list { list-style: none; padding: 0; font-size: 0.95rem; }
+    .identity-list li { padding: var(--space-2) 0; border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 8%, transparent); }
+    .identity-list li:last-child { border-bottom: none; }
+    .identity-misuse { margin-top: var(--space-6); padding: var(--space-4) var(--space-6); background: color-mix(in srgb, var(--color-warn, #DC2626) 5%, white); border-left: 3px solid var(--color-warn, #DC2626); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .identity-misuse h3 { margin-top: 0; color: var(--color-warn, #DC2626); font-size: 1rem; font-weight: 600; }
+    .identity-misuse-list li { padding: var(--space-2) 0; font-size: 0.92rem; }
+    .companion-pointer { margin-top: var(--space-6); font-size: 0.88rem; color: color-mix(in srgb, var(--color-fg) 70%, transparent); }
+    .companion-pointer a { color: var(--color-primary); text-decoration: none; border-bottom: 1px solid currentColor; }
+
+    /* ─── VISUAL LANGUAGE (expanded) ─── */
+    .visual-language-subblock { padding: var(--space-4) var(--space-6); margin-top: var(--space-4); background: white; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); border-radius: var(--radius-lg); }
+    .visual-language-subblock h3 { margin-top: 0; font-size: 1.1rem; font-weight: 600; }
+    .visual-language-subblock .subblock-rule { margin: var(--space-2) 0; font-size: 0.95rem; }
+    .visual-language-subblock .subblock-forbidden { color: var(--color-warn, #DC2626); font-weight: 500; }
+    .vl-token-table { width: 100%; border-collapse: collapse; margin-top: var(--space-3); font-size: 0.9rem; }
+    .vl-token-table th, .vl-token-table td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 8%, transparent); }
+    .vl-token-table th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: color-mix(in srgb, var(--color-fg) 60%, transparent); font-weight: 600; }
+
+    /* ─── GRID / LAYOUT ─── */
+    .grid-spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-3); margin-top: var(--space-4); }
+    .grid-spec-row { padding: var(--space-3) var(--space-4); background: color-mix(in srgb, var(--color-bg) 50%, white); border-left: 3px solid var(--color-primary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+    .grid-spec-row strong { display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: color-mix(in srgb, var(--color-fg) 65%, transparent); margin-bottom: var(--space-1); }
+    .grid-spec-row span { font-family: monospace; font-size: 0.95rem; }
+
+    /* ─── COMPANION POINTER CARDS ─── */
+    .companion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+    .companion-card { padding: var(--space-6); background: white; border: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); border-radius: var(--radius-lg); }
+    .companion-card h3 { margin-top: 0; font-size: 1.05rem; font-weight: 600; margin-bottom: var(--space-2); }
+    .companion-card p { font-size: 0.9rem; margin-bottom: var(--space-3); color: color-mix(in srgb, var(--color-fg) 75%, transparent); }
+    .companion-card .companion-link { display: inline-block; padding: var(--space-2) var(--space-4); background: var(--color-text-primary); color: white; border-radius: var(--radius-md); font-size: 0.88rem; font-weight: 500; text-decoration: none; }
+    .companion-card .companion-link:hover { opacity: 0.85; }
+
+    /* ─── META ─── */
+    .meta { font-size: 0.75rem; color: color-mix(in srgb, var(--color-fg) 55%, transparent); margin-top: var(--space-16); padding-top: var(--space-4); border-top: 1px solid color-mix(in srgb, var(--color-fg) 15%, transparent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; }
+      .contents { position: static; border-left: none; padding-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── CONTENTS SIDEBAR ─── (numbered list, one entry per rendered section, in fixed canonical order) -->
+  <nav class="contents" aria-label="Contents">
+    <ol>
+      <!-- REPEAT: sidebar_entries — one <li><a href="#slug">{{ label }}</a></li> per section that actually rendered below (soft-skipped sections are NOT listed) -->
+      <li><a href="#principles">Principles</a></li>
+      <!-- OPTIONAL:positioning --><li><a href="#positioning">Positioning</a></li>
+      <!-- OPTIONAL:identity --><li><a href="#identity">Identity</a></li>
+      <!-- OPTIONAL:personality --><li><a href="#personality">Personality</a></li>
+      <li><a href="#color">Color</a></li>
+      <li><a href="#typography">Typography</a></li>
+      <!-- OPTIONAL:visual-language --><li><a href="#visual-language">Visual Language</a></li>
+      <li><a href="#spacing">Spacing &amp; Grid</a></li>
+      <li><a href="#components">Components</a></li>
+      <!-- OPTIONAL:motif-gallery --><li><a href="#motif-gallery">Motif Gallery</a></li>
+      <!-- OPTIONAL:texture-panel --><li><a href="#texture-panel">Texture &amp; Material</a></li>
+      <!-- OPTIONAL:anti-inspiration --><li><a href="#anti-inspiration">Anti-Inspiration</a></li>
+      <li><a href="#in-practice">In Practice</a></li>
+      <li><a href="#voice-constraints">Voice</a></li>
+      <li><a href="#platforms">Platform &amp; Application</a></li>
+      <li><a href="#governance">Governance</a></li>
+      <li><a href="#llm-manual">LLM Operating Manual</a></li>
+      <li><a href="#quickref">Quick Reference</a></li>
+      <!-- OPTIONAL:quality --><li><a href="#quality">Quality</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <!-- ─── COVER ─── -->
+  <header class="cover" id="cover">
+    <div class="cover-meta">DESIGN SYSTEM &middot; {{ draft_label | 'DRAFT' }} &middot; {{ date }}</div>
+    <h1>{{ brand_name }}</h1>
+    <p class="cover-elevator">{{ elevator_pitch }}</p>
+    <div class="cover-ledger">
+      <!-- Each span emitted only if its field is populated; separators rendered by the export skill, not hardcoded here. -->
+      <span>Primary <code>{{ primary_hex }}</code></span>
+      <span>Accent <code>{{ accent_hex }}</code></span>
+      <span>Type {{ heading_font_short }}/{{ body_font_short }}</span>
+      <span>Scale {{ scale_name }}</span>
+      <!-- OPTIONAL:ledger-coherence --><span>Coherence {{ coherence_score }}/30</span>
+      <!-- OPTIONAL:ledger-rand --><span>Rand {{ rand_total }}/70</span>
+    </div>
+  </header>
+
+  <!-- ─── PRINCIPLES ─── (variable-N; render one <div class="principle"> per entry in system.principles[]) -->
+  <section class="section" id="principles">
+    <h2 class="section-title">Design Principles</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_principles -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">The guiding rules that inform every design decision. Each principle traces back to personality, voice, or positioning evidence — if it can't be traced, it isn't a principle yet.</p>
+    <p class="section-summary">{{ principles_summary }}</p>
+
+    <!-- REPEAT: principles -->
+    <div class="principle">
+      <div class="principle-name">{{ principle.name }}</div>
+      <p class="principle-rationale-short">{{ principle.rationale_short }}</p>
+    </div>
+  </section>
+
+  <!-- ─── POSITIONING ─── -->
+  <!-- OPTIONAL:positioning -->
+  <section class="section" id="positioning">
+    <h2 class="section-title">Positioning</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_positioning -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">How this brand occupies space in the market — where it stands, what it refuses, and what makes it distinct. Positioning is rendered through whatever frames were run (elevator pitch, Wolff-Olins butterfly); each subblock tags its technique.</p>
+    <p class="section-summary">{{ positioning_summary }}</p>
+
+    <!-- REPEAT: positioning_subblocks — one subblock per used technique in [elevator-pitch, wolff-olins-butterfly].
+         landscape-grid routes to brand-methods only per v5 governing rule (process record, not canonical positioning). -->
+    <div class="positioning-subblock">
+      <div class="subblock-via">via {{ technique.label }}</div>
+      {{ subblock.content_html }}
+      <!-- elevator-pitch: renders <p class="elevator-pitch-text">{{ pitch }}</p> -->
+      <!-- wolff-olins-butterfly: renders a .butterfly-grid with four .butterfly-cell divs (IS / ISN'T / DOES / DOESN'T) -->
+    </div>
+    <!-- END -->
+  </section>
+
+  <!-- ─── IDENTITY ─── (logo + wordmark summary; full construction lives in the companion SVG) -->
+  <!-- OPTIONAL:identity -->
+  <section class="section" id="identity">
+    <h2 class="section-title">Identity</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_identity -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">The brand's signature — wordmark, pictorial mark (if any), their permitted lockups, and the rules that keep them legible in every context. Full construction geometry, clearspace grids, and the complete misuse set live in the companion logo file; this section summarizes the rules a reader needs at a glance.</p>
+    <p class="section-summary">{{ identity_summary }}</p>
+
+    <div class="identity-grid">
+      <!-- OPTIONAL:identity-wordmark -->
+      <div class="identity-card">
+        <h3>Wordmark</h3>
+        <p><strong>{{ wordmark_label | brand_name }}</strong> — {{ wordmark_typeface }}, weight {{ wordmark_weight }}, letter-spacing {{ wordmark_tracking }}.</p>
+        <p class="identity-note">{{ wordmark_note }}</p>
+      </div>
+
+      <!-- OPTIONAL:identity-mark -->
+      <div class="identity-card">
+        <h3>Pictorial mark</h3>
+        <p>{{ pictorial_mark_description }}</p>
+        <p class="identity-note">{{ pictorial_mark_construction_note }}</p>
+      </div>
+
+      <!-- OPTIONAL:identity-clearspace -->
+      <div class="identity-card">
+        <h3>Clearspace &amp; minimum size</h3>
+        <p><strong>Clearspace:</strong> {{ clearspace_rule }}</p>
+        <p><strong>Minimum size (digital):</strong> {{ min_size_digital_px }} px</p>
+        <p><strong>Minimum size (print):</strong> {{ min_size_print_mm }} mm</p>
+      </div>
+
+      <!-- OPTIONAL:identity-lockups -->
+      <div class="identity-card">
+        <h3>Permitted lockups</h3>
+        <ul class="identity-list">
+          <!-- REPEAT: identity_lockups -->
+          <li><strong>{{ lockup.name }}</strong> — {{ lockup.when_to_use }}</li>
+          <!-- END -->
+        </ul>
+      </div>
+    </div>
+
+    <!-- OPTIONAL:identity-misuse-summary -->
+    <div class="identity-misuse">
+      <h3>Common misuses</h3>
+      <ul class="identity-misuse-list">
+        <!-- REPEAT: identity_misuses -->
+        <li><strong>Don't:</strong> {{ misuse.what }} — <em>{{ misuse.why }}</em></li>
+        <!-- END -->
+      </ul>
+    </div>
+
+    <p class="companion-pointer">Full construction, clearspace grids, and the complete misuse set: <a href="./logo-construction.svg">logo-construction.svg</a>.</p>
+  </section>
+
+  <!-- ─── PERSONALITY ─── (canonical surface only — thin by design)
+       v5 governing rule: metaphor gallery, playlist, celebrity casting, tension
+       spectra, archetype reasoning, and keyword walkthroughs are PROCESS RECORD
+       and render in brand-methods.html only. design-system.html shows:
+         1) a one-sentence synthesis paragraph
+         2) archetype labels (primary · secondary · optional self-typed blend)
+         3) Aaker scores row (five dimensions, numeric only)
+         4) Five-keyword chip row (final distilled keywords)
+  -->
+  <!-- OPTIONAL:personality -->
+  <section class="section" id="personality">
+    <h2 class="section-title">Personality</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_personality -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+
+    <p class="section-definition">The brand's temperament in plain language — the synthesis sentence frames it in archetype and Aaker terms; the character paragraph (below) is the human thread. Reasoning, metaphor galleries, celebrity casting, tension spectra, and keyword walkthroughs all route to brand-methods.html as process record.</p>
+
+    <!-- Synthesis paragraph — from system.personality.synthesis (authored or auto-composed by brand-build) -->
+    <p class="personality-synthesis section-summary">{{ personality_synthesis }}</p>
+
+    <!-- Character paragraph — 40–70 word narrative texture from system.personality.character.
+         Required-v6 per build-export-contract.md. Distinct from synthesis: synthesis is the
+         taxonomy summary, character is the human thread (what does this brand feel like in a
+         room). Full archetype reasoning prose and evidence lineage still route to
+         brand-methods.html as process record. -->
+    <p class="personality-character">{{ personality_character }}</p>
+
+    <!-- Archetype labels row — always renders if archetype-selection was used -->
+    <!-- OPTIONAL:personality-archetypes -->
+    <div class="personality-archetypes">
+      <span class="archetype-tag archetype-tag--primary">{{ primary_archetype }}</span>
+      <span class="archetype-tag archetype-tag--secondary">{{ secondary_archetype }}</span>
+      <!-- OPTIONAL:personality-blend --><span class="archetype-tag archetype-tag--blend">{{ archetype_blend }}</span>
+    </div>
+
+    <!-- Aaker scores row — numeric only; no reasoning prose -->
+    <!-- OPTIONAL:personality-aaker -->
+    <div class="aaker-scores">
+      <!-- REPEAT: aaker_rows -->
+      <div class="aaker-score-pill"><span class="aaker-dim">{{ dim }}</span><span class="aaker-score">{{ score }}/10</span></div>
+      <!-- END -->
+    </div>
+
+    <!-- Keyword chip row — final distilled list only; walkthrough is in brand-methods -->
+    <!-- OPTIONAL:personality-keywords -->
+    <div class="keywords-chips">
+      <!-- REPEAT: keywords -->
+      <span class="keyword-chip">{{ word }}</span>
+      <!-- END -->
+    </div>
+
+    <!-- Archetype in action — ≥3 worked examples from system.personality.archetype_in_action[].
+         Required-v6 per build-export-contract.md. Shows how the archetype sounds in actual
+         copy (landing line, onboarding, celebration, apology, etc.). -->
+    <section class="personality-archetype-in-action">
+      <h3>Archetype in action</h3>
+      <p>How the archetype shows up in copy — concrete examples, not abstract descriptions.</p>
+      <div class="archetype-example-grid">
+        <!-- REPEAT: archetype_in_action -->
+        <div class="archetype-example">
+          <h4>{{ context }}</h4>
+          <p>{{ text }}</p>
+        </div>
+        <!-- END -->
+      </div>
+    </section>
+
+    <!-- Do / Don't voice exemplars — from system.personality.do_dont.
+         Required-v6 per build-export-contract.md. Each column ≥3 items, semantic coloring. -->
+    <section class="personality-do-dont">
+      <h3>Voice: Do / Don't</h3>
+      <div class="do-dont-grid">
+        <div class="do-dont-col do-dont-col--do">
+          <h4>Do</h4>
+          <ul>
+            <!-- REPEAT: do_list -->
+            <li>{{ item }}</li>
+            <!-- END -->
+          </ul>
+        </div>
+        <div class="do-dont-col do-dont-col--dont">
+          <h4>Don't</h4>
+          <ul>
+            <!-- REPEAT: dont_list -->
+            <li>{{ item }}</li>
+            <!-- END -->
+          </ul>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ─── COLOR ─── -->
+  <section class="section" id="color">
+    <h2 class="section-title">Color</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_color -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">The brand's emotional signature in light — core functional roles, named anchors, full tonal scales, any multi-modal expressions, and declared gradients. Every hex visible here is usable; anything not surfaced is not a brand color.</p>
+    <p class="section-summary">{{ color_summary }}</p>
+
+    <!-- Core Roles — variable palette; render one swatch per entry in system.color.palette.core[]. Always renders when any palette data exists. -->
+    <div class="subsection">
+      <h3>Core Roles</h3>
+      <p>Each role is mapped to a named anchor hex. Both the semantic role and the named hex are surfaced so the full vocabulary is visible.</p>
+      <div class="palette">
+        <!-- REPEAT: palette_core -->
+        <div class="swatch">
+          <div class="swatch-color" style="background: {{ swatch.hex }}"></div>
+          <div class="swatch-label">
+            <span class="role">{{ swatch.role }}</span>
+            <span class="name">{{ swatch.name }}</span>
+            <span class="hex-alias">{{ swatch.hex_alias }}</span>
+            <code>{{ swatch.hex }}</code>
+            <div class="usage">{{ swatch.usage }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Color Role Playbook — Required-v6. Each entry maps a specific role
+         (primary-body-text, tertiary-meta-text, link, etc.) to a token, hex,
+         when-to-use, and don't-use-for. Drives the canonical "which color
+         plays which role" mapping that all theme-builder companion files reference. -->
+    <div class="subsection color-role-playbook" id="color-role-playbook">
+      <h3>Role Playbook</h3>
+      <p>Which color plays which role in text, UI, and composition — the source of truth for designers, developers, and theme-builder files. Every brand-guidelines section references this table; every theme companion (Slides, Figma, Pitch, Keynote, Canva, email) is derived from it.</p>
+      <table class="role-playbook-table">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Token</th>
+            <th>Hex</th>
+            <th>When to use</th>
+            <th>Don't use for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- REPEAT: color_roles -->
+          <tr>
+            <td><strong>{{ role.role }}</strong></td>
+            <td><code>{{ role.token }}</code></td>
+            <td><span class="role-swatch" style="background: {{ role.hex }}"></span><code>{{ role.hex }}</code></td>
+            <td>{{ role.when_to_use }}</td>
+            <td>{{ role.dont_use_for }}</td>
+          </tr>
+          <!-- END -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- OPTIONAL:color-anchors — render only if system.color.anchors[] is non-empty (9-anchor brands etc.) -->
+    <div class="subsection" id="color-anchors">
+      <h3>Anchor Set</h3>
+      <p>Named anchor hexes — the full vocabulary of distinct colors in this system, each with a proper name independent of its role assignment.</p>
+      <div class="anchor-grid">
+        <!-- REPEAT: palette_anchors -->
+        <div class="anchor-swatch">
+          <div class="anchor-swatch-color" style="background: {{ anchor.hex }}"></div>
+          <div class="anchor-swatch-label">
+            <span class="anchor-name">{{ anchor.name }}</span>
+            <code>{{ anchor.hex }}</code>
+          </div>
+        </div>
+        <!-- END -->
+      </div>
+    </div>
+
+    <!-- OPTIONAL:color-scales — render only if system.color.scales[] is non-empty -->
+    <div class="subsection" id="color-scales">
+      <h3>Color Scales</h3>
+      <p>Ten-step tonal scales by color family. Each step is named; step names appear below the color block.</p>
+      <!-- REPEAT: palette_scales -->
+      <div class="scale-strip">
+        <h4>{{ scale.family }}</h4>
+        <div class="scale-steps">
+          <!-- REPEAT: scale.steps -->
+          <div class="scale-step">
+            <div class="scale-step-color" style="background: {{ step.hex }}"></div>
+            <div class="scale-step-label">{{ step.stop }}</div>
+            <div class="scale-step-name">{{ step.name }}</div>
+          </div>
+          <!-- END -->
+        </div>
+      </div>
+      <!-- END -->
+    </div>
+
+    <!-- OPTIONAL:color-expressions — render only if system.color.palette.expressions[] is non-empty -->
+    <div class="subsection" id="color-expressions">
+      <h3>Expressions</h3>
+      <p>Named treatments for multi-modal brands — each composed from palette anchors with a defined spectral range and usage rule.</p>
+      <div class="expressions">
+        <!-- REPEAT: palette_expressions -->
+        <div class="expression">
+          <div class="expression-name">{{ expr.name }}</div>
+          <div class="expression-anchors">
+            <!-- REPEAT: expr.anchors (as <span style="background:{{ hex }}"></span>) -->
+          </div>
+          <div class="expression-range">{{ expr.spectral_range }}</div>
+          <div class="expression-when">{{ expr.when_to_use }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTIONAL:color-gradient-library — render only if system.color.gradients[] is non-empty -->
+    <div class="subsection" id="color-gradient-library">
+      <h3>Gradient Library</h3>
+      <p>Named gradients available for use across surfaces. Each is defined by direction and anchor hex stops.</p>
+      <div class="gradients-grid">
+        <!-- REPEAT: palette_gradients -->
+        <div class="gradient-strip">
+          <div class="gradient-preview" style="background: linear-gradient({{ gradient.direction }}, {{ gradient.stops_css }})"></div>
+          <div class="gradient-name">{{ gradient.name }}</div>
+          <div class="gradient-direction">{{ gradient.direction }} &middot; {{ gradient.stops_summary }}</div>
+          <div class="gradient-usage">{{ gradient.usage }}</div>
+        </div>
+        <!-- END -->
+      </div>
+    </div>
+
+    <!-- OPTIONAL:contrast-validation — render only if system.color.contrast_pairs[] is non-empty -->
+    <div class="subsection" id="contrast">
+      <h3>Contrast</h3>
+      <table class="contrast-table">
+        <thead><tr><th>Pair</th><th>Ratio</th><th>Rating</th></tr></thead>
+        <tbody>
+          <!-- REPEAT: contrast_pairs -->
+          <tr>
+            <td>
+              <span class="contrast-swatch" style="background: {{ pair.fg }}"></span> on
+              <span class="contrast-swatch" style="background: {{ pair.bg }}"></span>
+              <code>{{ pair.fg }} / {{ pair.bg }}</code>
+            </td>
+            <td><code>{{ pair.ratio }}</code></td>
+            <td><span class="badge badge-{{ pair.rating_class }}">{{ pair.rating_label }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── TYPOGRAPHY ─── -->
+  <section class="section" id="typography">
+    <h2 class="section-title">Typography</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_typography -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">The brand's typographic voice — the pair of typefaces, their weights and roles, and the modular scale that governs size relationships. Specimens render in brand sample text, not filler pangrams.</p>
+    <p class="section-summary">{{ typography_summary | '{{ heading_font }} for headings. {{ body_font }} for body. Modular scale: {{ scale_name }} ({{ scale_ratio }}).' }}</p>
+
+    <div class="type-specimen">
+      <!-- Sample text is injected from system.typography.sample_text (fallback chain in brand-build SKILL.md). Do NOT ship with "The quick brown fox" when brand sample text exists. -->
+      <div class="type-sample">
+        <span class="type-label">Display</span>
+        <span style="font-family: var(--font-heading); font-size: 3.05rem; line-height: 1.1; font-weight: 700;">{{ sample_display }}</span>
+      </div>
+      <div class="type-sample">
+        <span class="type-label">H1</span>
+        <span style="font-family: var(--font-heading); font-size: 2.44rem; line-height: 1.2; font-weight: 700;">{{ sample_h1 }}</span>
+      </div>
+      <div class="type-sample">
+        <span class="type-label">H2</span>
+        <span style="font-family: var(--font-heading); font-size: 1.95rem; line-height: 1.2; font-weight: 700;">{{ sample_h2 }}</span>
+      </div>
+      <div class="type-sample">
+        <span class="type-label">H3</span>
+        <span style="font-family: var(--font-heading); font-size: 1.56rem; line-height: 1.3; font-weight: 600;">{{ sample_h3 }}</span>
+      </div>
+      <div class="type-sample">
+        <span class="type-label">Body</span>
+        <span style="font-family: var(--font-body); font-size: 1rem; line-height: 1.6;">{{ sample_body }}</span>
+      </div>
+      <div class="type-sample">
+        <span class="type-label">Small</span>
+        <span style="font-family: var(--font-body); font-size: 0.8rem; line-height: 1.5;">{{ sample_small }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── VISUAL LANGUAGE ─── (expanded coverage — form primitives, composition, elevation, motion, gradients, grammar, 3D; photography + illustration pointers to companion files) -->
+  <!-- OPTIONAL:visual-language -->
+  <section class="section" id="visual-language">
+    <h2 class="section-title">Visual Language</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_visual_language -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">The grammar that governs every surface — the shapes allowed, how they compose, where elevation comes from, whether motion is in the vocabulary, how gradients are used, and the photographic and illustrative registers the brand keeps. Specific galleries (motifs, textures, anti-inspiration) and companion systems (photography, illustration) carry their own pages; this section is the umbrella.</p>
+    <p class="section-summary">{{ visual_language_summary }}</p>
+
+    <!-- Form primitives — OPTIONAL:vl-form-primitives — renders only if system.visual_language.form_primitives[] non-empty -->
+    <div class="visual-language-subblock" id="vl-form-primitives">
+      <h3>Form primitives</h3>
+      <p>The allowed shape vocabulary — which geometric primitives the system uses and which it deliberately refuses.</p>
+      <table class="vl-token-table">
+        <thead><tr><th>Primitive</th><th>Construction</th><th>Stroke range (px)</th></tr></thead>
+        <tbody>
+          <!-- REPEAT: visual_language_form_primitives -->
+          <tr>
+            <td><strong>{{ primitive.name }}</strong></td>
+            <td>{{ primitive.construction }}</td>
+            <td>{{ primitive.stroke_range_px }}</td>
+          </tr>
+          <!-- END -->
+        </tbody>
+      </table>
+      <!-- OPTIONAL:vl-form-primitives-forbidden -->
+      <p class="subblock-forbidden"><strong>Forbidden:</strong>
+        <!-- REPEAT: visual_language_form_primitives_forbidden (comma-joined) -->
+        {{ forbidden_primitive }}
+        <!-- END -->
+      </p>
+      <!-- OPTIONAL:vl-curvature-rationale -->
+      <p class="subblock-rule"><em>{{ visual_language_curvature_rationale }}</em></p>
+    </div>
+
+    <!-- Composition archetypes — OPTIONAL:vl-composition — renders only if system.visual_language.composition_archetypes[] non-empty -->
+    <div class="visual-language-subblock" id="vl-composition">
+      <h3>Composition archetypes</h3>
+      <p>The layout patterns the brand reaches for by default — what each one communicates and when to use it.</p>
+      <table class="vl-token-table">
+        <thead><tr><th>Archetype</th><th>Trigger</th><th>Layout</th><th>Visual weight</th></tr></thead>
+        <tbody>
+          <!-- REPEAT: visual_language_composition_archetypes -->
+          <tr>
+            <td><strong>{{ arch.name }}</strong></td>
+            <td>{{ arch.trigger }}</td>
+            <td>{{ arch.layout_description }}</td>
+            <td>{{ arch.visual_weight_ratio }}</td>
+          </tr>
+          <!-- END -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Elevation — OPTIONAL:vl-elevation — renders only if system.visual_language.elevation_levels[] non-empty -->
+    <div class="visual-language-subblock" id="vl-elevation">
+      <h3>Elevation</h3>
+      <p>How the system expresses depth — layered cards, floating elements, or a flat voice that refuses depth altogether.</p>
+      <table class="vl-token-table">
+        <thead><tr><th>Level</th><th>Class</th><th>Shadow token</th><th>Example components</th></tr></thead>
+        <tbody>
+          <!-- REPEAT: visual_language_elevation_levels -->
+          <tr>
+            <td><strong>{{ elev.level }}</strong></td>
+            <td><code>{{ elev.class }}</code></td>
+            <td><code>{{ elev.shadow_token }}</code></td>
+            <td>
+              <!-- REPEAT: elev.component_examples (comma-joined) -->
+              {{ example }}
+              <!-- END -->
+            </td>
+          </tr>
+          <!-- END -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Translucency & material — OPTIONAL:vl-translucency — renders only if system.visual_language.translucency OR texture_material present -->
+    <div class="visual-language-subblock" id="vl-translucency">
+      <h3>Translucency &amp; material</h3>
+      <!-- OPTIONAL:vl-translucency-policy -->
+      <p class="subblock-rule"><strong>Translucency:</strong> {{ translucency_allowed_label }} — <em>{{ translucency_reason }}</em></p>
+      <!-- OPTIONAL:vl-material-descriptors -->
+      <p class="subblock-rule"><strong>Material descriptors:</strong>
+        <!-- REPEAT: texture_adjectives (comma-joined) -->
+        {{ adjective }}
+        <!-- END -->
+      </p>
+      <!-- OPTIONAL:vl-material-translation -->
+      <p class="subblock-rule"><strong>Digital translation:</strong> {{ texture_digital_translation }}</p>
+      <!-- OPTIONAL:vl-material-anti-patterns -->
+      <p class="subblock-forbidden"><strong>Anti-patterns:</strong>
+        <!-- REPEAT: texture_anti_patterns (comma-joined) -->
+        {{ anti_pattern }}
+        <!-- END -->
+      </p>
+    </div>
+
+    <!-- Motion — OPTIONAL:vl-motion — renders only if system.visual_language.motion present -->
+    <div class="visual-language-subblock" id="vl-motion">
+      <h3>Motion</h3>
+      <p>{{ motion_principles_summary }}</p>
+      <!-- OPTIONAL:vl-motion-tokens -->
+      <table class="vl-token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <!-- REPEAT: motion_tokens -->
+          <tr>
+            <td><code>{{ mt.token }}</code></td>
+            <td><code>{{ mt.value }}</code></td>
+            <td>{{ mt.usage }}</td>
+          </tr>
+          <!-- END -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Gradient policy — OPTIONAL:vl-gradients — renders only if system.visual_language.gradients present OR system.color.palette.gradients[] non-empty -->
+    <div class="visual-language-subblock" id="vl-gradient-policy">
+      <h3>Gradient policy</h3>
+      <p class="subblock-rule"><strong>Policy:</strong> {{ gradient_policy_label }} — <em>{{ gradient_policy_rule }}</em></p>
+      <!-- OPTIONAL:vl-gradient-allowed -->
+      <p class="subblock-rule"><strong>Allowed contexts:</strong>
+        <!-- REPEAT: gradient_allowed_contexts (comma-joined) -->
+        {{ context }}
+        <!-- END -->
+      </p>
+      <!-- OPTIONAL:vl-gradient-forbidden -->
+      <p class="subblock-forbidden"><strong>Forbidden contexts:</strong>
+        <!-- REPEAT: gradient_forbidden_contexts (comma-joined) -->
+        {{ context }}
+        <!-- END -->
+      </p>
+      <p class="companion-pointer">Named gradients are defined in the <a href="#color-gradient-library">Gradient Library</a> of §Color.</p>
+    </div>
+
+    <!-- Motif grammar — OPTIONAL:vl-motif-grammar — renders only if system.visual_language.motif_grammar present -->
+    <div class="visual-language-subblock" id="vl-motif-grammar">
+      <h3>Motif grammar</h3>
+      <p>How motifs combine, scale, and repeat — the rules beyond the motif gallery.</p>
+      {{ motif_grammar_body_html }}
+      <p class="companion-pointer">Specific motif instances: see <a href="#motif-gallery">Motif Gallery</a> below.</p>
+    </div>
+
+    <!-- 3D / spatial — OPTIONAL:vl-spatial-3d — renders only if system.visual_language.spatial_3d present -->
+    <div class="visual-language-subblock" id="vl-spatial-3d">
+      <h3>3D &amp; spatial</h3>
+      <p class="subblock-rule"><strong>Policy:</strong> {{ spatial_3d_policy_label }}</p>
+      <ul class="identity-list">
+        <!-- REPEAT: spatial_3d_rules -->
+        <li>{{ rule }}</li>
+        <!-- END -->
+      </ul>
+    </div>
+
+    <!-- Photography pointer — always renders; either points to companion file or notes "companion system deferred" -->
+    <div class="visual-language-subblock" id="vl-photography">
+      <h3>Photography</h3>
+      <p>Four rules (subject, lighting, crop, post), an approved-reference bank, a rejected-reference bank, lighting diagrams, and a decision tree for photography vs illustration vs type-only — all on the companion page.</p>
+      <p class="companion-pointer">Full system: <a href="./photography-reference-grid.html">photography-reference-grid.html</a>.</p>
+    </div>
+
+    <!-- Illustration pointer — always renders -->
+    <div class="visual-language-subblock" id="vl-illustration">
+      <h3>Illustration</h3>
+      <p>Shape vocabulary, stroke-weight table (allowed + forbidden), perspective rule, palette constraint, emotion inventory, composition rules, and cultural anchors (each naming what property is anchored) — all on the companion page.</p>
+      <p class="companion-pointer">Full system: <a href="./illustration-system.html">illustration-system.html</a>.</p>
+    </div>
+  </section>
+
+  <!-- ─── SPACING & GRID ─── -->
+  <section class="section" id="spacing">
+    <h2 class="section-title">Spacing &amp; Grid</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_spacing -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">The brand's rhythm — the proportional scale of spatial units that governs gaps, padding, and composition density, and the grid system those units compose into. Spacing blocks render at their actual token size so hierarchy reads at a glance; grid values describe the container and column system downstream surfaces should follow.</p>
+    <p class="section-summary">{{ spacing_summary }}</p>
+
+    <div class="subsection">
+      <h3>Spacing scale</h3>
+      <div class="spacing-grid">
+        <div class="spacing-item"><div class="spacing-block" style="width: var(--space-1); height: var(--space-1);"></div><div class="spacing-label">1 · 4px</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="width: var(--space-2); height: var(--space-2);"></div><div class="spacing-label">2 · 8px</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="width: var(--space-3); height: var(--space-3);"></div><div class="spacing-label">3 · 12px</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="width: var(--space-4); height: var(--space-4);"></div><div class="spacing-label">4 · 16px</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="width: var(--space-6); height: var(--space-6);"></div><div class="spacing-label">6 · 24px</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="width: var(--space-8); height: var(--space-8);"></div><div class="spacing-label">8 · 32px</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="width: var(--space-12); height: var(--space-12);"></div><div class="spacing-label">12 · 48px</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="width: var(--space-16); height: var(--space-16);"></div><div class="spacing-label">16 · 64px</div></div>
+      </div>
+    </div>
+
+    <!-- OPTIONAL:grid-system — renders only if system.grid or system.layout.grid present -->
+    <div class="subsection" id="grid-system">
+      <h3>Grid system</h3>
+      <p>The column and container rules that downstream surfaces (web, slides, documents) compose on top of.</p>
+      <div class="grid-spec">
+        <div class="grid-spec-row"><strong>Columns</strong><span>{{ grid_columns | '12' }}</span></div>
+        <div class="grid-spec-row"><strong>Gutter</strong><span>{{ grid_gutter | '24px' }}</span></div>
+        <div class="grid-spec-row"><strong>Max container</strong><span>{{ grid_container_max | '1200px' }}</span></div>
+        <div class="grid-spec-row"><strong>Outer margin</strong><span>{{ grid_outer_margin | '32px' }}</span></div>
+      </div>
+    </div>
+
+    <!-- OPTIONAL:breakpoints — renders only if system.layout.breakpoints[] non-empty -->
+    <div class="subsection" id="breakpoints">
+      <h3>Breakpoints</h3>
+      <p>Width thresholds where layout shifts. Use the brand's own names; the px values are the trigger points.</p>
+      <table class="vl-token-table">
+        <thead><tr><th>Name</th><th>Min width</th><th>Typical use</th></tr></thead>
+        <tbody>
+          <!-- REPEAT: breakpoints -->
+          <tr>
+            <td><strong>{{ bp.name }}</strong></td>
+            <td><code>{{ bp.min_width }}</code></td>
+            <td>{{ bp.usage }}</td>
+          </tr>
+          <!-- END -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- OPTIONAL:vertical-rhythm — renders only if system.typography.vertical_rhythm present -->
+    <div class="subsection" id="vertical-rhythm">
+      <h3>Vertical rhythm</h3>
+      <p>How vertical spacing relates to the typographic scale — base line-height, section spacing, and the unit everything else is a multiple of.</p>
+      <div class="grid-spec">
+        <div class="grid-spec-row"><strong>Base line-height</strong><span>{{ vr_base_line_height | '1.6' }}</span></div>
+        <div class="grid-spec-row"><strong>Base unit</strong><span>{{ vr_base_unit | '8px' }}</span></div>
+        <div class="grid-spec-row"><strong>Section spacing</strong><span>{{ vr_section_spacing | '4× base' }}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── COMPONENTS ─── -->
+  <section class="section" id="components">
+    <h2 class="section-title">Components</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_components -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">Primitives rendered in the brand's own palette and form language — not abstract swatches. Colors come from palette.core roles; radii and shadow come from <code>system.form.*</code>. These components exist to show the brand's system behaving, not to prescribe a component library.</p>
+    <p class="section-summary">{{ components_summary }}</p>
+    <div class="components-grid">
+      <div class="component-card">
+        <h4>Buttons</h4>
+        <button class="btn btn-primary">Primary action</button>
+        <button class="btn btn-secondary">Secondary</button>
+        <button class="btn btn-ghost">Ghost</button>
+        <button class="btn btn-accent">Accent</button>
+        <button class="btn btn-primary" disabled>Disabled</button>
+      </div>
+      <div class="component-card">
+        <h4>Status badges</h4>
+        <span class="component-badge status-info">Active</span>
+        <span class="component-badge status-success">Shipped</span>
+        <span class="component-badge status-warning">Review</span>
+        <span class="component-badge status-danger">Blocked</span>
+      </div>
+      <div class="component-card">
+        <h4>Input</h4>
+        <input class="sample-input" placeholder="{{ sample_input_placeholder | 'you@example.com' }}" />
+        <button class="btn btn-primary" style="width:100%">{{ sample_input_cta | 'Continue' }}</button>
+      </div>
+      <div class="component-card">
+        <h4>Content card</h4>
+        <div class="sample-card">
+          <strong>{{ sample_card_title }}</strong>
+          <p style="font-size: 0.85rem; margin-top: var(--space-2); margin-bottom: 0;">{{ sample_card_body }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── MOTIF GALLERY ─── -->
+  <!-- OPTIONAL:motif-gallery — render only if form-language technique was used and system.visual.form_motifs[] is non-empty -->
+  <section class="section" id="motif-gallery">
+    <h2 class="section-title">Motif Gallery</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_motif_gallery -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">Recurring formal elements — shapes, patterns, and structural motifs that carry the brand's visual character across surfaces. Each motif's SVG renders in the color spectrum its name implies (see design-system/SKILL.md Motif Spectrum Mapping).</p>
+    <p class="section-summary">{{ motif_gallery_summary }}</p>
+
+    <div class="motif-gallery-grid">
+      <!-- REPEAT: form_motifs -->
+      <div class="motif-card">
+        <div class="motif-card-name">{{ motif.name }}</div>
+        <div class="motif-card-desc">{{ motif.description }}</div>
+        <div class="motif-card-svg">
+          {{ motif.svg_or_placeholder }}
+        </div>
+      </div>
+      <!-- END -->
+    </div>
+  </section>
+
+  <!-- ─── TEXTURE & MATERIAL ─── -->
+  <!-- OPTIONAL:texture-panel — render only if texture-material technique was used -->
+  <section class="section" id="texture-panel">
+    <h2 class="section-title">Texture &amp; Material</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_texture_panel -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">The physical-world analogue: how this brand would feel if you could touch it. Informs surface treatment, shadow quality, and material metaphors across every rendered surface.</p>
+    <p class="section-summary">{{ texture_summary }}</p>
+
+    <div class="texture-body">
+      {{ texture_body_html }}
+      <!-- texture_body_html renders: overall descriptor paragraph, then REPEAT: texture_details each as a labeled row (quality → value) -->
+    </div>
+  </section>
+
+  <!-- ─── ANTI-INSPIRATION ─── (v0.4.2: moved here from appendix position)
+       Lives inside the Visual block as a guardrail next to Motif/Texture — "what this
+       brand deliberately is not" reads together with "what this brand visually is."
+       Also renders as a process-record block in brand-methods.html. -->
+  <!-- OPTIONAL:anti-inspiration -->
+  <section class="section" id="anti-inspiration">
+    <h2 class="section-title">Anti-Inspiration</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_anti_inspiration -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">What this brand deliberately is not. Anti-inspiration sits alongside motif and texture because it's a visual guardrail — a boundary check future work should read before proposing a treatment.</p>
+    <p class="section-summary">{{ anti_inspiration_summary }}</p>
+    {{ anti_inspiration_list_html }}
+  </section>
+
+  <!-- ─── HERO / IN PRACTICE ─── -->
+  <section class="section" id="in-practice">
+    <h2 class="section-title">In Practice</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_in_practice -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">A single rendered example showing principles, palette, and type working together. Hero motif placement is rule-driven — the motif never overlaps headline words at full opacity (see brand-export Hero motif placement).</p>
+    <p class="section-summary">{{ in_practice_summary }}</p>
+    <div class="hero">
+      <div class="hero-eyebrow">{{ hero_eyebrow | brand_name }}</div>
+      <h1 class="hero-headline">{{ hero_headline }}</h1>
+      <p class="hero-sub">{{ hero_sub }}</p>
+      <div class="hero-cta"><button class="btn btn-primary">{{ hero_cta | 'Get started' }}</button> <button class="btn btn-ghost" style="color: rgba(255,255,255,0.8)">{{ hero_secondary | 'Learn more' }}</button></div>
+    </div>
+    <!-- OPTIONAL:motif-panel — render only if system.motif.name is set -->
+    <div class="motif-panel" id="motif-panel">
+      <h3 style="margin-top: 0;">Motif · {{ motif_name }}</h3>
+      <p>{{ motif_description }}</p>
+      {{ motif_svg_hint }}
+    </div>
+  </section>
+
+  <!-- ─── VOICE CONSTRAINTS ─── (canonical heading, polymorphic subblocks) -->
+  <section class="section" id="voice-constraints">
+    <h2 class="section-title">Voice Constraints</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_voice_constraints -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">How this brand decides what to say — and what not to. Heading is canonical so outputs are diffable across teams; each subblock tags the technique it came from. Specificity-test rendering carries both halves of the principle: never use a word as decoration, AND every word must add specificity and meaning.</p>
+    <p class="section-summary">{{ voice_summary }}</p>
+
+    <!-- OPTIONAL:voice-formality -->
+    <p><strong>Formality:</strong> {{ formality_score }} / {{ formality_scale_max }}</p>
+
+    <!-- REPEAT: voice_constraint_blocks — one per technique in concepts.voice_constraints that was populated. Emit a <div class="voice-constraint"> per technique; omit the whole section if none populated. -->
+    <div class="voice-constraint">
+      <div class="voice-constraint-method">via {{ constraint.technique_label }}</div>
+      {{ constraint.body_html }}
+    </div>
+  </section>
+
+  <!-- ─── PLATFORM & APPLICATION ─── (narrative pointer to platform-matrix + theme companions) -->
+  <section class="section" id="platforms">
+    <h2 class="section-title">Platform &amp; Application</h2>
+    <p class="section-definition">How the brand translates into the places real work gets done. Every platform has a font library, a color-slot structure, and quirks that shape how the system renders there. Each companion page below is paste-ready — open it, follow the steps, and the target platform will carry the brand.</p>
+    <p class="section-summary">{{ platforms_summary }}</p>
+
+    <div class="companion-grid">
+      <div class="companion-card">
+        <h3>Platform matrix</h3>
+        <p>The single consolidated reference for applying the brand on every supported surface. Master tables (rows = tokens, columns = surfaces) for color, typography, and form &amp; spacing — plus per-platform sub-sections covering setup steps, typography fallback chains, probe notes, and caveats for Google Slides, PowerPoint, Keynote, Canva, and Figma.</p>
+        <a class="companion-link" href="./platform-matrix.md">platform-matrix.md →</a>
+      </div>
+      <div class="companion-card">
+        <h3>Figma</h3>
+        <p>Tokens Studio-compatible JSON import — drop into the Tokens Studio plugin and the brand's semantic tokens become variables immediately.</p>
+        <a class="companion-link" href="./theme-figma.json">theme-figma.json →</a>
+      </div>
+      <div class="companion-card">
+        <h3>Tailwind</h3>
+        <p>Tailwind v4 theme config object — drop into a project root and Tailwind picks it up automatically. Maps every primitive scale into the corresponding theme key.</p>
+        <a class="companion-link" href="./tailwind.config.js">tailwind.config.js →</a>
+      </div>
+      <div class="companion-card">
+        <h3>Web (CSS)</h3>
+        <p>Universal CSS custom properties — every primitive, semantic, and component token as a CSS variable. Light and dark modes both emit; toggle via prefers-color-scheme or [data-theme].</p>
+        <a class="companion-link" href="./tokens.css">tokens.css →</a>
+      </div>
+      <div class="companion-card">
+        <h3>Email</h3>
+        <p>Self-contained HTML email scaffold with inline styles and a web-safe font stack matched to the brand's character.</p>
+        <a class="companion-link" href="./email-template.html">email-template.html →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GOVERNANCE ─── (pointer to governance.md) -->
+  <section class="section" id="governance">
+    <h2 class="section-title">Governance</h2>
+    <p class="section-definition">Who owns the brand system, how it evolves, and how changes are published and deprecated. Governance is short here by design — the companion page carries the full ownership table, SemVer policy, deprecation window, contribution flow, decision log, and health checklist.</p>
+    <p class="section-summary">{{ governance_summary }}</p>
+
+    <div class="companion-grid">
+      <div class="companion-card">
+        <h3>Ownership &amp; stewardship</h3>
+        <p><strong>Owner:</strong> {{ governance_owner_name }}</p>
+        <p><strong>Current version:</strong> {{ governance_version | version }}</p>
+        <p><strong>Deprecation window:</strong> {{ governance_deprecation_window_days | '90' }} days</p>
+        <a class="companion-link" href="./governance.md">Open governance doc →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LLM OPERATING MANUAL ─── (pointer to brand.md + brand.extensions.yaml) -->
+  <section class="section" id="llm-manual">
+    <h2 class="section-title">LLM Operating Manual</h2>
+    <p class="section-definition">A machine-readable sibling to this document — everything a language model needs to produce on-brand copy, respond in the brand's voice, and refuse off-brand requests. Follows the open <a href="https://github.com/thebrandmd/brand.md">brand.md</a> specification (v0.2.0).</p>
+    <p class="section-summary">{{ llm_manual_summary }}</p>
+
+    <div class="companion-grid">
+      <div class="companion-card">
+        <h3>brand.md</h3>
+        <p>The canonical brand definition — strategy, voice, and visual sections that a model can ingest without this HTML. Follows the brand.md v0.2.0 spec.</p>
+        <a class="companion-link" href="./brand.md">Open brand.md →</a>
+      </div>
+      <div class="companion-card">
+        <h3>brand.extensions.yaml</h3>
+        <p>Machine-enforceable rules the spec doesn't cover — tone matrix, output constraints, banned vocabulary with replacements, cultural anchors, platform chains, self-validation targets.</p>
+        <a class="companion-link" href="./brand.extensions.yaml">Open extensions →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── QUICK REFERENCE ─── (pointer to brand-quickref.md) -->
+  <section class="section" id="quickref">
+    <h2 class="section-title">Quick Reference</h2>
+    <p class="section-definition">A one-page lookup card pulling the essentials — palette, type pair, principles, voice constraints — into a single printable surface for designers and developers who need the answer fast.</p>
+    <p class="section-summary">{{ quickref_summary }}</p>
+
+    <div class="companion-grid">
+      <div class="companion-card">
+        <h3>Quick reference card</h3>
+        <p>Printable one-pager (≤60 lines target). Use when you need the brand answer at a glance and don't want to scroll through the full guidelines.</p>
+        <a class="companion-link" href="./brand-quickref.md">Open quickref →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── QUALITY ─── (v0.4.2: Coherence + Rand's Seven grouped under one "Quality" heading)
+       Quality is a check, not an appendix — it belongs as a canonical section after Voice. -->
+  <!-- OPTIONAL:quality -->
+  <section class="section" id="quality">
+    <h2 class="section-title">Quality</h2>
+    <div class="section-methods">
+      <!-- REPEAT: methods_for_quality -->
+      <span class="method-chip method-chip--{{ technique.status }}" title="{{ technique.description }}">{{ technique.label }}</span>
+      <!-- END -->
+    </div>
+    <p class="section-definition">Self-assessment against two complementary rubrics — Coherence (cross-dimension consistency) and Paul Rand's Seven Criteria (mark-level craft). Neither is a passing grade; both are signals that surface where the system is thin.</p>
+    <p class="section-summary">{{ quality_summary }}</p>
+
+    <!-- OPTIONAL:quality-coherence -->
+    <h3 id="quality-coherence">Coherence</h3>
+    <p class="section-definition">Cross-dimension consistency check. Each axis scored 0–5; sum is the coherence score out of 30.</p>
+    <div class="quality-total"><span class="quality-score">{{ coherence_score }}/30</span></div>
+    <p>{{ coherence_notes }}</p>
+
+    <!-- OPTIONAL:quality-rand -->
+    <h3 id="quality-rand">Paul Rand's Seven Criteria</h3>
+    <p class="section-definition">Mark-level craft scored on Rand's seven criteria. Each 0–10; sum is out of 70.</p>
+    <table class="quality-table">
+      <thead><tr><th>Criterion</th><th>Score</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Distinctive</td><td class="quality-score">{{ rand_distinctive }}/10</td><td>{{ rand_distinctive_notes }}</td></tr>
+        <tr><td>Memorable</td><td class="quality-score">{{ rand_memorable }}/10</td><td>{{ rand_memorable_notes }}</td></tr>
+        <tr><td>Simple</td><td class="quality-score">{{ rand_simple }}/10</td><td>{{ rand_simple_notes }}</td></tr>
+        <tr><td>Appropriate</td><td class="quality-score">{{ rand_appropriate }}/10</td><td>{{ rand_appropriate_notes }}</td></tr>
+        <tr><td>Timeless</td><td class="quality-score">{{ rand_timeless }}/10</td><td>{{ rand_timeless_notes }}</td></tr>
+        <tr><td>Legible</td><td class="quality-score">{{ rand_legible }}/10</td><td>{{ rand_legible_notes }}</td></tr>
+        <tr><td>Reducible to essence</td><td class="quality-score">{{ rand_reducible }}/10</td><td>{{ rand_reducible_notes }}</td></tr>
+      </tbody>
+    </table>
+    <div class="quality-total"><span class="quality-score">Total: {{ rand_total }}/70</span></div>
+  </section>
+
+  <!-- (Anti-Inspiration moved to Visual block — see #anti-inspiration above.) -->
+
+  <div class="meta">
+    <p>{{ brand_name }} — Brand Guidelines · version {{ version }}</p>
+    <p>Last updated: {{ timestamp }}</p>
+  </div>
+
+  </main>
+</body>
+</html>

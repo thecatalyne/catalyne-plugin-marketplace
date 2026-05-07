@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ brand_name }} — Type Pairing Test</title>
+  <!-- Google Fonts CDN — replace with actual font families -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family={{ heading_font_url }}&family={{ body_font_url }}&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: #F8F8F8;
+      color: #1A1A1A;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #666; margin-bottom: 2rem; font-size: 0.95rem; }
+    .generated { font-size: 0.75rem; color: #999; margin-bottom: 2rem; }
+
+    .pairing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .pairing-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #E8E8E8;
+    }
+
+    .pairing-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid #EEE;
+    }
+
+    .pairing-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .pairing-meta {
+      font-size: 0.8rem;
+      color: #777;
+    }
+
+    .pairing-character {
+      font-size: 0.85rem;
+      color: #555;
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+
+    /* ─── Type Specimens ─── */
+    .specimen {
+      padding: 1.5rem;
+    }
+
+    .specimen-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .specimen-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #AAA;
+      margin-bottom: 0.5rem;
+      font-family: "Inter", system-ui, sans-serif;
+    }
+
+    .specimen-hero {
+      font-size: 2.5rem;
+      line-height: 1.15;
+      margin-bottom: 0.25rem;
+    }
+
+    .specimen-h2 {
+      font-size: 1.6rem;
+      line-height: 1.25;
+      margin-bottom: 0.25rem;
+    }
+
+    .specimen-body {
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 56ch;
+    }
+
+    .specimen-small {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #555;
+    }
+
+    .specimen-button {
+      display: inline-block;
+      padding: 0.6rem 1.5rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: #1A1A1A;
+      color: white;
+      border: none;
+      margin-top: 0.5rem;
+    }
+
+    /* ─── Mock Context ─── */
+    .mock-context {
+      padding: 1.5rem;
+      border-top: 1px solid #EEE;
+      background: #FAFAFA;
+    }
+
+    .mock-context-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #999;
+      margin-bottom: 0.75rem;
+    }
+
+    .mock-hero-section {
+      padding: 2rem;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid #E8E8E8;
+      text-align: center;
+    }
+
+    /* ─── Reaction ─── */
+    .reaction {
+      padding: 1.25rem;
+      border-top: 1px solid #EEE;
+    }
+
+    .reaction-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .reaction-options {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .reaction-options span {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid #DDD;
+      cursor: default;
+      background: white;
+    }
+
+    .instructions {
+      background: white;
+      border: 1px solid #E0E0E0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .instructions h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .instructions p { font-size: 0.9rem; color: #555; margin-bottom: 0.25rem; }
+  </style>
+</head>
+<body>
+
+  <h1>{{ brand_name }} — Type Pairing Test</h1>
+  <p class="subtitle">How does each pairing feel? Look at the hierarchy, the texture of the text, the overall mood.</p>
+  <p class="generated">Generated during discovery for {{ participant_name }} &middot; {{ timestamp }}</p>
+
+  <div class="instructions">
+    <h2>How to use this</h2>
+    <p>For each pairing, ask yourself:</p>
+    <p>&bull; Does the <strong>heading font</strong> feel like your brand's voice?</p>
+    <p>&bull; Is the <strong>body text</strong> comfortable to read &mdash; the right weight, spacing, warmth?</p>
+    <p>&bull; Does the <strong>pairing</strong> work together, or do they fight?</p>
+    <p>&bull; Is it too formal? Too casual? Just right?</p>
+  </div>
+
+  <div class="pairing-grid">
+
+    <!-- ─── PAIRING CARD (repeat for each candidate) ─── -->
+    <div class="pairing-card">
+      <div class="pairing-header">
+        <div class="pairing-name">{{ pairing_name }}</div>
+        <div class="pairing-meta">{{ heading_font_name }} + {{ body_font_name }}</div>
+        <div class="pairing-character">{{ pairing_character }}</div>
+      </div>
+
+      <div class="specimen">
+        <div class="specimen-section">
+          <div class="specimen-label">Hero</div>
+          <div class="specimen-hero" style="font-family: '{{ heading_font_name }}', serif;">
+            {{ brand_name }}
+          </div>
+        </div>
+
+        <div class="specimen-section">
+          <div class="specimen-label">Heading</div>
+          <div class="specimen-h2" style="font-family: '{{ heading_font_name }}', serif;">
+            The quick brown fox jumps over the lazy dog
+          </div>
+        </div>
+
+        <div class="specimen-section">
+          <div class="specimen-label">Body</div>
+          <div class="specimen-body" style="font-family: '{{ body_font_name }}', sans-serif;">
+            Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump. The five boxing wizards jump quickly. A quick movement of the enemy will jeopardize six gunboats.
+          </div>
+        </div>
+
+        <div class="specimen-section">
+          <div class="specimen-label">Small / UI</div>
+          <div class="specimen-small" style="font-family: '{{ body_font_name }}', sans-serif;">
+            Last updated 2 hours ago &middot; 3 min read &middot; By {{ participant_name }}
+          </div>
+        </div>
+
+        <div class="specimen-section">
+          <div class="specimen-label">Button</div>
+          <span class="specimen-button" style="font-family: '{{ body_font_name }}', sans-serif;">
+            Get Started
+          </span>
+        </div>
+      </div>
+
+      <div class="mock-context">
+        <div class="mock-context-label">In context</div>
+        <div class="mock-hero-section">
+          <div style="font-family: '{{ heading_font_name }}', serif; font-size: 2rem; line-height: 1.2; margin-bottom: 0.75rem;">
+            {{ brand_name }}
+          </div>
+          <div style="font-family: '{{ body_font_name }}', sans-serif; font-size: 1rem; color: #555; margin-bottom: 1rem; max-width: 40ch; margin-left: auto; margin-right: auto;">
+            A brief description of what your brand does and why it matters to the people you serve.
+          </div>
+          <span class="specimen-button" style="font-family: '{{ body_font_name }}', sans-serif;">
+            Learn More
+          </span>
+        </div>
+      </div>
+
+      <div class="reaction">
+        <div class="reaction-label">Your reaction:</div>
+        <div class="reaction-options">
+          <span>Resonates</span>
+          <span>Neutral</span>
+          <span>Wrong</span>
+        </div>
+      </div>
+    </div>
+    <!-- ─── END PAIRING CARD ─── -->
+
+  </div>
+
+  <p style="font-size: 0.75rem; color: #999; text-align: center; margin-top: 2rem;">
+    Generated by expert-design-n-brand &middot; Type Pairing Checkpoint
+  </p>
+
+</body>
+</html>

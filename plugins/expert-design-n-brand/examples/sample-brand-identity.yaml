@@ -1,0 +1,322 @@
+# sample-brand-identity.yaml
+#
+# A fictional brand for demoing the expert-design-n-brand pipeline.
+#
+# "Slow Press" is an imagined small letterpress + reading room — a one-storefront
+# operation in a fictional town. Two fictional team members ("Marin" and "Theo")
+# completed brand-discover, and synthesis is marked complete. The next step is
+# /brand-build, which will populate the system: section and produce the full
+# design system.
+#
+# This file isn't a Catalyne brand or a real client — it's a representative
+# demo input that exercises every dimension of the pipeline so you can see
+# what the output looks like end-to-end.
+#
+# To use:
+#   1. cp this file to your working directory as `brand-identity.yaml`
+#   2. cd to that directory
+#   3. /expert-design-n-brand:brand-build
+#   4. /expert-design-n-brand:brand-export
+#
+# Phase progression: discovery → synthesis → system → active
+
+meta:
+  brand_name: "Slow Press"
+  created: "2026-05-01T10:00:00Z"
+  last_modified: "2026-05-04T15:30:00Z"
+  team_members: ["marin", "theo"]
+  phase: "synthesis"
+
+# ─── DISCOVERY ──────────────────────────────────────────────
+discovery:
+  marin:
+    status: "complete"
+    last_session: "2026-05-02T14:00:00Z"
+    techniques_used:
+      - elevator-pitch
+      - landscape-grid
+      - admired-brands
+      - butterfly
+      - archetype-selection
+      - aaker-sliders
+      - color-resonance
+      - typography-pairing-test
+      - never-say-list
+      - specificity-test
+      - sample-tweet
+
+    positioning:
+      elevator_pitch: "We make small-batch letterpress books and stationery, and run a quiet reading room out of the same shop. We exist for people who want printed things to feel like they came from a person."
+      landscape_grid:
+        x_axis: "Mass-produced ↔ Hand-crafted"
+        y_axis: "Loud ↔ Quiet"
+        placement: [0.85, -0.7]
+        reasoning: "We're firmly hand-crafted, and our temperament is more library than gallery — quiet, but not invisible."
+      admired_brands:
+        - { name: "Field Notes", reasoning: "Honest about what they are. Tactile. Not cute." }
+        - { name: "Aesop", reasoning: "Restraint. Lets the product breathe." }
+        - { name: "MUJI", reasoning: "Generic-as-intent — a deliberate non-loudness." }
+      differentiator: "Most letterpress shops sell the craft as the product. We sell the *feeling of receiving something pressed*, and we sell time spent in a quiet room."
+      butterfly:
+        special: "We're patient about details that almost nobody notices."
+        world_needs: "More objects that show their making."
+      brand_eulogy: "Slow Press was the kind of place where a Tuesday afternoon could disappear without you minding."
+
+    personality:
+      method_used: "archetype-selection"
+      archetypes:
+        primary: "Sage"
+        secondary: "Caregiver"
+        reasoning: "Sage because the work is about discernment and patience. Caregiver because the reading room is, quietly, a kindness."
+      keywords: ["patient", "considered", "warm", "specific", "unhurried", "exacting"]
+      aaker_scores:
+        sincerity: 9
+        excitement: 2
+        competence: 8
+        sophistication: 6
+        ruggedness: 3
+      metaphors:
+        car: "A 1990s Volvo wagon — built to last, not to impress."
+        restaurant: "A small bistro with one chalkboard menu that changes weekly."
+        song: "Nick Drake, 'Pink Moon'."
+        celebrity: "A retired bookbinder you've never heard of."
+
+    visual:
+      method_used: "color-resonance"
+      color_preferences:
+        resonates:
+          - { palette_name: "Clay & Ivy", hex_values: ["#B25C45", "#3D5A3D", "#F5EFE3"], reasoning: "Earthen but alive — feels analog without leaning rustic." }
+          - { palette_name: "Field Press", hex_values: ["#7A4F3A", "#E8DDC9", "#1E1E1C"], reasoning: "The ink-and-paper palette of an actual press shop." }
+        rejects:
+          - { palette_name: "Tech Cobalt", hex_values: ["#0066FF", "#FFFFFF"], reasoning: "Reads as software-company. We're a print shop." }
+          - { palette_name: "Pastel Mint", hex_values: ["#A8E6CF"], reasoning: "Too soft. We're considered, not precious." }
+        reasoning: "We want pigment that looks like ink absorbed into paper — slight imperfection, slight warmth, never glossy."
+      typography_preferences:
+        formality: "neutral"
+        warmth: "warm"
+        pairings_liked:
+          - { name: "Quiet authority", heading_font: "GT Sectra", body_font: "Inter", reasoning: "Sectra has a literary calm. Inter is invisible enough to disappear." }
+          - { name: "Press shop", heading_font: "Adobe Caslon Pro", body_font: "Source Serif Pro", reasoning: "All-serif feels honest to the medium." }
+        reasoning: "Headings should feel like they were chosen, not styled. Body should disappear."
+      form_language: "organic"
+      mood_references:
+        - "The reading room at the Morgan Library"
+        - "Hatch Show Print, Nashville"
+        - "A used bookstore where the owner is reading behind the counter"
+      anti_inspiration:
+        - "Anything that uses 'curated' as a verb"
+        - "Faux-handwritten fonts"
+        - "Distressed textures"
+      texture_material: "Smooth cotton paper, slightly tooth, warm under daylight."
+
+    voice:
+      sample_tweet: "New chapbook in tomorrow morning. 60 copies, all numbered. Open at 10."
+      sample_apology: "We mis-bound the first run of Amelia's book and have to delay it a week. We'll let you know the moment the new run is ready. Sorry for the wait."
+      sample_celebration: "First copy off the press today. Looks good."
+      formality_score: 6
+      formality_scale_max: 10
+      never_say_words: ["curated", "elevated", "iconic", "passionate", "journey", "experience"]
+      specificity_test:
+        rule: "A word passes iff it would be wrong if changed to its opposite."
+        pass_examples: ["letterpress", "60 copies", "Tuesday", "numbered"]
+        fail_examples: ["beautiful", "amazing", "premium", "thoughtful"]
+      voice_card_sort:
+        sounds_like_us: ["plain", "specific", "patient", "warm-but-not-friendly"]
+        doesnt_sound_like_us: ["clever", "playful", "aspirational", "luxe"]
+
+    raw_notes: |
+      The temptation will be to lean into "artisan" — we should not. Artisan
+      is a self-aware word and we want to be unselfconscious. We also want
+      the reading room to feel like a service to the neighborhood, not a
+      lifestyle prop.
+
+  theo:
+    status: "complete"
+    last_session: "2026-05-03T11:00:00Z"
+    techniques_used:
+      - elevator-pitch
+      - admired-brands
+      - archetype-selection
+      - color-resonance
+      - typography-pairing-test
+      - sample-tweet
+      - never-say-list
+
+    positioning:
+      elevator_pitch: "Slow Press is a small letterpress shop with a public reading room. We print books and broadsides in short runs, and the front half of the shop is open for anyone to sit and read."
+      admired_brands:
+        - { name: "Heath Ceramics", reasoning: "The shop and the product are the same brand." }
+        - { name: "Penguin Modern Classics", reasoning: "A house style that says 'reliable, not loud'." }
+      differentiator: "The reading room. Other small presses sell to bookstores. We're also a place."
+
+    personality:
+      method_used: "archetype-selection"
+      archetypes:
+        primary: "Sage"
+        secondary: "Everyman"
+        reasoning: "Sage for the craft work. Everyman because the reading room is for everyone — not curated regulars."
+      keywords: ["patient", "honest", "open", "rooted", "small"]
+
+    visual:
+      method_used: "color-resonance"
+      color_preferences:
+        resonates:
+          - { palette_name: "Clay & Ivy", hex_values: ["#B25C45", "#3D5A3D", "#F5EFE3"], reasoning: "Same as Marin — these feel right." }
+          - { palette_name: "Inkwell", hex_values: ["#1E1E1C", "#F5EFE3", "#B25C45"], reasoning: "I'd add deep ink-black as the anchor and use the clay as accent." }
+        rejects:
+          - { palette_name: "Pastel Mint", hex_values: ["#A8E6CF"], reasoning: "Too cute, agree with Marin." }
+        reasoning: "I keep coming back to ink, paper, and one warm pigment."
+      typography_preferences:
+        formality: "neutral"
+        warmth: "warm"
+        pairings_liked:
+          - { name: "Press shop", heading_font: "Adobe Caslon Pro", body_font: "Source Serif Pro", reasoning: "Serif/serif feels right for a shop that prints books." }
+        reasoning: "Same instinct as Marin — but I'd push slightly more toward serif/serif."
+      form_language: "organic"
+
+    voice:
+      sample_tweet: "Reading room open. Coffee's on. New books from Tin House on the table."
+      sample_apology: "We're closed today — power's out on the block. Back tomorrow."
+      sample_celebration: "Marin finished the new Caslon-set chapbook. It's in the front window."
+      formality_score: 5
+      formality_scale_max: 10
+      never_say_words: ["curated", "lifestyle", "experience"]
+
+    raw_notes: |
+      Marin and I are aligned on basically everything. The one thing I'd
+      push back on slightly is the typography choice — I think we should
+      go all-serif for the books at minimum, and let sans-serif be a
+      digital-only fallback.
+
+# ─── SYNTHESIS ──────────────────────────────────────────────
+synthesis:
+  status: "complete"
+  last_run: "2026-05-04T15:30:00Z"
+
+  methods_used:
+    - dimension: "positioning"
+      technique: "elevator-pitch"
+      status: "used"
+      participants: ["marin", "theo"]
+      notes: "Both participants ran. Aligned on the reading-room as differentiator."
+    - dimension: "positioning"
+      technique: "landscape-grid"
+      status: "used"
+      participants: ["marin"]
+      notes: "Single-participant; Theo confirmed placement in synthesis discussion."
+    - dimension: "personality"
+      technique: "archetype-selection"
+      status: "used"
+      participants: ["marin", "theo"]
+      notes: "Sage primary unanimous; secondary diverged (Caregiver vs Everyman) — resolved in favor of Caregiver with a small Everyman thread carried into voice."
+    - dimension: "personality"
+      technique: "aaker-sliders"
+      status: "used"
+      participants: ["marin"]
+      notes: "Single-participant; informational only."
+    - dimension: "visual"
+      technique: "color-resonance"
+      status: "used"
+      participants: ["marin", "theo"]
+      notes: "Strong consensus on the Clay & Ivy palette as base."
+    - dimension: "visual"
+      technique: "typography-pairing-test"
+      status: "used"
+      participants: ["marin", "theo"]
+      notes: "Resolved divergence: serif/serif for print artifacts, serif/sans-serif for digital."
+    - dimension: "voice"
+      technique: "never-say-list"
+      status: "used"
+      participants: ["marin", "theo"]
+      notes: "Aggregated; final list reflects the union of both lists."
+    - dimension: "voice"
+      technique: "specificity-test"
+      status: "used"
+      participants: ["marin"]
+      notes: "Marin's rule adopted as house rule."
+
+  consensus:
+    positioning:
+      one_line: "A small letterpress shop with a public reading room — short-run printed objects you can hold, in a place you can sit."
+      differentiator: "The reading room as both a service to the neighborhood and a quiet showroom."
+      grid_placement: [0.85, -0.7]
+      grid_axes:
+        x: "Mass-produced ↔ Hand-crafted"
+        y: "Loud ↔ Quiet"
+
+    personality:
+      archetype_primary: "Sage"
+      archetype_secondary: "Caregiver"
+      keywords: ["patient", "considered", "warm", "specific", "unhurried", "honest", "rooted"]
+      tone_summary: "Quiet competence. Warm but not effusive. Specific over general."
+
+    visual:
+      palette_direction: "Clay, ink, ivy, ivory — a press-shop palette."
+      core_colors:
+        - { role: "primary", name: "Clay", hex: "#B25C45", usage: "Brand mark, accent rules, signage." }
+        - { role: "secondary", name: "Ivy", hex: "#3D5A3D", usage: "Secondary marks, callouts, footer accents." }
+        - { role: "neutral", name: "Ink", hex: "#1E1E1C", usage: "Body text, dark surfaces." }
+        - { role: "background", name: "Ivory", hex: "#F5EFE3", usage: "Page and surface backgrounds." }
+      type_direction: "Serif for headings everywhere; serif body for printed artifacts; sans body acceptable for digital."
+      form_language: "organic"
+
+    voice:
+      formality_score: 6
+      formality_scale_max: 10
+      tone_principles:
+        - "Specific over general — name the date, the run size, the title."
+        - "Plain over clever — no winks, no irony."
+        - "Warm but not effusive — say it once."
+      never_say: ["curated", "elevated", "iconic", "passionate", "journey", "experience", "lifestyle", "premium"]
+
+  divergences:
+    - dimension: "personality"
+      description: "Secondary archetype: Caregiver (Marin) vs Everyman (Theo)."
+      positions:
+        marin: "Caregiver — the reading room is a quiet kindness; we're caring for the act of reading."
+        theo: "Everyman — the reading room is for anyone, no curation, no membership."
+      resolved: true
+      resolution: "Caregiver as secondary archetype, with an explicit note that the Everyman pull belongs in voice (open, plain, no in-group signaling)."
+      resolved_by: "marin & theo"
+      resolved_at: "2026-05-04T15:00:00Z"
+
+    - dimension: "visual"
+      description: "Typography pairing: all-serif (Theo) vs serif/sans (Marin)."
+      positions:
+        marin: "Serif heading + sans body, because digital reading is easier sans."
+        theo: "All-serif at minimum for printed artifacts."
+      resolved: true
+      resolution: "Print artifacts: all-serif. Digital surfaces: serif heading + sans body. Codified as a per-surface rule, not a single house pairing."
+      resolved_by: "marin & theo"
+      resolved_at: "2026-05-04T15:15:00Z"
+
+  agreement_score: 0.88
+
+# ─── DESIGN SYSTEM ─────────────────────────────────────────
+# Empty — /brand-build will populate this from the resolved synthesis above.
+system:
+  status: "not_started"
+  last_built: ""
+
+# ─── CHANGELOG ──────────────────────────────────────────────
+changelog:
+  - timestamp: "2026-05-01T10:00:00Z"
+    author: "marin"
+    action: "discovery_started"
+    section: "discovery.marin"
+    summary: "Marin began brand-discover."
+  - timestamp: "2026-05-02T14:30:00Z"
+    author: "marin"
+    action: "discovery_completed"
+    section: "discovery.marin"
+    summary: "Marin completed all four dimensions."
+  - timestamp: "2026-05-03T11:30:00Z"
+    author: "theo"
+    action: "discovery_completed"
+    section: "discovery.theo"
+    summary: "Theo completed all four dimensions."
+  - timestamp: "2026-05-04T15:30:00Z"
+    author: "system"
+    action: "synthesis_run"
+    section: "synthesis"
+    summary: "First synthesis pass; two divergences resolved in conversation."

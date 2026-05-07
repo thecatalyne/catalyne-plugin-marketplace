@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  {{brand_name}} — Signature Device Construction
+  {{version}} · {{generated_date}}
+
+  Template scaffold. Populate the following:
+    - #wordmark or #mark group with actual brand signature
+    - Clearspace measurements (in x-height or cap-height units)
+    - Minimum sizes for digital (px) + print (mm)
+    - ≥ 3 allowed variants (primary, reversed, accent/color variant)
+    - ≥ 6 misuse grid entries with visual examples + captions
+
+  If brand has no pictorial mark: the wordmark is the signature device.
+  Publish construction intent (constraints on any future pictorial mark) in the
+  "Construction intent" block at bottom.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" width="1200" height="1600">
+  <style>
+    .bg { fill: {{color_background}}; }
+    .ink { fill: {{color_text_primary}}; }
+    .accent { fill: {{color_primary}}; }
+    .accent-2 { fill: {{color_accent}}; }
+    .stone-700 { fill: #44403C; }
+    .stone-400 { fill: #A8A29E; }
+    .dash { stroke: #A8A29E; stroke-width: 1; stroke-dasharray: 4 4; fill: none; }
+    .guide { stroke: {{color_accent}}; stroke-width: 1.5; fill: none; }
+    .label { font-family: {{heading_font}}; font-size: 14px; fill: #44403C; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+    .caption { font-family: {{body_font}}; font-size: 12px; fill: #666666; font-weight: 400; }
+    .wordmark { font-family: {{heading_font}}; font-weight: 300; letter-spacing: -0.02em; fill: {{color_text_primary}}; }
+    .title { font-family: {{heading_font}}; font-weight: 300; font-size: 36px; letter-spacing: -0.02em; fill: {{color_text_primary}}; }
+    .eyebrow { font-family: {{body_font}}; font-size: 12px; fill: #44403C; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .bad { stroke: #DC2626; stroke-width: 3; fill: none; }
+  </style>
+
+  <rect class="bg" width="1200" height="1600"/>
+
+  <!-- Header -->
+  <text class="eyebrow" x="60" y="70">{{brand_name}} · {{version}} · {{generated_date}}</text>
+  <text class="title" x="60" y="120">Signature device — construction</text>
+
+  <!-- PRIMARY SIGNATURE (wordmark or mark) -->
+  <text class="eyebrow" x="60" y="180">Primary signature</text>
+  <g id="wordmark" transform="translate(60, 240)">
+    <!-- Populate with wordmark OR replace with pictorial mark SVG path -->
+    <text class="wordmark" x="0" y="0" font-size="120">{{wordmark_text}}</text>
+  </g>
+  <text class="caption" x="60" y="290">{{signature_specification}}</text>
+
+  <!-- CLEARSPACE -->
+  <text class="eyebrow" x="60" y="370">Clearspace — measured in {{clearspace_unit}}</text>
+  <g transform="translate(60, 410)">
+    <!-- Populate clearspace diagram: outer box = 2x minimum, inner guide = 1x ideal -->
+    {{clearspace_diagram}}
+  </g>
+  <text class="caption" x="60" y="640">{{clearspace_rule}}</text>
+
+  <!-- MINIMUM SIZES -->
+  <text class="eyebrow" x="60" y="730">Minimum sizes</text>
+  <g transform="translate(60, 770)">
+    <!-- Scale progression: min digital (14px), standard (24px), hero (40px), marketing (80px+) -->
+    {{minimum_size_diagram}}
+  </g>
+  <text class="caption" x="60" y="990">{{minimum_size_rule_print}}</text>
+
+  <!-- VARIANTS ALLOWED -->
+  <text class="eyebrow" x="60" y="1060">Variants (allowed)</text>
+  <g transform="translate(60, 1100)">
+    <!-- ≥ 3 variants: primary (ink on bg), reversed (bg on ink), accent-moment -->
+    {{variant_cards}}
+  </g>
+
+  <!-- MISUSE GRID -->
+  <text class="eyebrow" x="60" y="1310">Don't — misuse grid</text>
+  <!-- ≥ 6 misuse cards (typical: stretch, outline, shadow, all-caps, re-capitalize, bold, recolor-to-accent, pattern-fill, rotate, crowd-clearspace, low-contrast, etc.) -->
+  <g transform="translate(60, 1350)">
+    {{misuse_grid_row_1}}
+  </g>
+  <g transform="translate(60, 1490)">
+    {{misuse_grid_row_2}}
+  </g>
+
+  <!-- CONSTRUCTION INTENT -->
+  <text class="eyebrow" x="60" y="1600">Construction intent — if pictorial mark is added later</text>
+  <text class="caption" x="60" y="1620">{{construction_intent_line_1}}</text>
+  <text class="caption" x="60" y="1640">{{construction_intent_line_2}}</text>
+</svg>
