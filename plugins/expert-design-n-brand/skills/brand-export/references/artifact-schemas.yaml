@@ -272,6 +272,32 @@ email-template:
   forbidden_patterns:
     - { pattern: '<link[^>]*rel="stylesheet"', description: "no external stylesheets; email must be self-contained" }
 
+playground-html:
+  type: html
+  arg_aliases: [playground]
+  template: assets/playground-template.html
+  enforce_order: true
+  # The playground HTML is dense — surface tabs in order, every control-panel
+  # tab present, and the four scope blocks (root + a + b + presets) are the
+  # structural contract. Content inside is the LLM/renderer's surface.
+  required_patterns:
+    - { pattern: '<title>.*Playground</title>',                          description: "title with Playground label" }
+    - { pattern: '<style id="look-root">',                                description: "default scope CSS block" }
+    - { pattern: '<style id="look-a">',                                   description: "compare-mode A scope" }
+    - { pattern: '<style id="look-b">',                                   description: "compare-mode B scope" }
+    - { pattern: 'data-surface="marketing"',                              description: "Marketing surface block" }
+    - { pattern: 'data-surface="app"',                                    description: "App surface block" }
+    - { pattern: 'data-surface="slide"',                                  description: "Slide surface block" }
+    - { pattern: 'data-surface="glossary"',                               description: "Glossary surface block" }
+    - { pattern: 'data-tab="colors"',                                     description: "Colors control tab" }
+    - { pattern: 'data-tab="type"',                                       description: "Type control tab" }
+    - { pattern: 'data-tab="form"',                                       description: "Form control tab" }
+    - { pattern: 'data-tab="mode"',                                       description: "Mode control tab" }
+    - { pattern: 'id="presets-data"',                                     description: "preset Looks JSON block" }
+    - { pattern: 'window\.__PLAYGROUND_INIT__',                           description: "JS engine entry point" }
+  forbidden_patterns:
+    - { pattern: '\{\{[A-Z_]+\}\}',                                       description: "no unfilled {{PLACEHOLDER}} should remain after render" }
+
 # ─── Tier 2 — Operator / process record ──────────────────────────────────────
 
 brand-methods:

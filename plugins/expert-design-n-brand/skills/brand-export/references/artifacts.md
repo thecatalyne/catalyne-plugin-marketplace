@@ -146,6 +146,22 @@ Template: `${CLAUDE_PLUGIN_ROOT}/assets/email-template.html`.
 
 ---
 
+## T1.13 — Design Playground (`playground.html`)
+
+Single-file, brand-themed HTML playground — open in any modern browser, no build, no server. Lets a brand owner *actively engage* with their design choices: tweak tokens live, compare two looks side-by-side via A/B compare mode, swap typography from a baked-in Google Fonts safelist, paste a `look.yaml` to test against the brand, and share a state via URL hash. Demonstrates the brand's full token tree across four surfaces (Marketing / App / Slide / Glossary).
+
+- **Output filename:** `playground.html`
+- **Tier:** 1 (external reference)
+- **Bundle:** `companions`
+- **Slug:** `playground-html` (alias: `playground`)
+- **Render mode:** procedural (Python renderer; not copy-first, fill-only)
+- **Template:** `${CLAUDE_PLUGIN_ROOT}/assets/playground-template.html` (skeleton; renderer fills + embeds JSON)
+- **Renderer:** `${CLAUDE_PLUGIN_ROOT}/scripts/render-playground.py`
+- **Inputs:** `tokens.json` (required); `brand-identity.yaml`, `brand-extensions.yaml` (or `brand.extensions.yaml`), `surface-translations.yaml` (all optional)
+- **Distinctive value:** distills the catalyne-design-playground Astro app into a portable single-file artifact so the brand owner can keep tweaking after the export, without regenerating new artifacts each time.
+
+---
+
 # Tier 2 — Operator / process-facing (3 artifacts)
 
 These serve the team using the plugin and the brand's internal stewards. They carry process context and auditability that Tier 1 deliberately omits. Still end-user-prose (no raw plugin jargon), but can reference the workflow explicitly.
