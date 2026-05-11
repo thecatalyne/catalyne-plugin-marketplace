@@ -49,12 +49,12 @@ Export concrete artifacts from the brand system defined in `brand-identity.yaml`
    |---|---|
    | `core` *(default when no arg)* | `tokens.css`, `tokens.json`, `brand-guidelines.html`, `brand-quickref.md` |
    | `pdfs` | `brand-guidelines.pdf`, `brand-methods.pdf` — requires HTML counterparts already on disk; if missing, prompt: "No {file}. Run `/brand-export core` (for brand-guidelines.html) or `/brand-export methods` (for brand-methods.html) first." |
-   | `companions` | `logo-construction.svg`, `illustration-system.html`, `photography-reference-grid.html`, `governance.md`, `email-template.html`, `tailwind.config.js`, `theme-figma.json`, `platform-matrix.md` (8 files) |
+   | `companions` | `logo-construction.svg`, `illustration-system.html`, `photography-reference-grid.html`, `governance.md`, `email-template.html`, `tailwind.config.js`, `theme-figma.json`, `platform-matrix.md`, `playground.html` (9 files) |
    | `methods` | `brand-methods.html` |
    | `synthesis` | `synthesis-report.md` — only if `synthesis.status != not_started`; otherwise inform user no synthesis data exists and skip. |
    | `llm` | `brand.md`, `brand.extensions.yaml` |
    | `all` | core + pdfs + companions + methods + synthesis + llm (full rebuild) |
-   | `<artifact-slug>` | Single artifact by canonical slug. Valid slugs: `tokens-css`, `tokens-json`, `tailwind-config`, `theme-figma`, `platform-matrix`, `brand-guidelines`, `brand-guidelines-pdf`, `brand-quickref`, `logo`, `illustration`, `photography`, `governance`, `email`, `brand-methods`, `brand-methods-pdf`, `synthesis`, `brand-md`, `brand-extensions`. (Legacy slugs `brand-cross-surface-map`, `cross-surface-map`, `theme-google-slides`, `theme-powerpoint`, `theme-keynote`, `theme-canva`, `theme-pitch`, `themes` are deprecated and map to `platform-matrix`. Print a one-line deprecation note and continue.) |
+   | `<artifact-slug>` | Single artifact by canonical slug. Valid slugs: `tokens-css`, `tokens-json`, `tailwind-config`, `theme-figma`, `platform-matrix`, `brand-guidelines`, `brand-guidelines-pdf`, `brand-quickref`, `logo`, `illustration`, `photography`, `governance`, `email`, `brand-methods`, `brand-methods-pdf`, `synthesis`, `brand-md`, `brand-extensions`, `playground-html` (alias: `playground`). (Legacy slugs `brand-cross-surface-map`, `cross-surface-map`, `theme-google-slides`, `theme-powerpoint`, `theme-keynote`, `theme-canva`, `theme-pitch`, `themes` are deprecated and map to `platform-matrix`. Print a one-line deprecation note and continue.) |
    | legacy synonyms (`tokens`, `canonical`, `themes`, `quickref`) | Preserved. Map to new equivalent (`tokens` → `tokens.css + tokens.json`; `canonical` → `brand-guidelines.html + brand-quickref.md`; `themes` → 5 theme-* files; `quickref` → `brand-quickref.md`). Print a one-line deprecation note: `/brand-export {legacy}` is deprecated; use `/brand-export {new}`. Continue the run. |
 
 7. Create the output directory: `./brand-assets/` (CWD-relative). Inside it, create `./brand-assets/_build/` for internal diagnostics (never exposed as user-facing output).
@@ -158,7 +158,7 @@ Artifacts within a bundle render in the order below. When the user runs `all`, b
 
 Probe chain for headless rendering: chrome → chromium → chromium-browser → macOS app paths → wkhtmltopdf last-resort. Use `--virtual-time-budget=5000` for webfont load. A4, print-friendly page breaks.
 
-### `companions` (8 artifacts)
+### `companions` (9 artifacts)
 1. `logo-construction.svg`
 2. `illustration-system.html`
 3. `photography-reference-grid.html`
@@ -167,6 +167,9 @@ Probe chain for headless rendering: chrome → chromium → chromium-browser →
 6. `tailwind.config.js`     ← machine artifact for web framework
 7. `theme-figma.json`       ← machine artifact for Figma Tokens Studio import
 8. `platform-matrix.md`     ← single consolidated cross-surface reference (master tables + per-platform details)
+9. `playground.html`        ← single-file interactive playground (open in any modern browser)
+
+**Special case for `playground.html`**: rendered procedurally, not via copy-then-fill. Invoke `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/render-playground.py --brand-dir . --out ./brand-assets/playground.html`. The renderer embeds large amounts of JSON and runs HTML composition in Python; the template asset is a skeleton, not a fill-in-place document.
 
 `platform-matrix.md` is the single source of truth for applying the brand on every supported surface. Master tables (rows = tokens/components, columns = surfaces: Web CSS, Tailwind, Figma, Google Slides, PowerPoint, Keynote, Canva). Per-platform sections below the tables cover typography fallback chains, setup steps, probe notes, and platform-specific caveats. It replaces what used to be three separate things: `platform-matrix.html` (per-platform card layout), `brand-cross-surface-map.md` (the master grid), and the per-surface `theme-*.md` guides.
 

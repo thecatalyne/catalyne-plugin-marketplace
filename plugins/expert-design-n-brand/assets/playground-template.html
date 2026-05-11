@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en" data-look="root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{BRAND_NAME}} — Design Playground</title>
+{{GFONTS_LINK}}
+
+<style id="look-root">
+/* Default scope — written by render-playground.py from the brand's Look */
+:root {
+{{LOOK_ROOT_VARS}}
+}
+</style>
+
+<style id="look-a">
+/* Compare mode A scope */
+[data-look="a"] {
+{{LOOK_A_VARS}}
+}
+</style>
+
+<style id="look-b">
+/* Compare mode B scope */
+[data-look="b"] {
+{{LOOK_B_VARS}}
+}
+</style>
+
+<style id="component-library">
+/* ─── Reset + base ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: var(--font-size-body, 1rem);
+  line-height: var(--line-height-normal, 1.5);
+  color: var(--color-text-primary, #0B1220);
+  background: var(--color-bg, #FFFFFF);
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  grid-template-rows: 64px 1fr;
+  grid-template-areas:
+    "topbar topbar"
+    "main   controls";
+  height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  body {
+    grid-template-columns: 1fr;
+    grid-template-rows: 64px 1fr auto;
+    grid-template-areas:
+      "topbar"
+      "main"
+      "controls";
+  }
+}
+
+/* ─── Top bar ───────────────────────────────────────────────────── */
+.pg-topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6, 1.5rem);
+  padding: 0 var(--space-6, 1.5rem);
+  border-bottom: 1px solid var(--color-border, #E5E7EB);
+  background: var(--color-surface, #FFFFFF);
+  z-index: var(--z-sticky, 1100);
+}
+.pg-brand {
+  font-family: var(--font-heading, var(--font-body));
+  font-weight: var(--font-weight-bold, 700);
+  font-size: var(--font-size-lead, 1.25rem);
+  color: var(--color-text-primary, inherit);
+}
+.pg-surface-tabs {
+  display: flex;
+  gap: var(--space-1, 0.25rem);
+  margin-left: var(--space-4, 1rem);
+}
+.pg-surface-tabs button,
+.pg-control-tabs button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  font: inherit;
+  color: var(--color-text-secondary, #475569);
+  cursor: pointer;
+  border-radius: var(--radius-md, 0.5rem);
+  transition: background var(--duration-fast, 200ms) var(--ease-standard, ease-out);
+}
+.pg-surface-tabs button:hover,
+.pg-control-tabs button:hover {
+  background: var(--color-surface, #F8FAFC);
+}
+.pg-surface-tabs button.active,
+.pg-control-tabs button.active {
+  background: var(--color-primary, #3B82F6);
+  color: var(--color-text-inverse, #FFFFFF);
+}
+.pg-compare-toggle {
+  margin-left: auto;
+  appearance: none;
+  border: 1px solid var(--color-border-strong, #D1D5DB);
+  background: var(--color-surface, #FFFFFF);
+  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  font: inherit;
+  color: var(--color-text-primary, inherit);
+  border-radius: var(--radius-interactive, 0.5rem);
+  cursor: pointer;
+}
+.pg-compare-toggle.active {
+  background: var(--color-primary, #3B82F6);
+  color: var(--color-text-inverse, #FFFFFF);
+  border-color: var(--color-primary, #3B82F6);
+}
+
+/* ─── Surfaces region ───────────────────────────────────────────── */
+.pg-surfaces {
+  grid-area: main;
+  overflow: auto;
+  background: var(--color-bg, #FFFFFF);
+}
+.pg-surfaces > section { display: none; }
+.pg-surfaces > section.active { display: block; }
+
+/* Compare mode: split the active surface 50/50 */
+body[data-compare="on"] .pg-surfaces > section.active {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+}
+body[data-compare="on"] .pg-surfaces > section.active::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 50%;
+  width: 1px;
+  background: var(--color-border-strong, #D1D5DB);
+  z-index: var(--z-sticky, 1100);
+  pointer-events: none;
+}
+body[data-compare="on"] .pg-surfaces > section.active > [data-look="a"],
+body[data-compare="on"] .pg-surfaces > section.active > [data-look="b"] {
+  overflow: auto;
+}
+body:not([data-compare="on"]) .pg-surfaces > section.active > [data-look="b"] {
+  display: none;
+}
+
+/* ─── Control panel ─────────────────────────────────────────────── */
+.pg-controls {
+  grid-area: controls;
+  background: var(--color-surface, #F8FAFC);
+  border-left: 1px solid var(--color-border, #E5E7EB);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.pg-control-tabs {
+  display: flex;
+  gap: var(--space-1, 0.25rem);
+  padding: var(--space-3, 0.75rem);
+  border-bottom: 1px solid var(--color-border, #E5E7EB);
+}
+.pg-control-panes {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-4, 1rem);
+}
+.pg-control-pane { display: none; }
+.pg-control-pane.active { display: block; }
+.pg-control-pane h3 {
+  margin: 0 0 var(--space-2, 0.5rem);
+  font-size: var(--font-size-small, 0.8rem);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide, 0.08em);
+  color: var(--color-text-tertiary, #94A3B8);
+}
+.pg-control-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  margin-bottom: var(--space-2, 0.5rem);
+  font-size: var(--font-size-small, 0.875rem);
+}
+.pg-control-row input[type="color"] {
+  width: 36px; height: 28px; padding: 0; border: 1px solid var(--color-border, #E5E7EB); border-radius: var(--radius-sm, 0.25rem); cursor: pointer; background: none;
+}
+.pg-control-row input[type="text"],
+.pg-control-row select {
+  font: inherit;
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  border: 1px solid var(--color-border-strong, #D1D5DB);
+  border-radius: var(--radius-sm, 0.25rem);
+  background: var(--color-bg, #FFFFFF);
+  color: var(--color-text-primary, inherit);
+  width: 110px;
+}
+.pg-ab-toggle {
+  display: flex;
+  gap: var(--space-1, 0.25rem);
+  padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
+  border-bottom: 1px solid var(--color-border, #E5E7EB);
+  font-size: var(--font-size-small, 0.875rem);
+}
+.pg-ab-toggle button {
+  flex: 1;
+  appearance: none;
+  border: 1px solid var(--color-border-strong, #D1D5DB);
+  background: var(--color-bg, #FFFFFF);
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  border-radius: var(--radius-sm, 0.25rem);
+  cursor: pointer;
+}
+.pg-ab-toggle button.active {
+  background: var(--color-primary, #3B82F6);
+  color: var(--color-text-inverse, #FFFFFF);
+  border-color: var(--color-primary, #3B82F6);
+}
+body:not([data-compare="on"]) .pg-ab-toggle { display: none; }
+
+.pg-bp-pill {
+  position: fixed;
+  bottom: var(--space-3, 0.75rem);
+  right: 380px;
+  z-index: var(--z-toast, 1400);
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  background: var(--color-text-primary, #0B1220);
+  color: var(--color-text-inverse, #FFFFFF);
+  border-radius: var(--radius-pill, 9999px);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--font-size-caption, 0.64rem);
+  pointer-events: none;
+  opacity: 0.7;
+}
+@media (max-width: 1024px) { .pg-bp-pill { right: var(--space-3, 0.75rem); } }
+
+/* ─── Component library ─────────────────────────────────────────── */
+
+/* Buttons */
+.btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  font: inherit;
+  font-weight: var(--font-weight-semibold, 600);
+  border: 1px solid transparent;
+  border-radius: var(--radius-interactive, 0.5rem);
+  cursor: pointer;
+  transition: background var(--duration-fast, 200ms) var(--ease-standard, ease-out),
+              transform var(--duration-fast, 200ms) var(--ease-standard, ease-out);
+  text-decoration: none;
+  line-height: 1;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--color-border-focus, var(--color-primary));
+  outline-offset: 2px;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-text-inverse, #FFF);
+}
+.btn-primary:hover { filter: brightness(0.92); }
+.btn-secondary {
+  background: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.btn-secondary:hover { background: var(--color-primary); color: var(--color-text-inverse, #FFF); }
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+.btn-ghost:hover { background: var(--color-surface); }
+.btn-accent {
+  background: var(--color-accent);
+  color: var(--color-text-primary);
+}
+.btn-danger {
+  background: var(--color-status-error, #DC2626);
+  color: #FFF;
+}
+.btn-sm { padding: var(--space-1, 0.25rem) var(--space-3, 0.75rem); font-size: var(--font-size-small, 0.875rem); }
+.btn[disabled] { opacity: var(--opacity-disabled, 0.4); cursor: not-allowed; }
+
+/* Cards */
+.card {
+  background: var(--color-surface, #FFF);
+  border: 1px solid var(--color-border, #E5E7EB);
+  border-radius: var(--radius-card, 0.75rem);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+  padding: var(--space-6, 1.5rem);
+}
+.card-elevated {
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1));
+}
+.card-highlight {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0,0,0,0.1));
+  transform: scale(1.02);
+}
+
+/* Inputs */
+.input, .textarea, .select {
+  display: block;
+  width: 100%;
+  font: inherit;
+  padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
+  background: var(--color-bg, #FFF);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong, #D1D5DB);
+  border-radius: var(--radius-interactive, 0.5rem);
+  transition: border-color var(--duration-fast, 200ms) var(--ease-standard, ease-out),
+              box-shadow   var(--duration-fast, 200ms) var(--ease-standard, ease-out);
+}
+.input:focus, .textarea:focus, .select:focus {
+  outline: none;
+  border-color: var(--color-border-focus, var(--color-primary));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus, var(--color-primary)) 25%, transparent);
+}
+.input.is-error, .textarea.is-error, .select.is-error {
+  border-color: var(--color-status-error, #DC2626);
+}
+.input.is-success, .textarea.is-success { border-color: var(--color-status-success, #16A34A); }
+.input[disabled], .textarea[disabled], .select[disabled] {
+  opacity: var(--opacity-disabled, 0.4);
+  cursor: not-allowed;
+}
+.helper { font-size: var(--font-size-small, 0.875rem); color: var(--color-text-tertiary, #94A3B8); margin-top: var(--space-1, 0.25rem); }
+.helper.is-error { color: var(--color-status-error, #DC2626); }
+.helper.is-success { color: var(--color-status-success, #16A34A); }
+label.field { display: block; margin-bottom: var(--space-3, 0.75rem); }
+label.field > span { display: block; font-size: var(--font-size-small, 0.875rem); margin-bottom: var(--space-1, 0.25rem); color: var(--color-text-secondary); }
+
+/* Checkbox / radio / switch */
+.checkbox, .radio { display: inline-flex; align-items: center; gap: var(--space-2, 0.5rem); cursor: pointer; }
+.switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+.switch input { display: none; }
+.switch .track { position: absolute; inset: 0; background: var(--color-border-strong); border-radius: var(--radius-pill, 9999px); transition: background var(--duration-fast, 200ms); }
+.switch .thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #FFF; border-radius: 50%; transition: left var(--duration-fast, 200ms) var(--ease-standard); }
+.switch input:checked ~ .track { background: var(--color-primary); }
+.switch input:checked ~ .thumb { left: 18px; }
+
+/* Badges + chips + pills */
+.badge {
+  display: inline-flex; align-items: center; gap: var(--space-1, 0.25rem);
+  padding: 2px var(--space-2, 0.5rem);
+  font-size: var(--font-size-caption, 0.64rem);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide, 0.08em);
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--color-surface, #F1F5F9);
+  color: var(--color-text-secondary);
+}
+.badge-success { background: color-mix(in srgb, var(--color-status-success, #16A34A) 15%, transparent); color: var(--color-status-success, #16A34A); }
+.badge-warning { background: color-mix(in srgb, var(--color-status-warning, #D97706) 15%, transparent); color: var(--color-status-warning, #D97706); }
+.badge-error   { background: color-mix(in srgb, var(--color-status-error,   #DC2626) 15%, transparent); color: var(--color-status-error,   #DC2626); }
+.badge-info    { background: color-mix(in srgb, var(--color-status-info,    #0EA5E9) 15%, transparent); color: var(--color-status-info,    #0EA5E9); }
+.badge-accent  { background: color-mix(in srgb, var(--color-accent) 15%, transparent); color: var(--color-text-primary); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: var(--space-1, 0.25rem);
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 0.5rem);
+  font-size: var(--font-size-small, 0.875rem);
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+/* Banners */
+.banner {
+  display: flex; gap: var(--space-3, 0.75rem); align-items: center;
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border-radius: var(--radius-md, 0.5rem);
+  background: var(--color-surface);
+  border-left: 4px solid var(--color-primary);
+}
+.banner.is-success { border-left-color: var(--color-status-success); background: color-mix(in srgb, var(--color-status-success) 8%, var(--color-bg)); }
+.banner.is-warning { border-left-color: var(--color-status-warning); background: color-mix(in srgb, var(--color-status-warning) 8%, var(--color-bg)); }
+.banner.is-error   { border-left-color: var(--color-status-error);   background: color-mix(in srgb, var(--color-status-error)   8%, var(--color-bg)); }
+.banner.is-info    { border-left-color: var(--color-status-info);    background: color-mix(in srgb, var(--color-status-info)    8%, var(--color-bg)); }
+.banner .dismiss { margin-left: auto; appearance: none; border: 0; background: transparent; cursor: pointer; color: inherit; }
+
+/* Modal + backdrop */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: var(--color-text-primary);
+  opacity: var(--opacity-scrim, 0.4);
+  z-index: var(--z-modal, 1300);
+}
+.modal {
+  position: fixed;
+  z-index: calc(var(--z-modal, 1300) + 1);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(440px, 92vw);
+  background: var(--color-surface);
+  border-radius: var(--radius-card, 0.75rem);
+  box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0,0,0,0.15));
+  padding: var(--space-6, 1.5rem);
+}
+.modal h2 { margin: 0 0 var(--space-3, 0.75rem); font-family: var(--font-heading, inherit); }
+
+/* Tooltip + popover */
+.tooltip-wrap { position: relative; display: inline-block; }
+.tooltip-wrap .tooltip {
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  background: var(--color-text-primary);
+  color: var(--color-text-inverse);
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  border-radius: var(--radius-sm, 0.25rem);
+  font-size: var(--font-size-caption, 0.64rem);
+  white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--duration-fast, 200ms) var(--ease-standard);
+  z-index: var(--z-tooltip, 1500);
+}
+.tooltip-wrap:hover .tooltip,
+.tooltip-wrap:focus-within .tooltip { opacity: 1; }
+
+.popover {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 0.5rem);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4, 1rem);
+  z-index: var(--z-overlay, 1200);
+}
+
+/* Toast */
+.toast-stack {
+  position: fixed; bottom: var(--space-6, 1.5rem); right: 380px;
+  display: flex; flex-direction: column; gap: var(--space-2, 0.5rem);
+  z-index: var(--z-toast, 1400);
+}
+@media (max-width: 1024px) { .toast-stack { right: var(--space-3, 0.75rem); } }
+.toast {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md, 0.5rem);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  min-width: 240px;
+  animation: toast-in var(--duration-normal, 300ms) var(--ease-spring, ease-out);
+}
+.toast.is-success { border-left-color: var(--color-status-success); }
+.toast.is-error   { border-left-color: var(--color-status-error); }
+.toast.is-info    { border-left-color: var(--color-status-info); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Accordion */
+.accordion details {
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3, 0.75rem) 0;
+}
+.accordion summary {
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold, 600);
+  list-style: none;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.accordion summary::-webkit-details-marker { display: none; }
+.accordion summary::after {
+  content: "+";
+  font-size: var(--font-size-lead, 1.25rem);
+  transition: transform var(--duration-normal, 300ms) var(--ease-standard);
+}
+.accordion details[open] summary::after { transform: rotate(45deg); }
+.accordion details > p { margin: var(--space-2, 0.5rem) 0 0; color: var(--color-text-secondary); }
+
+/* Tables */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td {
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+.table th {
+  font-size: var(--font-size-small, 0.875rem);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide, 0.08em);
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-weight-semibold, 600);
+}
+.table tr:hover td { background: var(--color-surface); }
+.table .row-actions { display: inline-flex; gap: var(--space-1, 0.25rem); }
+
+/* Avatars */
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-pill, 9999px);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-small, 0.875rem);
+}
+.avatar-lg { width: 48px; height: 48px; font-size: var(--font-size-lead, 1.25rem); }
+
+/* Tabs (in-content, distinct from .pg- tabs) */
+.tabs {
+  display: flex; gap: var(--space-1, 0.25rem);
+  border-bottom: 1px solid var(--color-border);
+}
+.tabs button {
+  appearance: none; border: 0; background: transparent;
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  font: inherit; cursor: pointer;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tabs button.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Sparkline (inline svg helper applied by surface markup) */
+.sparkline { width: 80px; height: 20px; }
+
+/* Utility */
+.stack > * + * { margin-top: var(--space-3, 0.75rem); }
+.stack-tight > * + * { margin-top: var(--space-2, 0.5rem); }
+.stack-loose > * + * { margin-top: var(--space-6, 1.5rem); }
+.row { display: flex; gap: var(--space-3, 0.75rem); align-items: center; }
+.row-end { display: flex; gap: var(--space-3, 0.75rem); justify-content: flex-end; }
+.muted { color: var(--color-text-tertiary); }
+.mono { font-family: var(--font-mono, ui-monospace, monospace); }
+.eyebrow {
+  font-size: var(--font-size-caption, 0.64rem);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide, 0.08em);
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-weight-semibold, 600);
+}
+.divider { height: 1px; background: var(--color-border); margin: var(--space-6, 1.5rem) 0; }
+</style>
+</head>
+
+<body data-compare="off" data-mode="light" data-active-look="a">
+<header class="pg-topbar">
+  <div class="pg-brand">{{BRAND_NAME}}</div>
+  <nav class="pg-surface-tabs" id="surface-tabs">
+    <button data-surface="marketing" class="active">Marketing</button>
+    <button data-surface="app">App</button>
+    <button data-surface="slide">Slide</button>
+    <button data-surface="glossary">Glossary</button>
+  </nav>
+  <button class="pg-compare-toggle" id="compare-toggle">Compare</button>
+</header>
+
+<main class="pg-surfaces" id="surfaces">
+  <section data-surface="marketing" class="active">
+    <div data-look="a">{{MARKETING_BODY}}</div>
+    <div data-look="b">{{MARKETING_BODY}}</div>
+  </section>
+  <section data-surface="app">
+    <div data-look="a">{{APP_BODY}}</div>
+    <div data-look="b">{{APP_BODY}}</div>
+  </section>
+  <section data-surface="slide">
+    <div data-look="a">{{SLIDE_BODY}}</div>
+    <div data-look="b">{{SLIDE_BODY}}</div>
+  </section>
+  <section data-surface="glossary">
+    <div data-look="a">{{GLOSSARY_BODY}}</div>
+    <div data-look="b">{{GLOSSARY_BODY}}</div>
+  </section>
+</main>
+
+<aside class="pg-controls">
+  <div class="pg-ab-toggle">
+    <button data-ab="a" class="active">Editing A</button>
+    <button data-ab="b">Editing B</button>
+    <button data-ab="sync" title="Mirror A → B">Sync</button>
+  </div>
+  <nav class="pg-control-tabs" id="control-tabs">
+    <button data-tab="colors" class="active">Colors</button>
+    <button data-tab="type">Type</button>
+    <button data-tab="form">Form</button>
+    <button data-tab="mode">Mode</button>
+  </nav>
+  <div class="pg-control-panes" id="control-panes">
+    {{CONTROL_PANES}}
+  </div>
+</aside>
+
+<div class="pg-bp-pill" id="bp-pill">—</div>
+
+<script type="application/json" id="look-data">
+{{LOOK_DATA_JSON}}
+</script>
+
+<script type="application/json" id="presets-data">
+{{PRESETS_DATA_JSON}}
+</script>
+
+<script>
+{{JS_YAML_INLINE}}
+</script>
+
+<script>
+window.__PLAYGROUND_INIT__ = function() {
+  const lookData     = JSON.parse(document.getElementById('look-data').textContent);
+  const presetsData  = JSON.parse(document.getElementById('presets-data').textContent);
+  const surfaces     = document.querySelectorAll('.pg-surfaces > section');
+  const surfaceBtns  = document.querySelectorAll('#surface-tabs button');
+  const controlBtns  = document.querySelectorAll('#control-tabs button');
+  const controlPanes = document.querySelectorAll('.pg-control-pane');
+  const compareBtn   = document.getElementById('compare-toggle');
+  const abBtns       = document.querySelectorAll('.pg-ab-toggle button');
+  const bpPill       = document.getElementById('bp-pill');
+  const styleA       = document.getElementById('look-a');
+  const styleB       = document.getElementById('look-b');
+
+  // Surface tab switching
+  surfaceBtns.forEach(b => b.addEventListener('click', () => {
+    surfaceBtns.forEach(x => x.classList.remove('active'));
+    surfaces.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelector(`.pg-surfaces > section[data-surface="${b.dataset.surface}"]`)
+            .classList.add('active');
+  }));
+
+  // Control-panel tab switching
+  controlBtns.forEach(b => b.addEventListener('click', () => {
+    controlBtns.forEach(x => x.classList.remove('active'));
+    controlPanes.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelector(`.pg-control-pane[data-pane="${b.dataset.tab}"]`).classList.add('active');
+  }));
+
+  // Compare-mode toggle
+  compareBtn.addEventListener('click', () => {
+    const on = document.body.dataset.compare === 'on';
+    document.body.dataset.compare = on ? 'off' : 'on';
+    compareBtn.classList.toggle('active', !on);
+  });
+
+  // A/B editing target
+  abBtns.forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.ab === 'sync') {
+      const text = styleA.textContent;
+      styleB.textContent = text.replace('[data-look="a"]', '[data-look="b"]')
+                               .replace('[data-look="root"]', '[data-look="b"]');
+      return;
+    }
+    abBtns.forEach(x => x.dataset.ab !== 'sync' && x.classList.remove('active'));
+    b.classList.add('active');
+    document.body.dataset.activeLook = b.dataset.ab;
+  }));
+
+  // Token mutation: writes CSS variable into the active scope's <style>
+  function targetStyleEl() {
+    if (document.body.dataset.compare !== 'on') return document.getElementById('look-root');
+    return document.body.dataset.activeLook === 'b' ? styleB : styleA;
+  }
+  function setVar(name, value) {
+    const el = targetStyleEl();
+    const sheet = el.sheet;
+    if (!sheet || !sheet.cssRules || !sheet.cssRules[0]) return;
+    sheet.cssRules[0].style.setProperty(name, value);
+  }
+
+  // Color picker pairs (color input + text input both write same var)
+  document.querySelectorAll('[data-css-var]').forEach(input => {
+    input.addEventListener('input', e => setVar(input.dataset.cssVar, e.target.value));
+  });
+  document.querySelectorAll('[data-css-var-text]').forEach(input => {
+    input.addEventListener('input', e => setVar(input.dataset.cssVarText, e.target.value));
+  });
+
+  // Font role swap — load Google Font on demand and write --font-{role}
+  const fontLink = document.createElement('link');
+  fontLink.rel = 'stylesheet';
+  document.head.appendChild(fontLink);
+  function applyFont(role, family) {
+    if (family === '__custom__') return;
+    const slug = family.replace(/ /g, '+');
+    fontLink.href = `https://fonts.googleapis.com/css2?family=${slug}:wght@300;400;500;600;700;800&display=swap`;
+    setVar(`--font-${role}`, `"${family}", system-ui, sans-serif`);
+  }
+  document.querySelectorAll('[data-font-role]').forEach(sel => {
+    sel.addEventListener('change', e => applyFont(sel.dataset.fontRole, e.target.value));
+  });
+
+  // Density — single-write multiplier. The bake-time CSS emits each --space-* as
+  // calc(val * var(--density, 1)), so changing --density rescales every spacing
+  // step at once. Idempotent across paste-load and preset swaps.
+  document.querySelectorAll('[data-density]').forEach(sel => {
+    sel.addEventListener('change', e => {
+      const mult = { compact: 0.85, comfortable: 1, spacious: 1.18 }[e.target.value] || 1;
+      setVar('--density', mult);
+    });
+  });
+
+  // Shadow intensity — rewrite primitive shadows
+  document.querySelectorAll('[data-shadow-intensity]').forEach(sel => {
+    sel.addEventListener('change', e => {
+      const intensity = e.target.value;
+      const presets = {
+        none:     { sm: 'none', md: 'none', lg: 'none', xl: 'none' },
+        subtle:   { sm: '0 1px 1px rgba(0,0,0,0.04)', md: '0 2px 3px rgba(0,0,0,0.06)', lg: '0 4px 6px rgba(0,0,0,0.08)', xl: '0 8px 12px rgba(0,0,0,0.10)' },
+        default:  { sm: '0 1px 2px rgba(0,0,0,0.05)', md: '0 4px 6px -1px rgba(0,0,0,0.10), 0 2px 4px -2px rgba(0,0,0,0.10)', lg: '0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -4px rgba(0,0,0,0.10)', xl: '0 20px 25px -5px rgba(0,0,0,0.10), 0 8px 10px -6px rgba(0,0,0,0.10)' },
+        dramatic: { sm: '0 2px 4px rgba(0,0,0,0.10)', md: '0 8px 12px rgba(0,0,0,0.18)',  lg: '0 20px 30px rgba(0,0,0,0.20)', xl: '0 40px 60px rgba(0,0,0,0.25)' },
+      }[intensity];
+      Object.entries(presets).forEach(([k, v]) => setVar(`--shadow-${k}`, v));
+    });
+  });
+
+  // Mode toggle — light/dark by writing semantic vars from the dark block
+  document.querySelectorAll('[data-mode-select]').forEach(sel => {
+    sel.addEventListener('change', e => {
+      const mode = e.target.value;
+      document.body.dataset.mode = mode;
+      const block = lookData.tokens?.semantic?.[mode]?.color || {};
+      Object.entries(block).forEach(([role, val]) => {
+        if (typeof val === 'string') setVar(`--color-${role}`, val);
+      });
+    });
+  });
+
+  // Preset picker (B side)
+  const presetSel = document.querySelector('[data-preset-select]');
+  presetsData.forEach((p, i) => {
+    const o = document.createElement('option');
+    o.value = String(i);
+    o.textContent = p.name || `Preset ${i+1}`;
+    presetSel.appendChild(o);
+  });
+  presetSel?.addEventListener('change', e => {
+    const idx = e.target.value;
+    if (idx === '') return;
+    const preset = presetsData[+idx];
+    if (!preset) return;
+    document.body.dataset.activeLook = 'b';
+    abBtns.forEach(x => x.dataset.ab !== 'sync' && x.classList.toggle('active', x.dataset.ab === 'b'));
+    applyLook(preset, 'b');
+  });
+
+  // Apply a Look programmatically into a scope (a / b / root)
+  function applyLook(look, scope) {
+    const styleEl = scope === 'b' ? styleB : (scope === 'a' ? styleA : document.getElementById('look-root'));
+    const selector = scope === 'root' ? ':root' : `[data-look="${scope}"]`;
+    const lines = [];
+    const t = look.tokens || {};
+    Object.entries(t.primitive?.color?.scales || {}).forEach(([fam, steps]) => {
+      Object.entries(steps).forEach(([s, v]) => { if (typeof v === 'string') lines.push(`  --color-${fam}-${s}: ${v};`); });
+    });
+    Object.entries(t.primitive?.color?.palette || {}).forEach(([k, v]) => { if (typeof v === 'string') lines.push(`  --color-${k}: ${v};`); });
+    Object.entries(t.semantic?.light?.color || {}).forEach(([k, v]) => { if (typeof v === 'string') lines.push(`  --color-${k}: ${v};`); });
+    Object.entries(t.semantic?.status || {}).forEach(([k, v]) => { if (typeof v === 'string') lines.push(`  --color-status-${k}: ${v};`); });
+    styleEl.textContent = `${selector} {\n${lines.join('\n')}\n}`;
+  }
+
+  // Paste-look loader — accepts JSON OR YAML (when window.jsyaml is available
+  // via the Task 11.5 inlined vendor bundle).
+  document.querySelector('[data-paste-load]')?.addEventListener('click', () => {
+    const ta = document.querySelector('[data-paste-look]');
+    if (!ta || !ta.value.trim()) return;
+    const text = ta.value.trim();
+    let parsed = null;
+    let parseErr = null;
+    // Try JSON first — clearer error messages for actual JSON input.
+    try {
+      parsed = JSON.parse(text);
+    } catch (e) {
+      parseErr = e;
+      if (window.jsyaml && typeof window.jsyaml.load === 'function') {
+        try {
+          parsed = window.jsyaml.load(text);
+          parseErr = null;
+        } catch (yamlErr) {
+          parseErr = yamlErr;
+        }
+      }
+    }
+    if (parsed === null || typeof parsed !== 'object') {
+      alert('Could not parse paste as JSON or YAML.\n\n' + (parseErr ? parseErr.message : ''));
+      return;
+    }
+    applyLook(parsed, 'b');
+    // Switch into compare mode and target B for subsequent edits.
+    document.body.dataset.compare = 'on';
+    document.body.dataset.activeLook = 'b';
+    abBtns.forEach(x => x.dataset.ab !== 'sync' && x.classList.toggle('active', x.dataset.ab === 'b'));
+    compareBtn.classList.add('active');
+  });
+
+  // Slide deck arrow nav (only when Slide tab active)
+  document.addEventListener('keydown', e => {
+    const slideActive = document.querySelector('[data-surface="slide"]').classList.contains('active');
+    if (!slideActive) return;
+    const stages = document.querySelectorAll('[data-stage]');
+    stages.forEach(stage => {
+      const slides = stage.querySelectorAll('.slide');
+      const cur = Array.from(slides).findIndex(s => s.classList.contains('active'));
+      if (cur === -1) return;
+      let next = cur;
+      if (e.key === 'ArrowRight' || e.key === ' ') next = Math.min(slides.length - 1, cur + 1);
+      if (e.key === 'ArrowLeft')                     next = Math.max(0, cur - 1);
+      if (next !== cur) {
+        slides[cur].classList.remove('active');
+        slides[next].classList.add('active');
+        const thumbs = stage.parentElement.querySelectorAll('[data-thumb]');
+        thumbs.forEach(t => t.classList.toggle('active', +t.dataset.thumb === next + 1));
+        e.preventDefault();
+      }
+    });
+  });
+  document.querySelectorAll('[data-thumb]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const wantIdx = +btn.dataset.thumb - 1;
+      const stage = btn.closest('.deck').querySelector('[data-stage]');
+      const slides = stage.querySelectorAll('.slide');
+      slides.forEach((s, i) => s.classList.toggle('active', i === wantIdx));
+      const thumbs = btn.parentElement.querySelectorAll('[data-thumb]');
+      thumbs.forEach(t => t.classList.toggle('active', t === btn));
+    });
+  });
+
+  // Breakpoint pill
+  function updateBpPill() {
+    const w = window.innerWidth;
+    const bp = w < 640 ? 'xs (<640)' : w < 768 ? 'sm (640+)' : w < 1024 ? 'md (768+)' : w < 1280 ? 'lg (1024+)' : w < 1536 ? 'xl (1280+)' : '2xl (1536+)';
+    bpPill.textContent = `${bp} · ${w}px`;
+  }
+  window.addEventListener('resize', updateBpPill);
+  updateBpPill();
+
+  document.querySelector('[data-reset]')?.addEventListener('click', () => location.hash = '');
+
+  // Share + persistence
+  document.querySelector('[data-share-link]')?.addEventListener('click', () => {
+    const data = { a: extractStyle(styleA), b: extractStyle(styleB) };
+    const enc = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    location.hash = enc;
+    navigator.clipboard?.writeText(location.href);
+  });
+  function extractStyle(el) {
+    const m = (el.textContent || '').match(/\{([\s\S]*?)\}/);
+    return m ? m[1].trim() : '';
+  }
+  // Restore from hash if present
+  if (location.hash.length > 1) {
+    try {
+      const data = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(1)))));
+      if (data.a) styleA.textContent = `[data-look="a"] {\n${data.a}\n}`;
+      if (data.b) styleB.textContent = `[data-look="b"] {\n${data.b}\n}`;
+    } catch (e) { /* ignore — stale link */ }
+  }
+};
+window.__PLAYGROUND_INIT__();
+</script>
+</body>
+</html>
