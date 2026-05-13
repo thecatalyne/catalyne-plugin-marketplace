@@ -438,6 +438,14 @@
     <!-- END -->
 
     <p class="section-definition">The brand's temperament in plain language — synthesis frames it in archetype and Aaker terms; the character paragraph is the human thread. Reasoning, metaphor galleries, and keyword walkthroughs are brand-methods content.</p>
+
+    <!-- Essence + Archetype split (PDF version of the canonical pair from design-system-template.html).
+         Never compound essence and archetype into a single label. -->
+    <div class="personality-essence-archetype-print">
+      <div><strong>Essence:</strong> {{ essence_name }}</div>
+      <div><strong>Archetype:</strong> {{ archetype_primary }}<!-- OPTIONAL:archetype-secondary --> · {{ archetype_secondary }}<!-- OPTIONAL:archetype-register --> &mdash; <em>{{ register }}</em></div>
+    </div>
+
     <p class="personality-synthesis section-summary">{{ personality_synthesis }}</p>
 
     <!-- OPTIONAL:personality-character -->
@@ -661,7 +669,7 @@
     <p>Shape vocabulary, stroke weights, perspective, palette constraint, emotion inventory, cultural anchors. Full system: <code>illustration-system.html</code>.</p>
   </section>
 
-  <!-- ─── SPACING & GRID ─── (proportional blocks, NOT a table; grid subsection added in v0.7.0) -->
+  <!-- ─── SPACING & GRID ─── (proportional blocks, NOT a table) -->
   <section class="section avoid-break">
     <h2>Spacing &amp; Grid</h2>
     <!-- REPEAT: methods_for_spacing -->

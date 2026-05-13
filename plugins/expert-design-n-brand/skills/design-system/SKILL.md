@@ -90,7 +90,7 @@ The name patterns below are a starting point — any brand can declare additiona
 
 | Name pattern | Spectrum | How to resolve from brand palette |
 |---|---|---|
-| Warm-fire family (`ember`, `flame`, `fire`, `burn`, `spark`, `heat`) | Warm (red → orange → amber) | Pick the brand's warm-lineage anchors in order. Never substitute a cool-spectrum hex. |
+| Warm-fire family (`ember`, `flame`, `fire`, `burn`, `heat`) | Warm (red → orange → amber) | Pick the brand's warm-lineage anchors in order. Never substitute a cool-spectrum hex. |
 | Cool-signal family (`electric`, `current`, `signal`, `pulse`) | Active accent / signal | The expression the brand has tagged as its default signal expression in `palette.expressions[]`. |
 | Celestial family (`star`, `sun`, `gold`, `celestial`, `constellation`) | Gold-core | Anchor on the gold / amber hex with only subtle grace notes at edges. Single-hue focus. |
 | Transition family (`match`, `strike`, `ignite`, `threshold`) | Warm-core into ignition | Bright center sliding into the brand's warm spectrum at one edge. |

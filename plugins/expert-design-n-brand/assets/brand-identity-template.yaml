@@ -160,9 +160,8 @@ system:
     palette:
       core: []
       # Variable-N (any number of roles — no hardcoded max). Each entry:
-      #   - role: "primary"         # use industry-standard role names where possible:
+      #   - role: "primary"         # use canonical role names from assets/platform-matrix-template.md §1:
       #                             #   primary | neutral | accent | background | surface | secondary | success | warning | error | info
-      #                             # (legacy "anchor" is auto-normalized to "neutral" by brand-build Phase 3B)
       #     name: "{{ core_role_example_name }}"
       #     hex: "{{ core_role_example_hex }}"
       #     usage: "CTAs, highlights"
@@ -237,7 +236,7 @@ system:
       small: ""
 
   form:
-    character: ""                    # one-line evocation: "arches", "spark motif", etc.
+    character: ""                    # one-line evocation: "arches", "flourish motif", etc.
     motifs: []                       # detailed motif descriptions
     radius_interactive: ""           # e.g., "8px"
     radius_card: ""
@@ -258,8 +257,8 @@ system:
     # group voice_constraints). At least one of these is expected; multiples
     # stack as subblocks in the rendered "Voice Constraints" section.
     vocabulary:
-      prefer: []                     # legacy — free-form preferred words
-      avoid: []                      # legacy — free-form avoided words
+      prefer: []                     # free-form preferred words (optional — prefer the structured fields below)
+      avoid: []                      # free-form avoided words (optional — prefer the structured fields below)
       never_say: []                  # from never-say-list technique
       specificity_test: {}           # from specificity-test technique
       #   rule: "A word passes iff it adds specificity"

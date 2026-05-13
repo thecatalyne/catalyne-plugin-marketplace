@@ -1,3 +1,8 @@
+# Canonical vocabulary source: assets/platform-matrix-template.md
+# CSS variable names, role labels, and per-surface slot names referenced
+# below match the Platform Matrix §1/§2/§3 tables. Any drift between this
+# file and the Matrix is a bug.
+#
 # artifact-schemas.yaml — Declarative structural oracle for rendered brand artifacts
 #
 # Used by: scripts/validate-structure.py
@@ -90,11 +95,6 @@ tokens-css:
     - --color-warning
     - --color-error
     - --color-info
-    # Legacy aliases (back-compat — emitted alongside canonical for older consumers)
-    - --color-fg
-    - --color-affirm
-    - --color-warn
-    - --color-danger
     # Typography
     - --font-heading
     - --font-body

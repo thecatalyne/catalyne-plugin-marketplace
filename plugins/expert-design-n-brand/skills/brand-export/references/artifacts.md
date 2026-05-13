@@ -4,6 +4,8 @@ Loaded by `brand-export/SKILL.md` when producing individual artifacts. The catal
 
 Every section assumes the cross-artifact rules in `rendering-rules.md` have been loaded first — those are the defaults; what appears here is artifact-specific.
 
+> **Canonical vocabulary source.** Token names, role labels, surface slot names, and CSS/Tailwind/Figma keys used in this document are defined in `assets/platform-matrix-template.md`. If a name here appears to disagree with the Platform Matrix, the Platform Matrix wins.
+
 ---
 
 # Tier 1 — External reference (shipping, public-facing)
@@ -158,7 +160,7 @@ Single-file, brand-themed HTML playground — open in any modern browser, no bui
 - **Template:** `${CLAUDE_PLUGIN_ROOT}/assets/playground-template.html` (skeleton; renderer fills + embeds JSON)
 - **Renderer:** `${CLAUDE_PLUGIN_ROOT}/scripts/render-playground.py`
 - **Inputs:** `tokens.json` (required); `brand-identity.yaml`, `brand-extensions.yaml` (or `brand.extensions.yaml`), `surface-translations.yaml` (all optional)
-- **Distinctive value:** distills the catalyne-design-playground Astro app into a portable single-file artifact so the brand owner can keep tweaking after the export, without regenerating new artifacts each time.
+- **Distinctive value:** a portable single-file interactive playground the brand owner can keep tweaking after the export, without regenerating new artifacts each time.
 
 ---
 
@@ -277,10 +279,6 @@ Template: `${CLAUDE_PLUGIN_ROOT}/assets/brand-extensions-template.yaml`.
 These stay in a `_build/` subdirectory of the output folder if retained at all; they are NEVER surfaced as user-facing deliverables. Default behavior: do not emit unless operator explicitly requests `--keep-build-artifacts`.
 
 - `export-verification.md` — quality report from the verification protocol; useful for operator debugging, not for clients
-- `design-system.html` / `.pdf` — legacy intermediate subsumed by T1.1 (retain only as temporary migration aid; delete in v0.8)
-- `design-system-extensions.html` — retired concept (DELETE; do not re-emit)
-- `brand-llm-manual.yaml` — retired format (replaced by T3.1 + T3.2; DELETE)
-- `tokens.legacy.json` — retired archive (DELETE unless brand explicitly migrating from v5)
 - `TEST_PROTOCOL.md` — plugin dev scaffolding; belongs in plans/, NEVER emitted
 
 ---
@@ -288,7 +286,7 @@ These stay in a `_build/` subdirectory of the output folder if retained at all; 
 # Emission sequence (for `/brand-export all`)
 
 1. Load contract + rendering rules.
-2. Walk Required-atomic + Required-v6 paths; hard-fail at startup on any missing.
+2. Walk Required paths; hard-fail at startup on any missing.
 3. Emit Tier 1 (review each draft against the external-facing principle before write):
    1. T1.3 `tokens.css`
    2. T1.4 `tokens.json`

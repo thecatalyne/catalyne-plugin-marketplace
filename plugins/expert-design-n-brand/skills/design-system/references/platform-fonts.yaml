@@ -25,7 +25,7 @@
 #      untouched; child-only categories are added.
 #
 # Inheritance is single-step only — the parent is resolved before the child
-# merges; chains of length > 1 are not supported in v0.7.
+# merges; chains of length > 1 are not supported.
 # ---------------------------------------------------------------------
 
 platforms:

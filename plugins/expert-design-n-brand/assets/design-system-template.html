@@ -155,6 +155,18 @@
     .landscape-placement-brand { font-weight: 700; min-width: 8rem; }
 
     /* ─── PERSONALITY ─── (slim canonical surface; process-record CSS lives in brand-methods-template.html) */
+
+    /* Essence vs Archetype — two side-by-side cards.
+       Essence = brand's signature identity statement ("Catalyst"). Archetype = Jungian framework category ("Sage").
+       Never compound them; render as two distinct labels in adjacent cards. */
+    .personality-essence-archetype { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-top: var(--space-4); }
+    .personality-essence, .personality-archetype { padding: var(--space-5); border: 1px solid color-mix(in srgb, var(--color-fg) 12%, transparent); border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-bg) 60%, white); }
+    .personality-essence h4, .personality-archetype h4 { margin: 0 0 var(--space-2); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: color-mix(in srgb, var(--color-fg) 60%, transparent); font-weight: 700; }
+    .personality-essence .essence-name { margin: 0 0 var(--space-2); font-size: 1.4rem; font-weight: 700; color: var(--color-fg); }
+    .personality-essence .essence-blurb { margin: 0; font-size: 0.92rem; line-height: 1.5; color: color-mix(in srgb, var(--color-fg) 80%, transparent); }
+    .personality-archetype .archetype-label { margin: 0 0 var(--space-2); font-size: 1.15rem; color: var(--color-fg); }
+    .personality-archetype .archetype-register { margin: 0; font-size: 0.85rem; color: color-mix(in srgb, var(--color-fg) 65%, transparent); font-style: italic; }
+
     .personality-synthesis { font-size: 1.02rem; line-height: 1.55; color: var(--color-fg); margin-top: var(--space-4); max-width: 48rem; }
     /* Character paragraph = the human thread behind the archetype. Soft-skipped if personality.character is absent. */
     .personality-character { font-size: 0.98rem; line-height: 1.6; color: color-mix(in srgb, var(--color-fg) 85%, transparent); margin-top: var(--space-3); padding-left: var(--space-4); border-left: 2px solid color-mix(in srgb, var(--color-primary) 45%, transparent); max-width: 48rem; font-style: italic; }
@@ -192,9 +204,12 @@
     .do-dont-col--do li::before { content: "✓"; position: absolute; left: 0; color: var(--color-affirm); font-weight: 700; }
     .do-dont-col--dont li::before { content: "✗"; position: absolute; left: 0; color: var(--color-warn); font-weight: 700; }
 
-    /* Color Role Playbook — explicit role-to-token-to-usage mapping */
+    /* Color Role Playbook — explicit role-to-token-to-usage mapping. Light + Dark per parity contract. */
     .color-role-playbook { margin-top: var(--space-8); }
     .color-role-playbook > p { color: color-mix(in srgb, var(--color-fg) 70%, transparent); font-size: 0.95rem; max-width: 48rem; }
+    .color-role-playbook .parity-note { font-size: 0.88rem; padding: var(--space-3) var(--space-4); background: color-mix(in srgb, var(--color-primary) 8%, white); border-left: 3px solid var(--color-primary); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-top: var(--space-3); max-width: 56rem; }
+    .role-playbook-mode { margin-top: var(--space-6); }
+    .role-playbook-mode h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: color-mix(in srgb, var(--color-fg) 60%, transparent); margin: 0 0 var(--space-2); font-weight: 700; }
     .role-playbook-table { width: 100%; margin-top: var(--space-4); border-collapse: collapse; font-size: 0.92rem; }
     .role-playbook-table th { text-align: left; font-weight: 700; padding: var(--space-3) var(--space-4); background: color-mix(in srgb, var(--color-text-primary) 5%, white); border-bottom: 2px solid var(--color-primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: color-mix(in srgb, var(--color-fg) 70%, transparent); }
     .role-playbook-table td { padding: var(--space-3) var(--space-4); border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 10%, transparent); vertical-align: top; }
@@ -457,7 +472,7 @@
     <p class="section-summary">{{ positioning_summary }}</p>
 
     <!-- REPEAT: positioning_subblocks — one subblock per used technique in [elevator-pitch, wolff-olins-butterfly].
-         landscape-grid routes to brand-methods only per v5 governing rule (process record, not canonical positioning). -->
+         landscape-grid routes to brand-methods only (process record, not canonical positioning). -->
     <div class="positioning-subblock">
       <div class="subblock-via">via {{ technique.label }}</div>
       {{ subblock.content_html }}
@@ -527,7 +542,7 @@
   </section>
 
   <!-- ─── PERSONALITY ─── (canonical surface only — thin by design)
-       v5 governing rule: metaphor gallery, playlist, celebrity casting, tension
+       Governing rule: metaphor gallery, playlist, celebrity casting, tension
        spectra, archetype reasoning, and keyword walkthroughs are PROCESS RECORD
        and render in brand-methods.html only. design-system.html shows:
          1) a one-sentence synthesis paragraph
@@ -546,11 +561,29 @@
 
     <p class="section-definition">The brand's temperament in plain language — the synthesis sentence frames it in archetype and Aaker terms; the character paragraph (below) is the human thread. Reasoning, metaphor galleries, celebrity casting, tension spectra, and keyword walkthroughs all route to brand-methods.html as process record.</p>
 
+    <!-- Essence vs Archetype — two side-by-side cards. Essence is the brand's signature
+         identity statement (e.g. "Catalyst"); archetype is the Jungian/Mark-Pearson
+         framework category (e.g. "Sage · Caregiver"). Never compound them into a single
+         compound label like "{essence}-{archetype}" — they're distinct fields. See rendering-rules.md
+         "Personality anatomy" rule 1. -->
+    <div class="personality-essence-archetype">
+      <div class="personality-essence">
+        <h4>Essence</h4>
+        <p class="essence-name">{{ essence_name }}</p>
+        <!-- OPTIONAL:essence-blurb --><p class="essence-blurb">{{ essence_blurb }}</p>
+      </div>
+      <div class="personality-archetype">
+        <h4>Archetype</h4>
+        <p class="archetype-label"><strong>{{ archetype_primary }}</strong><!-- OPTIONAL:archetype-secondary --> · {{ archetype_secondary }}</p>
+        <!-- OPTIONAL:archetype-register --><p class="archetype-register">Register: {{ register }}</p>
+      </div>
+    </div>
+
     <!-- Synthesis paragraph — from system.personality.synthesis (authored or auto-composed by brand-build) -->
     <p class="personality-synthesis section-summary">{{ personality_synthesis }}</p>
 
     <!-- Character paragraph — 40–70 word narrative texture from system.personality.character.
-         Required-v6 per build-export-contract.md. Distinct from synthesis: synthesis is the
+         Required per build-export-contract.md. Distinct from synthesis: synthesis is the
          taxonomy summary, character is the human thread (what does this brand feel like in a
          room). Full archetype reasoning prose and evidence lineage still route to
          brand-methods.html as process record. -->
@@ -581,7 +614,7 @@
     </div>
 
     <!-- Archetype in action — ≥3 worked examples from system.personality.archetype_in_action[].
-         Required-v6 per build-export-contract.md. Shows how the archetype sounds in actual
+         Required per build-export-contract.md. Shows how the archetype sounds in actual
          copy (landing line, onboarding, celebration, apology, etc.). -->
     <section class="personality-archetype-in-action">
       <h3>Archetype in action</h3>
@@ -597,7 +630,7 @@
     </section>
 
     <!-- Do / Don't voice exemplars — from system.personality.do_dont.
-         Required-v6 per build-export-contract.md. Each column ≥3 items, semantic coloring. -->
+         Required per build-export-contract.md. Each column ≥3 items, semantic coloring. -->
     <section class="personality-do-dont">
       <h3>Voice: Do / Don't</h3>
       <div class="do-dont-grid">
@@ -651,35 +684,72 @@
       </div>
     </div>
 
-    <!-- Color Role Playbook — Required-v6. Each entry maps a specific role
+    <!-- Color Role Playbook — Required. Each entry maps a specific role
          (primary-body-text, tertiary-meta-text, link, etc.) to a token, hex,
          when-to-use, and don't-use-for. Drives the canonical "which color
          plays which role" mapping that all theme-builder companion files reference. -->
     <div class="subsection color-role-playbook" id="color-role-playbook">
       <h3>Role Playbook</h3>
       <p>Which color plays which role in text, UI, and composition — the source of truth for designers, developers, and theme-builder files. Every brand-guidelines section references this table; every theme companion (Slides, Figma, Pitch, Keynote, Canva, email) is derived from it.</p>
-      <table class="role-playbook-table">
-        <thead>
-          <tr>
-            <th>Role</th>
-            <th>Token</th>
-            <th>Hex</th>
-            <th>When to use</th>
-            <th>Don't use for</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- REPEAT: color_roles -->
-          <tr>
-            <td><strong>{{ role.role }}</strong></td>
-            <td><code>{{ role.token }}</code></td>
-            <td><span class="role-swatch" style="background: {{ role.hex }}"></span><code>{{ role.hex }}</code></td>
-            <td>{{ role.when_to_use }}</td>
-            <td>{{ role.dont_use_for }}</td>
-          </tr>
-          <!-- END -->
-        </tbody>
-      </table>
+      <p class="parity-note"><strong>Parity contract:</strong> every role appears in both light and dark mode with the same token name. Hex values change per mode to maintain contrast against the page background. The 14 canonical slots (<code>bg</code>, <code>surface</code>, <code>surface-elevated</code>, <code>inverse</code>, four text levels, three border levels, two link states) are non-negotiable; status tokens (<code>success</code>, <code>warning</code>, <code>error</code>, <code>info</code>) are mode-invariant and live below in the Status Palette.</p>
+
+      <!-- Colors per role — Light mode -->
+      <div class="role-playbook-mode" id="color-role-playbook-light">
+        <h4>Colors per role — Light mode</h4>
+        <table class="role-playbook-table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Token</th>
+              <th>Hex</th>
+              <th>Anchor name</th>
+              <th>When to use</th>
+              <th>Don't use for</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- REPEAT: color_roles -->
+            <tr>
+              <td><strong>{{ role.role }}</strong></td>
+              <td><code>{{ role.token }}</code></td>
+              <td><span class="role-swatch" style="background: {{ role.hex_light }}"></span><code>{{ role.hex_light }}</code></td>
+              <td>{{ role.anchor_name_light }}</td>
+              <td>{{ role.when_to_use }}</td>
+              <td>{{ role.dont_use_for }}</td>
+            </tr>
+            <!-- END -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Colors per role — Dark mode (identical role set; mode-specific hex values) -->
+      <div class="role-playbook-mode" id="color-role-playbook-dark">
+        <h4>Colors per role — Dark mode</h4>
+        <table class="role-playbook-table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Token</th>
+              <th>Hex</th>
+              <th>Anchor name</th>
+              <th>When to use</th>
+              <th>Don't use for</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- REPEAT: color_roles -->
+            <tr>
+              <td><strong>{{ role.role }}</strong></td>
+              <td><code>{{ role.token }}</code></td>
+              <td><span class="role-swatch" style="background: {{ role.hex_dark }}"></span><code>{{ role.hex_dark }}</code></td>
+              <td>{{ role.anchor_name_dark }}</td>
+              <td>{{ role.when_to_use }}</td>
+              <td>{{ role.dont_use_for }}</td>
+            </tr>
+            <!-- END -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- OPTIONAL:color-anchors — render only if system.color.anchors[] is non-empty (9-anchor brands etc.) -->

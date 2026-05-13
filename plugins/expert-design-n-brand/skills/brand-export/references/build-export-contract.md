@@ -2,10 +2,8 @@
 
 Canonical schema for the `brand-identity.yaml` `system.*` tree that flows from `brand-build` to `brand-export`. Both skills reference this file. Fields are classified by enforcement:
 
-- **Required-atomic**: must be present with valid content. `brand-build` hard-fails on Phase 8 self-verify if missing. `brand-export` hard-fails at startup if missing.
-- **Required-v6**: must be present for Tier 1 artifacts to be production-grade. Same hard-fail semantics as required-atomic; new as of plugin v0.7.
+- **Required**: must be present with valid content. `brand-build` hard-fails on Phase 8 self-verify if missing. `brand-export` hard-fails at startup if missing.
 - **Optional**: export soft-skips the rendered section if missing; no build hard-fail.
-- **Legacy-compat**: older shapes still accepted; build normalizes to canonical on write.
 
 ---
 
@@ -13,50 +11,50 @@ Canonical schema for the `brand-identity.yaml` `system.*` tree that flows from `
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `meta.brand_name` | string (≥1 char) | Required-atomic | Drives cover, ledger, section summaries |
-| `meta.tagline` | string | Required-v6 | Renders under H1 in `brand.md`; one-liner |
-| `meta.version` | integer | Required-v6 | Starts at 1; increments per published revision |
-| `meta.generated` | ISO date | Required-v6 | Written at `system.last_built` time |
+| `meta.brand_name` | string (≥1 char) | Required | Drives cover, ledger, section summaries |
+| `meta.tagline` | string | Required | Renders under H1 in `brand.md`; one-liner |
+| `meta.version` | integer | Required | Starts at 1; increments per published revision |
+| `meta.generated` | ISO date | Required | Written at `system.last_built` time |
 | `meta.architecture` | enum | Optional | `branded-house` (default) / `endorsed` / `sub-brand` / `independent` |
 
 ## System status
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.status` | enum (`draft` / `review` / `complete`) | Required-atomic | Set by brand-build Phase 9 |
-| `system.last_built` | ISO timestamp | Required-atomic | UTC |
+| `system.status` | enum (`draft` / `review` / `complete`) | Required | Set by brand-build Phase 9 |
+| `system.last_built` | ISO timestamp | Required | UTC |
 
 ## Personality
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.personality.synthesis` | string (5–25 words) | Required-atomic | One-sentence summary |
-| `system.personality.character` | string (40–70 words) | **Required-v6** | Narrative texture — "what does this brand feel like in a room?" |
-| `system.personality.archetype_primary` | string | Required-atomic | Archetype label |
+| `system.personality.synthesis` | string (5–25 words) | Required | One-sentence summary |
+| `system.personality.character` | string (40–70 words) | **Required** | Narrative texture — "what does this brand feel like in a room?" |
+| `system.personality.archetype_primary` | string | Required | Archetype label |
 | `system.personality.archetype_blend` | string | Optional | Secondary archetype |
 | `system.personality.triad.{product, brand, client}` | object | Optional | Three archetypes for product/brand/client |
-| `system.personality.keywords[]` | string[] (3–5) | Optional | Discovery-era field; kept for legacy compatibility only. If populated, export does not render as a standalone row — consumers should derive texture from `character` + `archetype_in_action[]`. Dead-field candidate (see Dead fields section below). |
+| `system.personality.keywords[]` | string[] (3–5) | Optional | Earlier discovery field. If populated, export does not render as a standalone row — consumers should derive texture from `character` + `archetype_in_action[]`. Dead-field candidate (see Dead fields section below). |
 | `system.personality.aaker_scores` | object (5 floats 0–10) | Optional | Omit entirely if not run — NEVER zero-fill |
-| `system.personality.archetype_in_action[]` | object[] (≥3) | **Required-v6** | Each: `{context, text}` — worked examples of archetype in copy |
-| `system.personality.do_dont` | object | **Required-v6** | `{do: string[]≥3, dont: string[]≥3}` — voice exemplars |
+| `system.personality.archetype_in_action[]` | object[] (≥3) | **Required** | Each: `{context, text}` — worked examples of archetype in copy |
+| `system.personality.do_dont` | object | **Required** | `{do: string[]≥3, dont: string[]≥3}` — voice exemplars |
 
 ## Principles
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.principles[]` | array (3–7 items) | Required-atomic | Each: `{name, rationale_short≤30w, rationale, sources[]}` |
+| `system.principles[]` | array (3–7 items) | Required | Each: `{name, rationale_short≤30w, rationale, sources[]}` |
 
 ## Color
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.color.palette.core[]` | array (3–12) | Required-atomic | Each: `{role, name, hex, usage, percent?}` |
+| `system.color.palette.core[]` | array (3–12) | Required | Each: `{role, name, hex, usage, percent?}` |
 | `system.color.palette.anchors[]` | array | Optional | Named hexes distinct from roles |
-| `system.color.palette.scales[]` | array (≥1) | Required-atomic | Each: `{name, family, hex_steps[10]}` |
+| `system.color.palette.scales[]` | array (≥1) | Required | Each: `{name, family, hex_steps[10]}` |
 | `system.color.palette.expressions[]` | array | Optional | Each: `{name, anchors[], spectral_range?, when_to_use}` |
 | `system.color.palette.gradients[]` | array | Optional | Each: `{name, slug, direction, stops[], description?}` |
-| `system.color.contrast_pairs[]` | array (≥1) | Required-atomic | Each: `{fg, bg, ratio, rating: AAA/AA/FAIL}` |
-| `system.color.roles[]` | array (≥8) | **Required-v6** | Each: `{role, token, hex, when_to_use, dont_use_for}` — drives Color Role Playbook section |
+| `system.color.contrast_pairs[]` | array (≥1) | Required | Each: `{fg, bg, ratio, rating: AAA/AA/FAIL}` |
+| `system.color.roles[]` | array (≥8) | **Required** | Each: `{role, token, hex, when_to_use, dont_use_for}` — drives Color Role Playbook section |
 | `system.semantic.affirm_color` | hex | Optional | Fallback chain: YAML explicit → expression intent → hue-match 150–200° → `#16A34A` |
 | `system.semantic.warn_color` | hex | Optional | Fallback chain: YAML explicit → expression intent → hue-match 0–30° → `#DC2626` |
 
@@ -64,18 +62,18 @@ Canonical schema for the `brand-identity.yaml` `system.*` tree that flows from `
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.typography.heading.primary` | object | Required-atomic | `{family, weight_preference, source: {type, url, license}}` |
-| `system.typography.heading.character` | string (taxonomy slug) | **Required-v6** | From `skills/design-system/references/typography-taxonomy.md` |
-| `system.typography.heading.alternatives[]` | string[] | **Required-v6** | Ordered fallback chain, platform-agnostic |
-| `system.typography.body.primary` | object | Required-atomic | Same shape as heading |
-| `system.typography.body.character` | string | **Required-v6** | Taxonomy slug |
-| `system.typography.body.alternatives[]` | string[] | **Required-v6** | Ordered fallback chain |
+| `system.typography.heading.primary` | object | Required | `{family, weight_preference, source: {type, url, license}}` |
+| `system.typography.heading.character` | string (taxonomy slug) | **Required** | From `skills/design-system/references/typography-taxonomy.md` |
+| `system.typography.heading.alternatives[]` | string[] | **Required** | Ordered fallback chain, platform-agnostic |
+| `system.typography.body.primary` | object | Required | Same shape as heading |
+| `system.typography.body.character` | string | **Required** | Taxonomy slug |
+| `system.typography.body.alternatives[]` | string[] | **Required** | Ordered fallback chain |
 | `system.typography.display` | object | Optional | For extreme headlines |
 | `system.typography.mono` | object | Optional | Monospace slot |
-| `system.typography.scale.ratio` | float (1.0–2.0) | Required-atomic | Modular scale ratio |
-| `system.typography.scale.sizes[11]` | number[] | Required-atomic | Concrete sizes |
-| `system.typography.sample_text` | object | Required-atomic | `{display, h1, h2, h3, body, small}` — each ≥10 chars (body ≥20) |
-| `system.typography.per_platform.{slug}` | object | **Required-v6** | Per platform: `{heading_chain[], body_chain[], heading_weight_used, body_weight_used, rationale}` — populated by brand-build from `platform-fonts.yaml` via substitution rules (see below) |
+| `system.typography.scale.ratio` | float (1.0–2.0) | Required | Modular scale ratio |
+| `system.typography.scale.sizes[11]` | number[] | Required | Concrete sizes |
+| `system.typography.sample_text` | object | Required | `{display, h1, h2, h3, body, small}` — each ≥10 chars (body ≥20) |
+| `system.typography.per_platform.{slug}` | object | **Required** | Per platform: `{heading_chain[], body_chain[], heading_weight_used, body_weight_used, rationale}` — populated by brand-build from `platform-fonts.yaml` via substitution rules (see below) |
 
 ### Typography substitution rules (enforced by brand-build)
 
@@ -90,10 +88,10 @@ Canonical schema for the `brand-identity.yaml` `system.*` tree that flows from `
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.form.radius_interactive` | px or rem | Required-atomic | Buttons, inputs |
-| `system.form.radius_card` | px or rem | Required-atomic | Larger containers |
-| `system.form.shadow` | CSS shadow string | Required-atomic | Default elevation |
-| `system.form.character` | string (2–10 words) | Required-atomic | Evocative phrase |
+| `system.form.radius_interactive` | px or rem | Required | Buttons, inputs |
+| `system.form.radius_card` | px or rem | Required | Larger containers |
+| `system.form.shadow` | CSS shadow string | Required | Default elevation |
+| `system.form.character` | string (2–10 words) | Required | Evocative phrase |
 | `system.form.motifs[]` | array | Optional | Each: `{name, description, svg_hint?, asset_path?}` |
 | `system.motif` | object | Optional | Hero motif used in `#in-practice` |
 
@@ -101,23 +99,23 @@ Canonical schema for the `brand-identity.yaml` `system.*` tree that flows from `
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.voice.formality.home` | number | Required-atomic | On the scale the brand chose |
-| `system.voice.formality.scale_max` | number | Required-atomic | Preserve source scale (do NOT rescale to /10) |
-| `system.voice.formality.range` | number[2] | Required-atomic | `[min, max]` — acceptable variance |
-| `system.voice.vocabulary.never_say[]` | array | Optional | Each: `{word, reason}` (legacy shape) |
+| `system.voice.formality.home` | number | Required | On the scale the brand chose |
+| `system.voice.formality.scale_max` | number | Required | Preserve source scale (do NOT rescale to /10) |
+| `system.voice.formality.range` | number[2] | Required | `[min, max]` — acceptable variance |
+| `system.voice.vocabulary.never_say[]` | array | Optional | Each: `{word, reason}` |
 | `system.voice.vocabulary.specificity_test` | object | Optional | `{rule, pass_examples[], fail_examples[]}` |
 | `system.voice.vocabulary.card_sort` | object | Optional | `{sounds_like_us[], doesnt_sound_like_us[]}` |
-| `system.voice.banned[]` | array (≥5) | Optional | v6 shape: `{word, replacement, reason}` |
-| `system.voice.card_sort[]` | array (≥4) | Optional | v6 shape: `{scenario, on_brand, off_brand, why}` |
+| `system.voice.banned[]` | array (≥5) | Optional | Each: `{word, replacement, reason}` |
+| `system.voice.card_sort[]` | array (≥4) | Optional | Each: `{scenario, on_brand, off_brand, why}` |
 | `system.voice.tone_matrix[]` | array | Optional | Each: `{state, register, posture, example}` |
 
 ## Section summaries
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.section_summaries.{slug}` | string (15–50 words) | **Required-v6** | Keys: `foundation, identity, color, typography, visual_language, spacing, components, voice, platforms, governance, llm_manual, quickref`. Each is the brand-specific answer for one section. Universal definition copy lives in the template, not here. |
+| `system.section_summaries.{slug}` | string (15–50 words) | **Required** | Keys: `foundation, identity, color, typography, visual_language, spacing, components, voice, platforms, governance, llm_manual, quickref`. Each is the brand-specific answer for one section. Universal definition copy lives in the template, not here. |
 
-## Visual language (v6 additions)
+## Visual language
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
@@ -140,13 +138,13 @@ Canonical schema for the `brand-identity.yaml` `system.*` tree that flows from `
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.platforms[]` | array (≥1) | **Required-v6** | Each: `{slug, name?, font_chain_heading[], font_chain_body[], color_slots?, template_url?, export_profile, probe_notes[], caveats[]}`. Default target set: `[web_app, google_slides, figma, pitch, keynote, canva_free, email_html]`. Derived from `typography.per_platform.*` + `platform-fonts.yaml` slots. |
+| `system.platforms[]` | array (≥1) | **Required** | Each: `{slug, name?, font_chain_heading[], font_chain_body[], color_slots?, template_url?, export_profile, probe_notes[], caveats[]}`. Default target set: `[web_app, google_slides, figma, pitch, keynote, canva_free, email_html]`. Derived from `typography.per_platform.*` + `platform-fonts.yaml` slots. |
 
-## Governance (v6)
+## Governance
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
-| `system.governance.owner.name` | string | **Required-v6** | Full name or preferred attribution string — NOT email-inferred |
+| `system.governance.owner.name` | string | **Required** | Full name or preferred attribution string — NOT email-inferred |
 | `system.governance.owner.email` | string | Optional | Separate from name |
 | `system.governance.version` | semver string | Optional | e.g. `"1.0.0"` |
 | `system.governance.semver_triggers` | object | Optional | Major/minor/patch rules |
@@ -155,13 +153,13 @@ Canonical schema for the `brand-identity.yaml` `system.*` tree that flows from `
 | `system.governance.adrs[]` | array (≥3 if present) | Optional | Each: `{id, title, status, decision, consequences}` |
 | `system.governance.contribution_flow` | string | Optional | Plain prose |
 
-## Cultural anchors (v6)
+## Cultural anchors
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
 | `system.cultural_anchors[]` | array | Optional | Each: `{anchor, anchors_property}` — **`anchors_property` is required on every entry if the array is present** (no vapor anchors). Hard-fail if present-but-empty. |
 
-## Quotes (v6 — round-trip wiring)
+## Quotes (round-trip wiring)
 
 | Field | Type | Enforcement | Notes |
 |---|---|---|---|
@@ -174,11 +172,11 @@ Canonical schema for the `brand-identity.yaml` `system.*` tree that flows from `
 | `system.quality.coherence_score` | integer (6–30) | Optional | Omit if not scored |
 | `system.quality.coherence_notes` | string | Optional | Interpretation |
 | `system.quality.rand_seven` | object | Optional | 7 dimensions 0–10, total 0–70 |
-| `system.quality.build_verification` | object | Required-atomic | `{timestamp, summary, acceptance, auto_fix_passes}` |
+| `system.quality.build_verification` | object | Required | `{timestamp, summary, acceptance, auto_fix_passes}` |
 | `system.quality.export_verification` | object | Optional | Populated after `brand-export` verification (Step D). `{timestamp, summary, acceptance, auto_fix_passes, normalizations_applied}` |
-| `system.quality.export_log[]` | array | **Required-v7** | Per-artifact render + structural-validation log. Populated by `brand-export` after each render (and initialized to `[]` by `brand-build` Phase 9 if absent). See schema below. |
+| `system.quality.export_log[]` | array | **Required** | Per-artifact render + structural-validation log. Populated by `brand-export` after each render (and initialized to `[]` by `brand-build` Phase 9 if absent). See schema below. |
 
-### `system.quality.export_log[]` schema (v7)
+### `system.quality.export_log[]` schema
 
 Per-artifact append-only log. The **last entry** per `artifact` slug is the authoritative state — the skill reads this at startup to build the resume table and decide what needs re-rendering.
 
@@ -210,11 +208,11 @@ system:
 
 ---
 
-## Dead fields to prune (plugin v0.7)
+## Dead fields to prune
 
 These fields persist in brand-identity.yaml but export never reads. Build should stop writing them (or demote to `_meta.*`):
 
-- `system.personality.keywords[]` — legacy discovery field. Build no longer writes it as a required output; if present in an incoming YAML, normalize in-memory (do not strip source). Replaced in Tier 1 renders by `personality.character` + `archetype_in_action[]`.
+- `system.personality.keywords[]` — earlier discovery field. Build no longer writes it as a required output; if present in an incoming YAML, normalize in-memory (do not strip source). Replaced in Tier 1 renders by `personality.character` + `archetype_in_action[]`.
 - `meta.phase` — not consumed by export
 - `synthesis.*` — persists in full; compress or move to sibling `synthesis.yaml` after build completes
 - `discovery.{name}.techniques_used[]` — not consumed downstream
@@ -226,7 +224,7 @@ These fields persist in brand-identity.yaml but export never reads. Build should
 ### brand-build (Phase 8 self-verify)
 
 1. Load this contract.
-2. For every Required-atomic + Required-v6 field, confirm presence and type/shape.
+2. For every Required field, confirm presence and type/shape.
 3. Apply auto-fix playbook (see `build-phases.md`) for any FAIL; one pass only.
 4. Report `{PASS, WARN, FAIL}` counts; block finalization if any FAIL remains.
 5. Run the typography-substitution algorithm (R1–R6) over `system.platforms[]` × `platform-fonts.yaml` to populate `typography.per_platform.*`.
@@ -234,16 +232,16 @@ These fields persist in brand-identity.yaml but export never reads. Build should
 ### brand-export (startup)
 
 1. Load this contract.
-2. Walk every Required-atomic + Required-v6 path; hard-fail at startup if any missing. Fail message cites the specific field + contract section + "run brand-build to populate."
-3. Apply normalization for Legacy-compat paths (e.g., `palette` dict → `palette.core[]`).
-4. Render. Soft-skip every Optional section whose data is empty. Never auto-compose a Required-v6 field at export time — that's brand-build's job. Review each Tier 1 draft against the external-facing principle in `rendering-rules.md` before writing.
-5. Run updated `export-verification-checklist.md`; hard-fail on any red gate.
+2. Walk every Required path; hard-fail at startup if any missing. Fail message cites the specific field + contract section + "run brand-build to populate."
+3. Apply input-path normalization (e.g., `palette` dict → `palette.core[]`).
+4. Render. Soft-skip every Optional section whose data is empty. Never auto-compose a Required field at export time — that's brand-build's job. Review each Tier 1 draft against the external-facing principle in `rendering-rules.md` before writing.
+5. Run `export-verification-checklist.md`; hard-fail on any red gate.
 
 ---
 
 ## Notes
 
-- **No auto-compose for Required-v6 fields at export time.** If the build didn't produce `personality.character`, `archetype_in_action[]`, `color.roles[]`, `section_summaries.*`, `typography.*.character`, `typography.*.alternatives[]`, `typography.per_platform.*`, `governance.owner.name`, or `platforms[]`, export HARD-FAILS. Don't paper over. The fix is to re-run brand-build.
+- **No auto-compose at export time.** If the build didn't produce `personality.character`, `archetype_in_action[]`, `color.roles[]`, `section_summaries.*`, `typography.*.character`, `typography.*.alternatives[]`, `typography.per_platform.*`, `governance.owner.name`, or `platforms[]`, export HARD-FAILS. Don't paper over. The fix is to re-run brand-build.
 - **Aaker zero-fill prevention**: if the Aaker technique wasn't run, omit `personality.aaker_scores` entirely — do not write zeros.
 - **Voice constraint shape preservation**: keep `never_say[]`, `specificity_test{}`, `card_sort{}` in their source shape. Do not coerce into a single "prefer / avoid" list.
 - **Cultural anchor vapor check**: if `cultural_anchors[]` exists, every entry's `anchors_property` must be non-empty. Hard-fail otherwise. Applies at both build and export.

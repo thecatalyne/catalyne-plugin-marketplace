@@ -3,7 +3,7 @@
 Loaded by `brand-export/SKILL.md` at two points: (1) at startup, to load the data contract; (2) after all artifacts are written, to run the verification checklist. Producing artifacts is only half the job — every export ends with the render → verify flow below.
 
 References (load before starting):
-- `${CLAUDE_PLUGIN_ROOT}/skills/brand-export/references/build-export-contract.md` — canonical data contract (Required-atomic + Required-v6 fields, optional fields, enforcement rules)
+- `${CLAUDE_PLUGIN_ROOT}/skills/brand-export/references/build-export-contract.md` — canonical data contract (Required fields, optional fields, enforcement rules)
 - `${CLAUDE_PLUGIN_ROOT}/skills/brand-export/references/rendering-rules.md` — cross-artifact render rules, including Rule 0 (template-first rendering) and the Tier 1 external-facing principle
 - `${CLAUDE_PLUGIN_ROOT}/skills/brand-export/references/artifacts.md` — tier-classified catalog
 - `${CLAUDE_PLUGIN_ROOT}/skills/brand-export/references/artifact-schemas.yaml` — structural oracle consumed by the validator in Step S
@@ -37,12 +37,11 @@ Startup → Contract-validate input (Step 0)
 Before rendering any artifact, walk the contract:
 
 1. Load `build-export-contract.md`.
-2. For every Required-atomic path, confirm presence and valid type/shape in `brand-identity.yaml`.
-3. For every Required-v6 path, same.
-4. For Legacy-compat shapes, normalize in-memory. Log each normalization as INFO.
-5. If any Required-atomic or Required-v6 field is missing or invalid: HARD-FAIL at startup with a diagnostic citing the specific field, the contract section, and "run brand-build to populate before re-trying /brand-export."
+2. For every Required path, confirm presence and valid type/shape in `brand-identity.yaml`.
+3. For variant input shapes, normalize in-memory. Log each normalization as INFO.
+4. If any Required field is missing or invalid: HARD-FAIL at startup with a diagnostic citing the specific field, the contract section, and "run brand-build to populate before re-trying /brand-export."
 
-Do NOT auto-compose Required-v6 fields at export time. That's brand-build's responsibility. Export is a rendering step, not a data-generation step.
+Do NOT auto-compose Required fields at export time. That's brand-build's responsibility. Export is a rendering step, not a data-generation step.
 
 ## Step S — Structural validation (per artifact, during rendering)
 
@@ -197,10 +196,10 @@ Tier 3 artifacts (LLM-optimized sibling):
     - brand.md                     ({size})        ← brand.md v0.2.0 spec
     - brand.extensions.yaml        ({size})
 
-Contract validation: {N} Required-atomic paths OK · {N} Required-v6 paths OK · {N} legacy shapes normalized
+Contract validation: {N} Required paths OK · {N} input shapes normalized
 Verification: PASS {N} · FAIL {N}   (auto-fix passes: 0 or 1)
 Acceptance: {ready | blocked-on-N-fails}
 {If blocked: list each FAIL with the recommended fix.}
 ```
 
-The user-facing output folder contains only Tier 1 + Tier 2 + Tier 3. Internal artifacts (`_build/export-verification.md`, any failed-render artifacts, old-format legacy files during migration) stay in `_build/` and are not part of the shipping set.
+The user-facing output folder contains only Tier 1 + Tier 2 + Tier 3. Internal artifacts (`_build/export-verification.md`, any failed-render artifacts) stay in `_build/` and are not part of the shipping set.

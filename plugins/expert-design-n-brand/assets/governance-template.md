@@ -4,6 +4,8 @@
 
 > Who owns it, how it evolves, when it breaks.
 
+> **Canonical vocabulary source.** Token names, role labels, surface slot names, and CSS/Tailwind/Figma keys used in this document are defined in `assets/platform-matrix-template.md`. If a name here appears to disagree with the Platform Matrix, the Platform Matrix wins.
+
 **Version**: {{version}} · **Status**: {{status}} · **Generated**: {{generated_date}}
 
 ---
@@ -88,7 +90,7 @@ Review criteria — rejected:
 
 ## Decision log (ADRs)
 
-<!-- ≥ 3 ADRs required for v6 acceptance. Format per entry: -->
+<!-- ≥ 3 ADRs required. Format per entry: -->
 
 ### ADR-001 — {{adr_1_date}} · {{adr_1_title}}
 

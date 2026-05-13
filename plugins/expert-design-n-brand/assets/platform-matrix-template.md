@@ -1,5 +1,28 @@
 <!-- TIER 1 AUTHOR NOTE — external reference. Renders to `platform-matrix.md`. The single consolidated reference for applying the brand across web, design tools, and presentation surfaces. Master tables show one row per token/component, one column per surface — designers and developers read across the row to find the right slot/value/key for the surface they're using. Per-platform details below cover fallback chains, probe notes, setup steps, and platform-specific caveats. Keep reader-visible content in end-user language; no plugin-internal file names, build phases, slash commands, or status vocabulary in the rendered output. -->
 
+<!-- PLUGIN AUTHOR NOTE — canonical vocabulary source of truth.
+This template is the canonical source of the plugin's token/role/surface vocabulary.
+- §1 row labels + CSS variable column define the canonical color-role names.
+- §2 row labels + CSS variable column define the canonical typography-token names.
+- §3 row labels + CSS variable column define the canonical form/spacing-token names.
+- The per-surface columns (Tailwind, Figma TS, Google Slides, PowerPoint, Keynote, Canva) define the canonical translation vocabulary for each surface.
+
+Every other plugin file that references a token name, role label, surface name, or schema slot MUST reference this template rather than redefine the vocabulary. If the vocabulary needs to change, the change happens here first, then propagates outward to:
+- skills/design-system/references/token-architecture.md
+- skills/brand-export/references/rendering-rules.md
+- skills/brand-export/references/artifacts.md
+- skills/brand-build/SKILL.md and skills/brand-build/references/build-phases.md
+- assets/artifact-schemas.yaml
+- assets/governance-template.md
+- assets/export-verification-checklist.md
+- assets/tokens-template.json
+- assets/surface-translations.yaml
+
+Drift between this template and any of those files is a bug.
+
+Custom user additions go in the `extensions.*` namespace (see "Core vs. Extensions" at the end of this document). Core slots are non-negotiable.
+-->
+
 # {{ brand_name }} — Platform matrix
 
 The single reference for applying {{ brand_name }} on every supported surface. Read across each row in the master tables to find the right slot for your tool, then jump to the per-platform section below for fallback chains, setup steps, and caveats.
@@ -264,3 +287,76 @@ This document is generated from the brand's canonical token set:
 - `surface-translations.yaml` — declares which token path fills which surface slot
 
 If a row above is empty for a given surface, that surface doesn't expose a slot for that role — apply the value manually where it appears in your work.
+
+---
+
+## 6. Core vs. Extensions
+
+The matrix above defines the **core** vocabulary every brand must satisfy. Any role row in §1, §2, or §3 with a slot filled (i.e. not `(n/a)`) is a core slot — every produced `tokens.json` must include it.
+
+### Core slots are non-negotiable
+
+Every export MUST include, at minimum:
+
+- **Color (light + dark, identical 14-slot set):** `bg`, `surface`, `surface-elevated`, `inverse`, `text-primary`, `text-secondary`, `text-tertiary`, `text-disabled`, `text-inverse`, `border`, `border-strong`, `border-focus`, `link`, `link-hover`.
+- **Primitive color scales:** `neutral` (full 10-step), `primary` (full 10-step).
+- **Status (mode-invariant):** `success`, `warning`, `error`, `info`.
+- **Typography:** `family.heading`, `family.body`, all six size steps (`display`, `h1`–`h3`, `body`, `caption`), and the five weight names (`light`, `regular`, `medium`, `semibold`, `bold`).
+- **Form & spacing:** the radius scale (`sm`/`md`/`lg`/`pill`), the shadow scale (`sm`/`md`/`lg`), and the spacing scale anchor (`space.4` minimum).
+
+A build that produces fewer than the core slots in any of these groups is rejected at export time with a user-visible warning naming the missing slot(s).
+
+### Custom additions live in `extensions.*`
+
+Brands frequently need expressive tokens that aren't part of the core: signature gradients, brand-specific motifs, poetic motion names, hero illustrations, named flourish moments. These belong in the `extensions` namespace at the root of `tokens.json`.
+
+**Naming pattern:** `extensions.{domain}.{name}` where `domain ∈ {color, motion, form, motif, gradient, illustration, elevation, typography, ...}`.
+
+Worked examples (paste-ready in `tokens.json`):
+
+```json
+{
+  "extensions": {
+    "color": {
+      "expressions": [
+        { "name": "amber-glow", "intent": "flourish-moment", "hex": "#FFCB47" }
+      ],
+      "gradients": {
+        "amber-glow": {
+          "$type": "gradient",
+          "$value": [
+            { "color": "{primitive.color.scales.primary.400}", "position": 0 },
+            { "color": "{primitive.color.scales.primary.600}", "position": 1 }
+          ]
+        }
+      }
+    },
+    "motion": {
+      "easing": {
+        "flourish": {
+          "$type": "cubicBezier",
+          "$value": [0.34, 1.56, 0.64, 1],
+          "$description": "Brand-specific easing for celebratory moments. Functionally a spring; this name is the brand's poetic alias."
+        }
+      }
+    },
+    "motif": {
+      "constellation": {
+        "$type": "string",
+        "$value": "Five-point star scatter, primary scale 300/500/700 weights.",
+        "$description": "Hero motif used in §in_practice."
+      }
+    }
+  }
+}
+```
+
+### Tool-compatibility guarantee
+
+A consumer that doesn't know about `extensions` safely ignores the namespace; core slots always work. This is what makes the schema portable across teams and downstream tooling.
+
+### What is NOT an extension
+
+Renaming a core role (calling `text-primary` "headline-color", or `bg` "background", or `link` "url-color") is **drift**, not extension. The whole point of the core schema is that any team can read any team's `tokens.json` and find the same slot names in the same places. Custom names that *replace* core names defeat that goal.
+
+If a brand wants brand-poetic naming for a core role, the right pattern is: keep the canonical `link` slot, AND add `extensions.color.expressions[{ name: "hyperlink-azure", intent: "link" }]` as a brand alias that points to the same value. The core slot stays addressable; the brand alias is decorative.

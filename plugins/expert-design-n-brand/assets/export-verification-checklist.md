@@ -1,5 +1,7 @@
 # Self-Verification Checklist
 
+> **Canonical vocabulary source.** Token names, role labels, surface slot names, and CSS/Tailwind/Figma keys used in this document are defined in `assets/platform-matrix-template.md`. If a name here appears to disagree with the Platform Matrix, the Platform Matrix wins.
+
 Loaded by `brand-export/SKILL.md` (and by `brand-build/SKILL.md` at Phase 8 for the contract-side subset). Every gate is **PASS or FAIL** — there is no WARN. The protocol blocks acceptance on any FAIL that remains after one bounded auto-fix pass.
 
 References:
@@ -31,8 +33,8 @@ Gates are grep-able or visually verifiable. Visual items (font fidelity in PDF, 
 
 | # | Gate | Check | On FAIL |
 |---|------|-------|---------|
-| CT.1 | Every Required-atomic path in contract is present with valid content. | Walk `build-export-contract.md` Required-atomic table. For each row, confirm field exists in `brand-identity.yaml` with matching type/shape. | run brand-build to populate (fails before export starts) |
-| CT.2 | Every Required-v6 path is present with valid content. | Walk contract Required-v6 table. For each: `personality.character` 40–70 words; `personality.archetype_in_action[]` ≥3 items each `{context, text}`; `personality.do_dont.do[]` ≥3 and `dont[]` ≥3; `color.roles[]` ≥8 items each `{role, token, hex, when_to_use, dont_use_for}`; `section_summaries.*` has all 12 slugs each 15–50 words; `typography.heading.character` + `body.character` are valid taxonomy slugs; `typography.heading.alternatives[]` + `body.alternatives[]` non-empty; `typography.per_platform.{slug}` has `heading_chain[]` + `body_chain[]` for every platform in `system.platforms[]`; `governance.owner.name` non-empty string; `system.platforms[]` ≥1 entry. | run brand-build to populate |
+| CT.1 | Every Required path in contract is present with valid content. | Walk `build-export-contract.md` Required table. For each row, confirm field exists in `brand-identity.yaml` with matching type/shape. | run brand-build to populate (fails before export starts) |
+| CT.2 | Every Required path is present with valid content. | Walk contract Required table. For each: `personality.character` 40–70 words; `personality.archetype_in_action[]` ≥3 items each `{context, text}`; `personality.do_dont.do[]` ≥3 and `dont[]` ≥3; `color.roles[]` ≥8 items each `{role, token, hex, when_to_use, dont_use_for}`; `section_summaries.*` has all 12 slugs each 15–50 words; `typography.heading.character` + `body.character` are valid taxonomy slugs; `typography.heading.alternatives[]` + `body.alternatives[]` non-empty; `typography.per_platform.{slug}` has `heading_chain[]` + `body_chain[]` for every platform in `system.platforms[]`; `governance.owner.name` non-empty string; `system.platforms[]` ≥1 entry. | run brand-build to populate |
 | CT.3 | No Aaker zero-fill. | If `personality.aaker_scores` is present, all 5 dimensions have scores > 0 OR the field is entirely absent (no partial zero-fills). | brand-build must omit field entirely when technique not run |
 | CT.4 | Cultural-anchor vapor check. | If `cultural_anchors[]` is present, every entry has non-empty `anchors_property`. | populate `anchors_property` or remove entry |
 | CT.5 | Voice-constraint shape preservation. | `voice.vocabulary.never_say[]`, `.specificity_test{}`, `.card_sort{}` are in their source-technique shape. NOT collapsed into a single prefer/avoid list. | re-run brand-build Phase 6 |
@@ -78,7 +80,7 @@ Validator: `${CLAUDE_PLUGIN_ROOT}/scripts/validate-structure.py`.
 | # | Gate | Check | On FAIL |
 |---|------|-------|---------|
 | T1S.1 | All T1 artifacts present in output folder. | 13 expected files: brand-guidelines.html, brand-guidelines.pdf, brand-quickref.md, tokens.css, tokens.json, tailwind.config.js, theme-figma.json, platform-matrix.md, logo-construction.svg, illustration-system.html, photography-reference-grid.html, governance.md, email-template.html. | emit missing file(s) |
-| T1S.2 | No retired artifacts emitted. | Output folder has NO `design-system.html`, `design-system-extensions.html`, `brand-llm-manual.yaml`, `tokens.legacy.json`, `TEST_PROTOCOL.md`, `export-verification.md`. | delete from folder; ensure brand-export doesn't re-emit |
+| T1S.2 | No internal artifacts emitted to user folder. | Output folder has NO `TEST_PROTOCOL.md`, `export-verification.md`. | delete from folder; ensure brand-export doesn't re-emit |
 | T1S.3 | Every brand-guidelines.html section has def+summary paragraphs. | `grep -c '<section' brand-guidelines.html` equals count of `<p class="section-definition">` AND count of `<p class="section-summary">`. Every `<section>` element has both child `<p>` tags before any data display. | auto-fix: re-render after confirming `section_summaries.*` populated |
 | T1S.4 | brand-guidelines.pdf size + page count. | PDF file ≥ 1 MB and ≥ 25 pages. | re-render PDF via headless-browser probe chain; ensure webfonts loaded (`--virtual-time-budget=5000`) |
 | T1S.5 | brand-guidelines.html canonical scope. | Includes all 12 required sections (Cover/Foundation/Identity/Color/Typography/Visual Language/Spacing/Components/Voice/Platforms/Governance/LLM pointer) + appendices. | re-render canonical after verifying template covers all 12 |
@@ -182,7 +184,7 @@ Applied during Step C of the verification protocol. Each entry maps a failure pa
 | Failure pattern | Auto-fix | Re-render |
 |---|---|---|
 | `{{` remains in rendered file (PF.1) | Re-populate the corresponding YAML field; re-render the file. | Affected artifact |
-| Missing Required-v6 field (CT.2) | Block at startup; do not auto-fix. User must re-run brand-build. | N/A |
+| Missing Required field (CT.2) | Block at startup; do not auto-fix. User must re-run brand-build. | N/A |
 | Personality section missing character/archetype-in-action/do-dont (T1C.1–3) | Verify `system.personality.*` is populated per contract; if YES, re-render; if NO, block with "re-run brand-build Phase 1". | brand-guidelines.html + PDF |
 | Color Role Playbook absent (T1C.4) | Verify `system.color.roles[]` has ≥8 entries; re-render §3 Color. | brand-guidelines.html + PDF |
 | Never-Say only test question (T1C.5) | Re-render voice-constraint block with both paragraphs per rendering-rules.md. | brand-guidelines.html + brand-methods.html + PDFs |
@@ -213,9 +215,9 @@ Write `_build/export-verification.md` (NOT the user-facing output folder) with t
 **Artifacts emitted**: {N} Tier 1 · {N} Tier 2 · {N} Tier 3
 
 ## Contract validation (§CT)
-- Required-atomic paths: {N}/{N} PASS
-- Required-v6 paths: {N}/{N} PASS
-- Legacy shapes normalized: {N}
+- Required paths: {N}/{N} PASS
+- Required paths: {N}/{N} PASS
+- Input shapes normalized: {N}
 
 ## Gate results
 (table: gate ID · status · evidence · auto-fix-applied? · final-status)
@@ -224,7 +226,7 @@ Write `_build/export-verification.md` (NOT the user-facing output folder) with t
 (list of fixes applied in Step C; one line per fix)
 
 ## Normalization log (Step 0)
-(list of legacy-shape normalizations; e.g., "palette 4-role object → core[]")
+(list of input-shape normalizations; e.g., "palette role-keyed object → core[]")
 
 ## Summary
 PASS {N} · FAIL {N}
