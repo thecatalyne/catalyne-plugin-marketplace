@@ -13,7 +13,10 @@ from lib.look_loader import (
     load_tokens,
     flatten_dtcg,
     resolve_references,
-    coerce_legacy_paths,
+    normalize_input_paths,
+    resolve_canonical_roles,
+    resolve_status_compat,
+    derive_dark_colors_from_source,
     build_look,
 )
 
@@ -80,38 +83,40 @@ def test_resolve_references_replaces_pointers(canonical_tokens):
     assert resolved["semantic"]["light"]["color"]["link"] == "#1D4ED8"
 
 
-def test_coerce_legacy_typography_family():
-    legacy = {
+# ─── Input path normalization ─────────────────────────────────────────────────
+
+def test_normalize_typography_family_to_fontFamily():
+    raw = {
         "primitive": {
             "typography": {
                 "family": {"heading": ["Inter"], "body": ["Inter"]}
             }
         }
     }
-    coerced = coerce_legacy_paths(legacy)
-    assert coerced["primitive"]["typography"]["fontFamily"]["heading"] == ["Inter"]
+    out = normalize_input_paths(raw)
+    assert out["primitive"]["typography"]["fontFamily"]["heading"] == ["Inter"]
 
 
-def test_coerce_legacy_spacing_to_space():
-    legacy = {"primitive": {"spacing": {"4": "1rem"}}}
-    coerced = coerce_legacy_paths(legacy)
-    assert coerced["primitive"]["space"]["4"] == "1rem"
+def test_normalize_spacing_to_space():
+    raw = {"primitive": {"spacing": {"4": "1rem"}}}
+    out = normalize_input_paths(raw)
+    assert out["primitive"]["space"]["4"] == "1rem"
 
 
-def test_coerce_legacy_breakpoints_plural_to_singular():
-    legacy = {"primitive": {"breakpoints": {"md": "768px"}}}
-    coerced = coerce_legacy_paths(legacy)
-    assert coerced["primitive"]["breakpoint"]["md"] == "768px"
+def test_normalize_breakpoints_plural_to_singular():
+    raw = {"primitive": {"breakpoints": {"md": "768px"}}}
+    out = normalize_input_paths(raw)
+    assert out["primitive"]["breakpoint"]["md"] == "768px"
 
 
-def test_coerce_legacy_motion_top_level():
-    legacy = {"motion": {"easing": {"standard": "ease-out"}}}
-    coerced = coerce_legacy_paths(legacy)
-    assert coerced["primitive"]["motion"]["easing"]["standard"] == "ease-out"
+def test_normalize_top_level_motion_to_primitive_motion():
+    raw = {"motion": {"easing": {"standard": "ease-out"}}}
+    out = normalize_input_paths(raw)
+    assert out["primitive"]["motion"]["easing"]["standard"] == "ease-out"
 
 
-def test_coerce_legacy_nested_categorical_text(canonical_tokens):
-    legacy = {
+def test_normalize_nested_categorical_text():
+    raw = {
         "semantic": {
             "light": {
                 "color": {
@@ -120,8 +125,22 @@ def test_coerce_legacy_nested_categorical_text(canonical_tokens):
             }
         }
     }
-    coerced = coerce_legacy_paths(legacy)
-    assert coerced["semantic"]["light"]["color"]["text-primary"] == "#000"
+    out = normalize_input_paths(raw)
+    assert out["semantic"]["light"]["color"]["text-primary"] == "#000"
+
+
+def test_normalize_dtcg_leaf_at_role_key_not_treated_as_nested(canonical_tokens):
+    """A canonical DTCG-wrapped value at a role-key overlapping with a
+    category name (`link: {$value, $type}`) must NOT be rewritten as a
+    nested categorical. Without this guard, the role gets rewritten into
+    `link-$value` garbage and `link` is deleted.
+    """
+    out = normalize_input_paths(canonical_tokens)
+    light = out["semantic"]["light"]["color"]
+    assert "link" in light
+    assert isinstance(light["link"], dict)
+    assert "$value" in light["link"]
+    assert "link-$value" not in light
 
 
 def test_build_look_end_to_end(canonical_tokens):
@@ -129,76 +148,60 @@ def test_build_look_end_to_end(canonical_tokens):
     assert look["look_schema_version"] == "0.1.0"
     assert look["name"] == "Test Brand"
     assert look["tokens"]["primitive"]["color"]["palette"]["primary"] == "#3B82F6"
-    # Reference-resolved at the semantic layer:
     assert look["tokens"]["semantic"]["light"]["color"]["text-primary"] == "#0B1220"
-    # Surface controls populated with sensible defaults:
     assert look["surface_controls"]["mode"] == "light"
     assert look["surface_controls"]["density"] in ("compact", "comfortable", "spacious")
 
 
-# ─── Role compatibility ───────────────────────────────────────────────────────
+# ─── Role / status aliasing ──────────────────────────────────────────────────
 
 def test_resolve_canonical_roles_first_match_wins():
-    from lib.look_loader import resolve_canonical_roles
-    # A brand that uses `action-primary` instead of canonical `primary`
     src = {"action-primary": "#3B82F6", "text-muted": "#6B7280"}
     out = resolve_canonical_roles(src)
-    # Original keys preserved
     assert out["action-primary"] == "#3B82F6"
     assert out["text-muted"] == "#6B7280"
-    # Canonical aliases written
     assert out["primary"] == "#3B82F6"
     assert out["text-secondary"] == "#6B7280"
 
 
-def test_resolve_canonical_roles_canonical_wins_over_candidate():
-    from lib.look_loader import resolve_canonical_roles
-    # Both canonical and candidate present — canonical preserved unchanged
+def test_resolve_canonical_roles_canonical_wins_over_alias():
     src = {"primary": "#000", "action-primary": "#FFF"}
     out = resolve_canonical_roles(src)
     assert out["primary"] == "#000"
     assert out["action-primary"] == "#FFF"
 
 
-def test_resolve_status_compat_ben_status_danger():
-    from lib.look_loader import resolve_status_compat
-    # Ben's brand uses `status-danger` for error
+def test_resolve_status_compat_status_danger_alias():
     semantic_light = {"status-danger": "#DC2626"}
-    status_block = {}
-    out = resolve_status_compat(status_block, semantic_light)
+    out = resolve_status_compat({}, semantic_light)
     assert out["error"] == "#DC2626"
 
 
 def test_resolve_status_compat_explicit_status_wins():
-    from lib.look_loader import resolve_status_compat
     semantic_light = {"status-danger": "#000"}
-    status_block = {"error": "#DC2626"}
-    out = resolve_status_compat(status_block, semantic_light)
-    assert out["error"] == "#DC2626"  # explicit wins
+    out = resolve_status_compat({"error": "#DC2626"}, semantic_light)
+    assert out["error"] == "#DC2626"
 
 
-# ─── Dark derivation ──────────────────────────────────────────────────────────
+# ─── Dark derivation ─────────────────────────────────────────────────────────
 
 def test_derive_dark_swaps_page_ground_and_text():
-    from lib.look_loader import derive_dark_colors_from_source
     light = {
         "background": "#FFFFFF",
         "inverse": "#0B1220",
         "text-primary": "#0B1220",
         "text-inverse": "#FFFFFF",
-        "primary": "#3B82F6",  # untouched
+        "primary": "#3B82F6",
     }
     dark = derive_dark_colors_from_source(light)
-    assert dark["background"] == "#0B1220"  # was light.inverse
-    assert dark["inverse"] == "#FFFFFF"     # was light.background
+    assert dark["background"] == "#0B1220"
+    assert dark["inverse"] == "#FFFFFF"
     assert dark["text-primary"] == "#FFFFFF"
     assert dark["text-inverse"] == "#0B1220"
-    assert dark["primary"] == "#3B82F6"     # passes through
+    assert dark["primary"] == "#3B82F6"
 
 
-def test_derive_dark_via_observed_candidates():
-    """When the brand uses observed-candidate names (bg-default, bg-inverse), derivation still works."""
-    from lib.look_loader import derive_dark_colors_from_source
+def test_derive_dark_via_observed_aliases():
     light = {
         "bg-default": "#FFFFFF",
         "bg-inverse": "#0B1220",
@@ -206,17 +209,15 @@ def test_derive_dark_via_observed_candidates():
         "text-on-inverse": "#FFFFFF",
     }
     dark = derive_dark_colors_from_source(light)
-    # Canonical keys written so downstream emit_css_vars finds them
     assert dark["background"] == "#0B1220"
     assert dark["inverse"] == "#FFFFFF"
     assert dark["text-primary"] == "#FFFFFF"
     assert dark["text-inverse"] == "#0B1220"
 
 
-# ─── End-to-end via build_look ────────────────────────────────────────────────
+# ─── End-to-end via build_look ───────────────────────────────────────────────
 
-def test_build_look_auto_derives_dark_when_missing():
-    from lib.look_loader import build_look
+def test_build_look_auto_derives_dark_when_missing(capsys):
     raw = {
         "primitive": {"color": {"palette": {}, "scales": {}}, "typography": {"fontFamily": {}, "fontSize": {}}, "space": {}},
         "semantic": {
@@ -224,17 +225,17 @@ def test_build_look_auto_derives_dark_when_missing():
                 "background": "#FFFFFF", "inverse": "#0B1220",
                 "text-primary": "#0B1220", "text-inverse": "#FFFFFF",
             }},
-            # NO dark block
         },
     }
     look = build_look(raw, brand_name="Auto-Dark Brand")
     dark = look["tokens"]["semantic"]["dark"]["color"]
     assert dark["background"] == "#0B1220"
     assert dark["text-primary"] == "#FFFFFF"
+    captured = capsys.readouterr()
+    assert "dark-mode color block missing" in captured.err
 
 
-def test_build_look_preserves_authored_dark_when_present():
-    from lib.look_loader import build_look
+def test_build_look_preserves_authored_dark_when_present(capsys):
     raw = {
         "primitive": {"color": {"palette": {}, "scales": {}}, "typography": {"fontFamily": {}, "fontSize": {}}, "space": {}},
         "semantic": {
@@ -244,13 +245,15 @@ def test_build_look_preserves_authored_dark_when_present():
     }
     look = build_look(raw)
     dark = look["tokens"]["semantic"]["dark"]["color"]
-    assert dark["background"] == "#111"  # authored value preserved
+    assert dark["background"] == "#111"
     assert dark["text-primary"] == "#EEE"
+    # No fallback notice when dark is authored
+    captured = capsys.readouterr()
+    assert "dark-mode color block missing" not in captured.err
 
 
-def test_build_look_resolves_status_danger_to_error():
-    """End-to-end: a brand like Ben's that uses `status-danger` should produce a canonical `error` in semantic.status."""
-    from lib.look_loader import build_look
+def test_build_look_resolves_status_alias_to_error():
+    """A brand that uses `status-danger` produces a canonical `error` in semantic.status."""
     raw = {
         "primitive": {"color": {"palette": {}, "scales": {}}, "typography": {"fontFamily": {}, "fontSize": {}}, "space": {}},
         "semantic": {
@@ -267,5 +270,5 @@ def test_build_look_resolves_status_danger_to_error():
     status = look["tokens"]["semantic"]["status"]
     assert status["success"] == "#16A34A"
     assert status["warning"] == "#D97706"
-    assert status["error"]   == "#DC2626"  # ← the gap this task closes
+    assert status["error"]   == "#DC2626"
     assert status["info"]    == "#0EA5E9"

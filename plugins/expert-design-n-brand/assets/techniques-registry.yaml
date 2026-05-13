@@ -518,11 +518,11 @@ artifact_routing:
 # At a glance: identity + palette + typography + at least one technique
 # in each of positioning, personality, visual, voice must be present.
 #
-# Palette floor accepts ANY of these shapes (brand-build should normalize
-# to canonical, but brand-export falls back gracefully):
+# Palette floor accepts ANY of these shapes (brand-build normalizes
+# alternate inputs to canonical; brand-export falls back gracefully):
 #   - system.color.palette.core[]               (canonical)
-#   - system.color.palette.{background,primary,anchor,accent,...}  (legacy object)
-#   - system.color.anchors[]                    (flat named-anchor list; legacy shape)
+#   - system.color.palette.{background,primary,neutral,accent,...}  (role-keyed object input)
+#   - system.color.anchors[]                    (flat named-anchor list input)
 # Floor fails only if NO palette shape carries at least 1 usable hex.
 floor:
   dimensions_required: [positioning, personality, visual, voice]
@@ -532,5 +532,5 @@ floor:
     - system.typography.typefaces
   palette_any_of:
     - system.color.palette.core
-    - system.color.palette      # legacy 4-role object
-    - system.color.anchors      # flat named list
+    - system.color.palette      # role-keyed object input
+    - system.color.anchors      # flat named list input

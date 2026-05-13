@@ -62,7 +62,7 @@ either omitted or rendered with alternative data from another technique.*
 ## Color Palette
 
 *Variable-N — render one row per entry in `system.color.palette.core[]`.
-Common roles: background, surface, primary, anchor, accent, highlight,
+Common roles: background, surface, primary, text-primary, accent, border-focus,
 neutral. Use whatever role names the brand actually uses.*
 
 | Role | Hex | Name | Usage |

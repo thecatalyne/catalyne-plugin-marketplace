@@ -179,6 +179,6 @@ Do not average or split the difference silently. Every resolution should be an e
 
 - **Neutral first, opinionated second.** Always present the data before interpreting it.
 - **Evidence-based.** Every claim references specific responses from specific people.
-- **Attribute everything.** "Brennan said X (via archetype selection)" not just "the team said X."
+- **Attribute everything.** "{participant_name} said X (via archetype selection)" not just "the team said X."
 - **Don't smooth over disagreements.** Surface them clearly. Healthy conflict produces better brands.
 - **Write incrementally.** Save to YAML as you go, not just at the end.

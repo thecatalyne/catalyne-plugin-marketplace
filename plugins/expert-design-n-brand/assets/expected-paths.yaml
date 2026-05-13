@@ -38,21 +38,19 @@ system_floor:
   - system.voice                            # object must exist (contents optional)
 
   # Palette floor — any ONE of these carries the required hexes.
-  # brand-build is expected to normalize legacy/loose shapes into
-  # canonical `system.color.palette.core[]`, but brand-export will
-  # attempt in-line normalization before hard-failing. Only if NO
-  # palette data exists in any recognized shape does this fail.
+  # brand-build normalizes alternate input shapes into the canonical
+  # `system.color.palette.core[]`. brand-export attempts inline
+  # normalization before hard-failing. Only if NO palette data exists
+  # in any recognized shape does this fail.
   - any_of:
       paths:
         - system.color.palette.core[]       # canonical — brand-build's output shape (roles: background / primary / neutral / accent / ...)
-        - system.color.palette.*            # legacy 4-role object (background/primary/anchor/accent — anchor auto-normalizes to neutral)
-        - system.color.anchors[]            # flat named-anchor list (legacy shape)
+        - system.color.palette.*            # role-keyed object input
+        - system.color.anchors[]            # flat named-anchor list input
       satisfied_if: at_least_one_present
       on_normalize:
         priority: canonical_first           # use core[] if present, else normalize others
         produces: system.color.palette.core[]
-        role_renames:
-          - { from: anchor, to: neutral }   # legacy role-name normalization
 
 # ─── OPTIONAL BUT RECOGNIZED ───────────────────────────────────────────
 # These paths are NOT required but ARE recognized by the renderer. If
@@ -69,7 +67,7 @@ recognized_optional:
     - system.color.palette.scales[]         # hue-named scales (teal/flame/prismatic)
     - system.color.palette.gradients[]      # named gradients with stops
 
-    # Legacy shadow paths — brand-build should normalize into palette.*,
+    # Alternate shadow paths — brand-build emits the canonical palette.* shape,
     # but brand-export also reads these directly if present.
     - system.color.anchors                  # flat list; may be dict of name→hex
     - system.color.scales                   # dict of family→[10 hex_steps]
@@ -133,7 +131,7 @@ behavior:
       a visible `⚠` warning and include the malformed excerpt in the
       verification report. Do not silently drop.
 
-  on_legacy_palette_shape:
+  on_alternate_palette_shape:
     action: normalize_then_render
     note: |
       When `system.color.palette` is a 4-role object instead of `palette.core[]`,

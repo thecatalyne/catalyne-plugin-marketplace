@@ -290,7 +290,7 @@
     "motion": {
       "$description": "Brand aliases on top of canonical motion primitives.",
       "easing": {
-        "spark": { "$value": "{primitive.motion.easing.spring}", "$type": "cubicBezier", "$description": "Brand alias for spring easing — used in flourish moments." }
+        "flourish": { "$value": "{primitive.motion.easing.spring}", "$type": "cubicBezier", "$description": "Brand alias for spring easing — used in flourish moments." }
       }
     },
 
@@ -311,7 +311,7 @@
   },
 
   "platform": {
-    "$description": "Per-surface theme rendering is driven by `surface-translations.yaml`. This `platform` block remains for legacy compatibility and one-off overrides only. New surfaces should be declared in surface-translations.yaml.",
+    "$description": "Per-surface theme rendering is driven by `surface-translations.yaml`. This `platform` block is for one-off overrides only — most brands leave it empty and declare new surfaces in surface-translations.yaml.",
     "__note": "Empty by default. Populate only if a brand needs a surface-specific override that surface-translations.yaml doesn't already produce."
   }
 }

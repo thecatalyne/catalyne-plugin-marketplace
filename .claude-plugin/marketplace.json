@@ -11,7 +11,7 @@
     {
       "name": "expert-design-n-brand",
       "source": "./plugins/expert-design-n-brand",
-      "version": "0.10.0",
+      "version": "0.11.1",
       "description": "Guides teams through structured brand identity discovery, multi-stakeholder synthesis, and design system generation. Produces a complete, tier-classified set of brand artifacts — canonical guidelines, tokens (W3C DTCG with industry-standard vocabulary), Tailwind config, Figma Tokens Studio import, a single consolidated cross-surface design map covering Slides/PowerPoint/Keynote/Canva, an interactive single-file HTML playground for exploring tokens across Marketing/App/Slide/Glossary surfaces with compare mode and live token controls, process record, and LLM-readable brand definition — from conversational elicitation.",
       "author": {
         "name": "Brennan Wilkerson",

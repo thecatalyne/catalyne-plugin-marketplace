@@ -2,6 +2,8 @@
 
 Loaded by `brand-export/SKILL.md` before rendering any artifact. These rules apply across every artifact the plugin emits. Read this file in full before starting a render — most failures at verification time trace back to a rule on this page.
 
+> **Canonical vocabulary source.** Token names, role labels, surface slot names, and CSS/Tailwind/Figma keys mentioned anywhere in these rules are defined in `assets/platform-matrix-template.md`. The 14-slot L/D color-role parity contract is in `skills/design-system/references/token-architecture.md`. If a name in this file appears to disagree with either source, the Matrix wins; treat the disagreement as a bug.
+
 Every rule specifies which **tier** it applies to. Tiers are defined in `build-export-contract.md`:
 
 - **Tier 1** — external reference (brand-guidelines.html, quickref, tokens, logo, illustration, photography, platform-matrix, governance, theme-builder companions, email-template)
@@ -47,23 +49,29 @@ Every section in the canonical Tier 1 doc opens with TWO paragraphs before any d
 
 The template source MUST include literal `<p class="section-definition">...</p>` and `<p class="section-summary">{{ section_summary }}</p>` for every section. This rule is TEMPLATE-ENFORCED — do not leave it to the model to "remember" at render time.
 
-Recognized section slugs (per `build-export-contract.md`): `foundation, identity, color, typography, visual_language, spacing, components, voice, platforms, governance, llm_manual, quickref` — plus legacy slugs preserved during migration: `principles, positioning, motif_gallery, texture, anti_inspiration, in_practice, quality`.
+Recognized section slugs (per `build-export-contract.md`): `foundation, identity, color, typography, visual_language, spacing, components, voice, platforms, governance, llm_manual, quickref`.
 
-Every slug must have a summary in `system.section_summaries.*`. If missing, brand-build Phase 8 HARD-FAILS — summaries are Required-v6 per the contract. Do not auto-compose at export time.
+Every slug must have a summary in `system.section_summaries.*`. If missing, brand-build Phase 8 HARD-FAILS — summaries are Required per the contract. Do not auto-compose at export time.
 
 ## Personality anatomy (Tier 1 canonical doc)
 
 The personality section in `brand-guidelines.html` renders in this order:
 
-1. `<p class="personality-synthesis">{{ personality_synthesis }}</p>` — one-sentence taxonomy (from `system.personality.synthesis`).
-2. `<p class="personality-character">{{ personality_character }}</p>` — 40–70 word narrative texture (from `system.personality.character`). **Required-v6 per contract; do not soft-skip.**
-3. Archetype label row (primary + optional blend + optional triad).
-4. Aaker scores row (5 dimensions; render only if all 5 present — never zero-fill partials).
-5. Keyword chip row (3–5 items).
-6. **Archetype in action** (`<section class="personality-archetype-in-action">`) — ≥3 worked examples from `system.personality.archetype_in_action[]`. Each example: `<div class="archetype-example"><h4>{{ context }}</h4><p>{{ text }}</p></div>`. Shows *how* the archetype sounds in actual copy (landing line, onboarding, celebration, apology).
-7. **Do / Don't voice exemplars** (`<section class="personality-do-dont">`) — two columns from `system.personality.do_dont.{do, dont}`. Each column ≥3 items; render as lists with affirm/warn semantic coloring (via `--color-affirm` / `--color-warn`).
+1. **Essence + Archetype split** (`<section class="personality-essence-archetype">`) — two side-by-side cards:
+   - Left card: `<div class="personality-essence"><h4>Essence</h4><p>{{ essence_name }}</p><p class="essence-blurb">{{ essence_blurb }}</p></div>` — the brand's signature identity, sourced from `system.identity.essence`.
+   - Right card: `<div class="personality-archetype"><h4>Archetype</h4><p>{{ archetype_primary }}{% if archetype_secondary %} · {{ archetype_secondary }}{% endif %}</p><p class="archetype-register">Register: {{ register }}</p></div>` — Jungian/Mark-Pearson archetype + optional register modifier.
 
-This is a change from the v5 rule (which routed worked examples and do/don't to brand-methods only). The canonical personality now carries enough texture to be applied by a designer or content writer without opening brand-methods. The longer reasoning prose, metaphor galleries, playlists, tension spectra, and celebrity casting still route to brand-methods.
+   **Never compound these.** Render `essence.name` and `archetype_primary` as two distinct labels in adjacent cards. Any "{essence}-{archetype}" or "{essence} {archetype}" compound is forbidden, in any spacing or punctuation. The compound label is meaningless to a reader — essence is the brand's chosen identity statement, archetype is the personality framework category. Keep them visually and grammatically separate.
+
+2. `<p class="personality-synthesis">{{ personality_synthesis }}</p>` — one-sentence taxonomy (from `system.personality.synthesis`).
+3. `<p class="personality-character">{{ personality_character }}</p>` — 40–70 word narrative texture (from `system.personality.character`). **Required per contract; do not soft-skip.**
+4. Archetype label row (primary + optional blend + optional triad) — this is a more detailed expansion of the archetype card above; keep order.
+5. Aaker scores row (5 dimensions; render only if all 5 present — never zero-fill partials).
+6. Keyword chip row (3–5 items).
+7. **Archetype in action** (`<section class="personality-archetype-in-action">`) — ≥3 worked examples from `system.personality.archetype_in_action[]`. Each example: `<div class="archetype-example"><h4>{{ context }}</h4><p>{{ text }}</p></div>`. Shows *how* the archetype sounds in actual copy (landing line, onboarding, celebration, apology).
+8. **Do / Don't voice exemplars** (`<section class="personality-do-dont">`) — two columns from `system.personality.do_dont.{do, dont}`. Each column ≥3 items; render as lists with affirm/warn semantic coloring (via `--color-affirm` / `--color-warn`).
+
+The canonical personality carries enough texture to be applied by a designer or content writer without opening brand-methods. The longer reasoning prose, metaphor galleries, playlists, tension spectra, and celebrity casting still route to brand-methods.
 
 ## Never-Say / Specificity principle — both halves (Tier 1 and Tier 2)
 
@@ -94,7 +102,7 @@ Record the resolution in the verification report: `"semantic.affirm resolved fro
 
 ## Color Role Playbook (Tier 1)
 
-Every Tier 1 canonical doc renders a "Color Role Playbook" sub-section inside §3 Color, between the palette display and the contrast matrix. Data source: `system.color.roles[]` (Required-v6 per contract; ≥8 roles).
+Every Tier 1 canonical doc renders a "Color Role Playbook" sub-section inside §3 Color, between the palette display and the contrast matrix. Data source: `system.color.roles[]` (Required per contract; ≥8 roles).
 
 Rendering as a table: columns = Role · Token · Hex · When to use · Don't use for. One row per entry in `system.color.roles[]`. The role column uses the brand's role name; the token column uses the CSS custom property name; the hex column shows the resolved color with a small swatch swatch.
 
@@ -106,7 +114,7 @@ Minimum expected role coverage (roles may be named per brand but the concepts mu
 
 Per-platform type substitution is driven by three inputs:
 
-1. The brand's `typography.heading.character` and `typography.body.character` slugs (Required-v6; from `typography-taxonomy.md`).
+1. The brand's `typography.heading.character` and `typography.body.character` slugs (Required; from `typography-taxonomy.md`).
 2. `typography.heading.primary.family` + `typography.body.primary.family`.
 3. The target platform's entry in `skills/design-system/references/platform-fonts.yaml`.
 
@@ -122,7 +130,7 @@ Motifs are **named with semantic intent** (not generic labels like "motif 1") an
 
 General rules (no hardcoded brand-specific hexes). Patterns below are semantic groupings drawn from common motif vocabularies — add or remove patterns per the brand's own motif lexicon:
 
-- Warm / fire family (fire, flame, ember, spark, heat) → warm spectrum built from the brand's red / orange / amber anchors if present.
+- Warm / fire family (fire, flame, ember, heat, ignite) → warm spectrum built from the brand's red / orange / amber anchors if present. Brand-specific poetic names belong in `extensions.*` per `assets/platform-matrix-template.md` §6.
 - Cool-signal family (electric, current, signal, pulse) → the brand's declared accent-signal expression (whichever `expressions[]` entry the brand flagged as its active / signal expression).
 - Celestial family (star, gold, sun, constellation) → the brand's gold / amber anchor as core, secondary accent at edges.
 - Transition family (match, strike, ignite, threshold) → transitional from a warm core into the brand's ignition spectrum.
@@ -199,7 +207,7 @@ For each `<!-- OPTIONAL:{concept_anchor} -->` marker, consult `techniques-regist
 The Color section renders these stacked subsections, each soft-skipping when empty:
 
 1. **Core Roles** (`palette_core`) — N swatches. Every swatch surfaces BOTH its role AND its `name` field.
-2. **Color Role Playbook** (`color_role_playbook`) — Required-v6 sub-section; see rule above.
+2. **Color Role Playbook** (`color_role_playbook`) — Required sub-section; see rule above.
 3. **Anchor Set** (`palette_anchors`) — card grid of named hexes distinct from core roles.
 4. **Color Scales** (`palette_scales`) — 10-step strip per family with per-step names.
 5. **Expressions** (`palette_expressions`) — spectral range cards for flourish expressions.
@@ -222,7 +230,7 @@ The cover ledger line on both the interactive HTML and print PDF reads:
 
 ## Sample text injection (Tier 1)
 
-Typography specimens MUST use brand-relevant sample text, NOT "The quick brown fox". Read `system.typography.sample_text.{display, h1, h2, h3, body, small}` — all six are Required-atomic per contract. Do not leave `{{ sample_* }}` unresolved.
+Typography specimens MUST use brand-relevant sample text, NOT "The quick brown fox". Read `system.typography.sample_text.{display, h1, h2, h3, body, small}` — all six are Required per contract. Do not leave `{{ sample_* }}` unresolved.
 
 ## Cultural anchor vapor check (universal)
 
@@ -236,7 +244,7 @@ Before writing a Tier 1 file, read the draft as an outside designer, consultant,
 
 - **Don't reference the plugin's internal structure**: skill names, slash commands, file paths inside the plugin tree, "contracts" / "registries" / "expected paths" / "system floors" / phase numbers.
 - **Don't expose build-time status vocabulary**: PASS / WARN / FAIL tallies, "hard-fail", "auto-compose", "soft-skip", "floor validation" are process labels, not reader concepts.
-- **Don't narrate the plugin or the build**: phrases like "the plugin emits", "in this version we", "retrofit", "v6 artifact set" do not belong in output that ships.
+- **Don't narrate the plugin or the build**: phrases like "the plugin emits", "this version", "retrofit", or version-tagged artifact-set names do not belong in output that ships.
 - **Use end-user nouns**: "brand guidelines", "design tokens", "typography scale", "color role", "governance policy". If a sentence still reads like an internal handoff, rewrite.
 
 Tier 2 (operator / process-record) may reference the workflow in plain prose — "this brand system was built through discovery, synthesis, and export" is fine — but keep vocabulary end-user friendly. Tier 3 follows the brand.md spec and is machine-formatted.
@@ -252,13 +260,21 @@ The Tier 3 output must conform to the brand.md v0.2.0 specification:
 - Both files are emitted to the output folder root (alongside `brand-guidelines.html`).
 - Both are exempt from the Tier 1 denylist — they're machine-readable artifacts by design.
 
+## Cross-artifact token-name consistency (universal)
+
+Every token name that appears in `tokens.json` `semantic.{light,dark}.color.*` MUST appear with the exact same string in every cross-reference: `design-system.yaml`, `brand-quickref.md`, `brand-guidelines.html`, `brand.md`, `brand.extensions.yaml`, and `playground.html`. The canonical names are defined in `assets/platform-matrix-template.md` §1. The compliance checklist in `brand-export/SKILL.md` (gate 4) verifies consistency on every artifact.
+
+If a sibling artifact uses a different string for the same role after render, the compliance checklist fails and the artifact gets one auto-fix pass (re-render from template). If the inconsistency persists, log the failure and surface to the user — do NOT ship inconsistent token names across sibling artifacts. The whole purpose of the canonical vocabulary is that any team can read any artifact and find the same slot names in the same places.
+
+Brand-specific poetic names (signature gradients, named motion easings, motifs) live in `extensions.*` per `assets/platform-matrix-template.md` §6 — never as replacements for core role names.
+
 ## Render sequence
 
 Export runs in this order:
 
 1. Load the data contract (`build-export-contract.md`).
-2. Walk Required-atomic + Required-v6 paths; hard-fail at startup on any missing.
-3. Apply legacy-shape normalizations in-memory.
+2. Walk Required paths; hard-fail at startup on any missing.
+3. Apply input-path normalization in-memory.
 4. Render Tier 1 artifacts one at a time. Before each write, review the draft against the external-facing principle above.
 5. Render Tier 2 artifacts (brand-methods.html + .pdf, synthesis-report.md).
 6. Render Tier 3 (`brand.md` + `brand.extensions.yaml`); validate against the brand.md v0.2.0 schema.

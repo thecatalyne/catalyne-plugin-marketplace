@@ -48,7 +48,7 @@ Everything flows through one file: `brand-identity.yaml` in the current working 
     ├── brand-synthesize/SKILL.md      ← Synthesis entry point + analyst behavior + inline self-verify
     ├── brand-build/
     │   ├── SKILL.md                   ← Build entry point + 9-phase build sequence
-    │   └── references/build-phases.md ← Authoritative per-phase procedure + Phase 3B legacy normalizer
+    │   └── references/build-phases.md ← Authoritative per-phase procedure (incl. Phase 3B palette normalization)
     ├── brand-export/
     │   ├── SKILL.md                   ← Bundled artifact exports (core / pdfs / companions / methods / synthesis / llm)
     │   └── references/
@@ -308,7 +308,7 @@ Don't load everything at once. Load what's needed for the current phase:
 |-------|---------------------|
 | **Discover** | `technique-library.md`, `trap-navigation.md`, `curated-option-sets.md`, `archetype-profiles.md` (if using archetypes) |
 | **Synthesize** | `personality-dimensions.md`, `scoring-criteria.md` |
-| **Build** | `build-phases.md` (authoritative per-phase procedure), `build-export-contract.md` (Required-atomic + Required-v6 fields), `techniques-registry.yaml`, `token-architecture.md`, `design-rules.md`, `typography-taxonomy.md`, `platform-fonts.yaml`, `scoring-criteria.md`, `voice-component-patterns.md` (Phase 6) |
+| **Build** | `build-phases.md` (authoritative per-phase procedure), `build-export-contract.md` (Required fields), `techniques-registry.yaml`, `token-architecture.md`, `design-rules.md`, `typography-taxonomy.md`, `platform-fonts.yaml`, `scoring-criteria.md`, `voice-component-patterns.md` (Phase 6) |
 | **Export** | `build-export-contract.md`, `rendering-rules.md`, `artifacts.md`, `artifact-schemas.yaml`, `verification-protocol.md`, `surface-translations.yaml` (cross-surface theme rendering), `typography-taxonomy.md` + `platform-fonts.yaml` (when rendering typography or platform sections) |
 
 ## Image Generation Support

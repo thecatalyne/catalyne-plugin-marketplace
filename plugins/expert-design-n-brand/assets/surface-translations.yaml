@@ -1,3 +1,8 @@
+# Canonical vocabulary source: assets/platform-matrix-template.md
+# Per-surface translations below map the Matrix §1/§2/§3 canonical
+# slot names to surface-specific slot names. Extension policy
+# (custom tokens beyond core) is defined in Platform Matrix §6.
+#
 # surface-translations.yaml
 # ────────────────────────────────────────────────────────────────────
 # Single declarative source for cross-surface theme mapping.

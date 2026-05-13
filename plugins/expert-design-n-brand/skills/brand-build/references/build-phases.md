@@ -4,6 +4,8 @@ Loaded by `brand-build/SKILL.md` during design system generation. Contains the d
 
 Read sections on demand — not every build runs every phase's expanded guidance. Phases execute in numeric order: 1 → 2 → 3 → 3B → 4 → 5 → 6 → 7 → 7.5 → 7.6 → 7.7 → 7.8 → 7.9 → 8 → 9.
 
+> **Canonical vocabulary source.** Token names, role labels, surface slot names, and CSS/Tailwind/Figma keys referenced below are defined in `assets/platform-matrix-template.md`. The 14-slot L/D color-role parity contract is in `skills/design-system/references/token-architecture.md`. If a name here appears to disagree with either, the Matrix wins; treat the disagreement as a bug.
+
 ## Phase 1: Extract Brand Parameters
 
 From synthesis consensus (or solo discovery), extract:
@@ -45,13 +47,77 @@ Keep the character paragraph distinct from the synthesis sentence: synthesis is 
 
 ### Section summaries
 
-For each canonical design-system section (`foundation, identity, color, typography, visual_language, spacing, components, voice, platforms, governance, llm_manual, quickref`), populate `system.section_summaries.{slug}` with a single brand-specific paragraph. The rendered doc pairs a fixed definition paragraph ("what this section IS in a brand system") with this summary paragraph ("what THIS brand's answer is"). Keep each summary 15–50 words; name concrete brand-level choices rather than abstractions. This field is Required-v6 — if missing, brand-export HARD-FAILS at startup (see `${CLAUDE_PLUGIN_ROOT}/skills/brand-export/references/build-export-contract.md`). Do not leave empty and do not rely on export-time fallback; the fix for a missing summary is to compose one here.
+For each canonical design-system section (`foundation, identity, color, typography, visual_language, spacing, components, voice, platforms, governance, llm_manual, quickref`), populate `system.section_summaries.{slug}` with a single brand-specific paragraph. The rendered doc pairs a fixed definition paragraph ("what this section IS in a brand system") with this summary paragraph ("what THIS brand's answer is"). Keep each summary 15–50 words; name concrete brand-level choices rather than abstractions. This field is Required — if missing, brand-export HARD-FAILS at startup (see `${CLAUDE_PLUGIN_ROOT}/skills/brand-export/references/build-export-contract.md`). Do not leave empty and do not rely on export-time fallback; the fix for a missing summary is to compose one here.
 
 ### Semantic theme colors
 
 Populate `system.semantic.affirm_color` and `system.semantic.warn_color` (and optionally `success_color`, `warning_color`, `danger_color`) from the brand's palette. Affirm is the brand's "this is us" positive accent (commonly an active / signal hex); warn is the brand's "don't do this" accent (commonly a warm / ignition hex).
 
 Resolution priority: pre-authored → expressions tagged `intent: affirm|warn` → hue-matched anchor (affirm = 150–200°, warn = 0–30°) → omit (brand-export falls back to neutral green/red). Do-not-hardcode stock greens and reds anywhere else in the system; every rendered Do/Don't pair routes through these two tokens.
+
+### Color-role parity contract (light + dark)
+
+Generate `semantic.light.color.*` and `semantic.dark.color.*` with **identical 14-key sets** per the parity contract in `skills/design-system/references/token-architecture.md`:
+
+  `bg`, `surface`, `surface-elevated`, `inverse`, `text-primary`, `text-secondary`, `text-tertiary`, `text-disabled`, `text-inverse`, `border`, `border-strong`, `border-focus`, `link`, `link-hover`.
+
+Both modes MUST define all 14 names. Status tokens (`success`, `warning`, `error`, `info`) live in `semantic.status` and are mode-invariant — write them once.
+
+If a color cannot be confidently mapped from the brand palette for a given mode (e.g. dark mode for a brand whose synthesis only specified light), mark the value `__needs-review__` and surface that to the user before continuing — do not silently omit, and do not silently mirror the light-mode hex. A `__needs-review__` slot means "I generated a placeholder; please confirm or override before export."
+
+Worked example — mapping a brand palette into both modes with contrast rationale:
+
+```yaml
+# Source palette
+palette.core:
+  - role: background, hex: "#FFFCF8"  # Washi
+  - role: primary,    hex: "#FFCB47"  # Star Amber
+  - role: neutral,    hex: "#1A1A2E"  # Ink Navy
+  - role: accent,     hex: "#6B6699"  # Muted Indigo
+  - role: error,      hex: "#E54848"  # Calcifer Red
+
+# Derived semantic — light mode
+semantic.light.color:
+  bg:               "#FFFCF8"  # background anchor
+  surface:          "#FFFFFF"  # pure white card on warm-white page
+  surface-elevated: "#F5F2EC"  # slightly warmer for modals
+  inverse:          "#1A1A2E"  # neutral anchor as inverse surface
+  text-primary:     "#000000"  # 21:1 on bg
+  text-secondary:   "#404048"  # ~10:1 on bg
+  text-tertiary:    "#6B6699"  # accent anchor, ~6.5:1 on bg
+  text-disabled:    "#A8A3C9"  # ~3.5:1 on bg (decorative)
+  text-inverse:     "#FFFCF8"  # background anchor on inverse surfaces
+  border:           "#E5E0D5"  # hairline on bg
+  border-strong:    "#1A1A2E"  # neutral anchor emphasis
+  border-focus:     "#FFCB47"  # primary anchor — focus signal
+  link:             "#6B6699"  # accent anchor, ~6.5:1 on bg
+  link-hover:       "#4B4675"  # deeper accent
+
+# Derived semantic — dark mode (identical slot set; mode-specific hexes)
+semantic.dark.color:
+  bg:               "#1A1A2E"  # neutral anchor as page
+  surface:          "#252540"  # lifted from page
+  surface-elevated: "#2E2E4A"  # modal surface
+  inverse:          "#FFFCF8"  # background anchor as inverse surface
+  text-primary:     "#FFFCF8"  # 18:1 on bg
+  text-secondary:   "#D6D2E5"  # ~12:1 on bg
+  text-tertiary:    "#A8A3C9"  # ~7.2:1 on bg
+  text-disabled:    "#6B6699"  # ~3.5:1 on bg (decorative)
+  text-inverse:     "#000000"  # on inverse surfaces
+  border:           "#3D3D5C"  # soft separator on Ink Navy
+  border-strong:    "#A8A3C9"  # emphasis
+  border-focus:     "#FFCB47"  # same focus signal as light
+  link:             "#A8A3C9"  # lightened for AA on dark bg
+  link-hover:       "#C9C4DD"  # even lighter
+
+semantic.status:  # mode-invariant
+  success: "#16A34A"
+  warning: "#D97706"
+  error:   "#E54848"  # from palette.core; brand uses Calcifer Red
+  info:    "#2563EB"
+```
+
+A build that produces fewer than 14 color-role slots in either mode is rejected at export time. Surface the violation here in Phase 1 with a list of missing slot names — don't push the failure downstream.
 
 ### Visual preferences
 
@@ -85,9 +151,9 @@ Write to `system.principles[]`. Variable-N: render as many rows as are justified
 ## Phase 3: Generate Color Palette
 
 1. Start from the resonating palettes identified in discovery.
-2. Select or blend a **variable-N palette** (any number of roles, typically 3–9). Populate `system.color.palette.core[]` with one entry per role, each with `{role, name, hex, usage, percent?}`. Use industry-standard role names where possible: `background`, `surface`, `primary`, `neutral`, `accent`, `secondary`, `success`, `warning`, `error`, `info`. Do NOT force a fixed 4-role shape. (Legacy `anchor` is auto-normalized to `neutral` by Phase 3B.)
+2. Select or blend a **variable-N palette** (any number of roles, typically 3–9). Populate `system.color.palette.core[]` with one entry per role, each with `{role, name, hex, usage, percent?}`. Use the canonical role names from `assets/platform-matrix-template.md` §1: `background`, `surface`, `primary`, `neutral`, `accent`, `success`, `warning`, `error`, `info`. Do NOT force a fixed 4-role shape.
 3. If the brand has multiple visual expressions (e.g. a named signature motif, a secondary decorative treatment, or a named gradient family), populate `system.color.palette.expressions[]` — each entry is `{name, anchors[{name,hex}], spectral_range?, when_to_use, gradient_ref?}`. Otherwise leave the array empty.
-4. Generate full 10-step scales for each non-neutral role using HSL lightness progression. Populate `system.color.palette.scales[]` with entries of shape `{name, family, hex_steps[10], description?}`. (Legacy callers may still see `system.color.scales.{family}` — see Phase 3B normalizer.)
+4. Generate full 10-step scales for each non-neutral role using HSL lightness progression. Populate `system.color.palette.scales[]` with entries of shape `{name, family, hex_steps[10], description?}`.
 5. Generate a neutral scale from the background color's temperature.
 6. Define gradients if appropriate (check personality signal: high sophistication or excitement → gradients; high ruggedness → no gradients). Populate `system.color.palette.gradients[]` — each entry is `{name, slug, direction, stops[{color, position}], description?, usage?}`. brand-export emits each as `--gradient-{slug}` and renders a labeled strip.
 7. **Populate `palette.anchors[]`** if the brand has named anchor hexes distinct from its functional roles. Each anchor is `{name, hex, usage, family?}`. Useful for rich brands whose named anchor set exceeds their functional role count (e.g. 8–10 named hexes vs. 3–4 roles) — both render, each in its own subsection of the Color section.
@@ -95,35 +161,24 @@ Write to `system.principles[]`. Variable-N: render as many rows as are justified
 
 Write to `system.color`.
 
-## Phase 3B: Normalize Legacy Palette Shapes
+## Phase 3B: Normalize palette structure
 
-If the YAML already contains legacy or loose palette paths (from older builds or manual editing), consolidate them into the canonical `palette.*` structure BEFORE writing Phase 3 output. This makes re-runs idempotent and eliminates the WARN §1.1 "palette shape mismatch" category at export time. Preserve legacy paths in place — do not delete them — so downstream tooling that depends on older shapes continues to work.
+After Phase 3 produces the palette, confirm the canonical structure is in place:
 
-Normalization rules:
+- `palette.core[]` — array of `{role, name, hex, usage, percent?}` entries
+- `palette.anchors[]` — array of `{name, hex, usage, family?}` entries (may be empty)
+- `palette.scales[]` — array of `{name, family, hex_steps[10], description?}` entries
+- `palette.expressions[]` — array (may be empty)
+- `palette.gradients[]` — array (may be empty)
 
-1. **4-role palette object → `palette.core[]`**. If `system.color.palette` is an object with keys like `{background, primary, anchor, accent, ...}` (or the canonical `{background, primary, neutral, accent, ...}`) rather than a `core[]` array, promote each key into a `palette.core[]` entry: `{role: <key>, name: <key.name or titlecased>, hex: <key.hex>, usage: <key.usage>}`. Keep the object in place (non-breaking for legacy readers) AND write the new array alongside.
+If a hand-edited YAML supplied the palette in an alternate shape, promote it to the canonical structure before writing Phase 3 output:
 
-   **Legacy role-name normalization**: When promoting, also rewrite legacy role names to canonical: `anchor` → `neutral` in the `role` field of the new `palette.core[]` entry. The legacy object key stays as-is for backward compat; only the canonical array gets the new vocabulary.
+1. **Object-form palette → `palette.core[]`.** If `system.color.palette` is an object keyed by role name rather than `palette.core[]`, promote each key into an array entry `{role, name, hex, usage}`.
+2. **Dict-form anchors → `palette.anchors[]`.** If `system.color.anchors` is a dict keyed by anchor name, promote each entry into the array form.
+3. **Per-family scales → `palette.scales[]`.** If scales live at `system.color.scales.{family}.{step}`, collect each family's 10 steps into an array entry `{name, family, hex_steps[10]}`.
+4. **Stringly-typed gradients → structured.** If a gradient is a CSS string like `"135deg, #FBBF24, #F59E0B"`, parse into the structured form `{name, slug, direction, stops[{color, position}], description?, usage?}`.
 
-2. **Flat `system.color.anchors` (dict or list of named hexes) → `palette.anchors[]`**. Common legacy shape: `anchors: {ink_navy: {hex: '#112233', name: 'Ink Navy', usage: 'primary text'}, ...}`. Each anchor becomes `{name, hex, usage, family}` in `palette.anchors[]`. Where an anchor's role is inferrable (e.g. most-used on backgrounds → role `background`), also include it in `palette.core[]`.
-
-3. **`system.color.flourish_system` dict → `palette.expressions[]`**. Each expression dict (e.g. `flame: {anchors: [...], spectral_range: '...', when_to_use: '...'}`) becomes an array entry `{name: 'Flame', anchors: [...], spectral_range, when_to_use}`.
-
-4. **`system.color.gradients[]` at `system.color.*` (non-canonical location) → `palette.gradients[]`**. Move each gradient into the canonical array with the new sub-schema `{name, slug, direction, stops[{color, position}], description, usage}`. If the legacy shape was a simple CSS string (e.g. `"135deg, #FBBF24, #F59E0B"`), parse it into the structured form.
-
-5. **`system.color.scales.{family}.{step}` → `palette.scales[]`**. Collect each family's 10 steps into an array entry `{name: '<family_title>', family: <family_key>, hex_steps: [50, 100, ..., 900]}`. **Family-name normalization**: rewrite legacy `anchor` → `neutral` in both `name` and `family` fields. The legacy `system.color.scales.anchor.*` paths stay in place.
-
-6. **Legacy token-naming normalization (token-level)**. When emitting `tokens.json`:
-   - `primitive.color.scales.anchor` → `primitive.color.scales.neutral`
-   - `primitive.color.palette.anchor` → `primitive.color.palette.neutral`
-   - `fontWeight.{default-heading,default-body,emphasis,strong,flourish}` → `fontWeight.{light,regular,medium,semibold,bold}`
-   - `shadow.{default,elevated,glow}` → `shadow.{sm,md,lg}` (and `glow` moves to `extensions.color.flourish-glow`)
-   - `motion.easing.{default,spark}` → `motion.easing.{standard,spring}` (and `spark` is also exposed as `extensions.motion.easing.spark`)
-   - `letterSpacing.loose-eyebrow` → `letterSpacing.wide`
-   - `lineHeight.default` → `lineHeight.normal`
-   These rewrites happen in-memory at export time. They do NOT modify `brand-identity.yaml`.
-
-After normalization, the YAML is a superset: every canonical path is populated, every legacy path preserved. brand-export prefers canonical paths when both exist.
+After Phase 3B, every canonical `palette.*` path is populated with array values keyed exactly as documented in `assets/platform-matrix-template.md`. Phase 4 onward reads from those.
 
 ## Phase 4: Generate Typography Scale
 
@@ -142,7 +197,7 @@ Write to `system.typography`.
 
 1. Set border radius scale based on form language preference (geometric → sharp, organic → rounded). Write `system.form.radius_interactive` and `system.form.radius_card` explicitly (the quickref renders both).
 2. Define shadow style (from design-rules.md mapping). Write `system.form.shadow`.
-3. Populate `system.form.character` — a single line that evokes the form in one breath ("spark motif", "quiet arches", "teal bar accents"). Used in the quickref and design-system cover.
+3. Populate `system.form.character` — a single line that evokes the form in one breath ("flourish motif", "quiet arches", "teal bar accents"). Used in the quickref and design-system cover.
 4. Identify motifs from discovery visual preferences. Write `system.form.motifs[]` for detail; if the brand has a signature hero-worthy motif, populate `system.motif{name, description, svg_hint?, asset_path?}` so exports can render the motif panel.
 5. Define composition rules (layout density, hierarchy model, spacing scale).
 
@@ -154,7 +209,7 @@ Write to `system.form` and `system.motif`.
 2. Set formality — write BOTH `system.voice.formality_score` and `system.voice.formality_scale_max` (don't rescale; carry the original instrument's scale).
 3. **Voice constraints are polymorphic.** The `concepts.voice_constraints` group in the registry says any of never-say-list / specificity-test / voice-card-sort can fill this slot, and multiples stack. Populate `system.voice.vocabulary` with whatever the team actually produced:
    - If participants wrote never-say lists → `vocabulary.never_say[]`.
-   - If Brennan-style specificity-test → `vocabulary.specificity_test.{rule, pass_examples[], fail_examples[]}`.
+   - If a specificity-test was run → `vocabulary.specificity_test.{rule, pass_examples[], fail_examples[]}`.
    - If voice-card-sort → `vocabulary.card_sort.{sounds_like_us[], doesnt_sound_like_us[]}`.
    - Do NOT collapse these into a single `prefer`/`avoid` pair — each technique's shape carries signal that the single-pair collapse destroys. Leave `prefer[]`/`avoid[]` empty unless the team explicitly produced those lists.
 4. Write specific guidelines with examples — do's and don'ts. For "do" examples, use actual participant quotes from the quotes files wherever possible. Real language is more instructive than fabricated samples.
@@ -176,7 +231,7 @@ Flag any dimension scoring below 3. Adjust before finalizing.
 
 Write the result to `system.quality.coherence_score` and `system.quality.coherence_notes`. If you also scored against Paul Rand's 7 criteria, populate `system.quality.rand_seven.{distinctive, memorable, simple, appropriate, timeless, legible, reducible_to_essence, total}` (each 0–10, sum max 70). Rand's 7 is optional — skip the field entirely if you did not score it, and the design-system export will soft-skip the section.
 
-## Phase 7.5: Visual Language Craft (v6)
+## Phase 7.5: Visual Language Craft
 
 Emit the visual-language fields that brand-export will render into `brand-guidelines.html` (§5 Visual Language) and into `brand.extensions.yaml` (structured rules for LLM consumption). Each sub-block is derived from existing synthesis/discovery data — no new elicitation required.
 
@@ -188,14 +243,14 @@ Write to `system.visual_language`:
 4. **Elevation levels** (`.elevation_levels[]`) — 4–6 semantic levels bound to component classes (`0-flat`, `1-card`, `2-modal`, `3-flourish`). Each maps to a shadow token from `system.form_language.shadow`.
 5. **Translucency policy** (`.translucency`) — `{allowed: bool, reason: str}`. Matte/paper material → forbidden; glass/tech material → allowed.
 6. **Texture & material** (`.texture_material`) — Name 1–3 physical anchors from discovery mood board. Emit: `adjectives[]`, `digital_translation{}`, `anti_patterns[]`.
-7. **Motion principles** (`.motion`) — 3 principles from personality (meaningful vs decorative, purposeful springs, reduced-motion fallback). Also emit `.motion_tokens{}` (ease-default, ease-spark, duration-instant/fast/normal/slow).
+7. **Motion principles** (`.motion`) — 3 principles from personality (meaningful vs decorative, purposeful springs, reduced-motion fallback). Also emit `.motion_tokens{}` (`ease-default`, `ease-spring` for the primitive layer, plus any brand-poetic name in `extensions.motion.easing.{flourish, glide, hush, ...}` per the extension policy, duration-instant/fast/normal/slow).
 8. **Gradient policy** (`.gradients`) — `{policy: "generation-rule-based" | "forbidden", rule?: str, reason?: str, allowed_contexts[], forbidden_contexts[]}`.
 9. **Motif library** (`.motif_library[]`) — The brand's signature motifs from discovery. Each: `{name, definition, when, anti_use}`. Also emit `.motif_grammar` — which motifs can co-occur, which are mutually exclusive.
 10. **Photography** (`.photography`) — `{subject_rules[], lighting{temp, direction}, crop, post, reference_bank[5_approved], counter_bank[5_rejected]}`.
 11. **Illustration** (`.illustration`) — `{shape_vocabulary[], stroke_px_range, perspective, palette_constraint, emotion_inventory[≥4], cultural_anchors[≥3 each with anchors_property]}`.
 12. **3D / spatial** (`.spatial_3d`) — `{policy: "not_used" | "used", rules[]}`. Most brands: `not_used`.
 
-## Phase 7.6: Platform Entries (v6)
+## Phase 7.6: Platform Entries
 
 Write to `system.platforms[]`. Infer from typical set OR read from user-declared list: web, pitch, google-slides, figma, keynote, print, social-square, email.
 
@@ -207,16 +262,16 @@ For each entry: `{name, font_chain[], color_slots{}, template_url?, export_profi
 - `probe_notes[]` — populate only if user has actively used the platform and documented gotchas. Else empty.
 - `caveats[]` — known limitations (e.g., "custom fonts require plan upgrade on Pitch free tier").
 
-## Phase 7.7: Voice Expansions (v6)
+## Phase 7.7: Voice Expansions
 
-Extend `system.voice` with v6 structures (additive — does not replace v5 voice fields):
+Extend `system.voice` with the structured constraint fields (additive to `voice.vocabulary.never_say[]` / `specificity_test` / `card_sort`):
 
-- `voice.banned[]` — each entry `{word, replacement, reason}`. Migrate existing never-say list items into this structure, explicitly assigning a replacement for each. Minimum ≥ 5 entries for a shipped brand.
+- `voice.banned[]` — each entry `{word, replacement, reason}`. Carry never-say list items into this structure, explicitly assigning a replacement for each. Minimum ≥ 5 entries for a shipped brand.
 - `voice.card_sort[]` — each entry `{scenario, on_brand, off_brand, why}`. Minimum ≥ 4 entries.
 - `voice.tone_matrix[]` — each entry `{state, register, posture, example}`. `state` = audience emotional state (confused / celebrating / frustrated / exploring). `register` within `voice.formality` range.
 - `voice.specificity_test` — if brand has a canonical voice gate, capture as `{rule, examples_pass[≥2], examples_fail[≥2]}`.
 
-## Phase 7.8: Governance Scaffold (v6)
+## Phase 7.8: Governance Scaffold
 
 Write to `system.governance`:
 
@@ -228,7 +283,7 @@ Write to `system.governance`:
 - `adrs[]` — if any design decisions were made with notable trade-offs (e.g., "chose teal over amber as accent because..."), capture each as `{id, title, status, decision, consequences}`. ≥ 3 ADRs for a first-run brand (infer from synthesis trade-offs if not explicit).
 - `contribution_flow` — proposal → review → promote.
 
-## Phase 7.9: Cultural Anchors (v6)
+## Phase 7.9: Cultural Anchors
 
 Write to `system.cultural_anchors[]`. For every mood-board reference, anti-inspiration entry, or named cultural touchstone in discovery:
 
@@ -274,7 +329,7 @@ If FAIL count > 0 after the auto-fix pass: tell the user the design system is **
 2. Set `system.last_built` to current timestamp.
 3. Update `meta.phase` to `system`.
 4. Add changelog entry.
-5. **Initialize `system.quality.export_log: []`** if the key is absent. This is the per-artifact render log that `brand-export` appends to (see `build-export-contract.md → system.quality.export_log[] schema (v7)`). Do NOT populate entries here — brand-build only ensures the key exists so brand-export can read it without a null check.
+5. **Initialize `system.quality.export_log: []`** if the key is absent. This is the per-artifact render log that `brand-export` appends to (see `build-export-contract.md → system.quality.export_log[] schema`). Do NOT populate entries here — brand-build only ensures the key exists so brand-export can read it without a null check.
 6. Present the complete design system to the user as a summary:
    - Design principles (list)
    - Color palette (hex values with roles)

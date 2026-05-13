@@ -358,9 +358,9 @@ APP_BODY_HTML = """
           <thead><tr><th>Project</th><th>Owner</th><th>Status</th><th>Updated</th><th></th></tr></thead>
           <tbody>
             <tr><td>website-redesign</td><td><div class="row"><div class="avatar">JD</div>Jamie</div></td><td><span class="badge badge-success">Active</span></td><td class="muted">2h ago</td><td class="row-actions"><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
-            <tr><td>billing-migration</td><td><div class="row"><div class="avatar">SM</div>Sam</div></td><td><span class="badge badge-warning">Review</span></td><td class="muted">5h ago</td><td class="row-actions"><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
-            <tr><td>onboarding-v3</td><td><div class="row"><div class="avatar">AR</div>Avery</div></td><td><span class="badge badge-info">Planned</span></td><td class="muted">1d ago</td><td class="row-actions"><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
-            <tr><td>legacy-importer</td><td><div class="row"><div class="avatar">RK</div>Riley</div></td><td><span class="badge badge-error">Blocked</span></td><td class="muted">3d ago</td><td class="row-actions"><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
+            <tr><td>billing-portal</td><td><div class="row"><div class="avatar">SM</div>Sam</div></td><td><span class="badge badge-warning">Review</span></td><td class="muted">5h ago</td><td class="row-actions"><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
+            <tr><td>onboarding-flow</td><td><div class="row"><div class="avatar">AR</div>Avery</div></td><td><span class="badge badge-info">Planned</span></td><td class="muted">1d ago</td><td class="row-actions"><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
+            <tr><td>analytics-dashboard</td><td><div class="row"><div class="avatar">RK</div>Riley</div></td><td><span class="badge badge-error">Blocked</span></td><td class="muted">3d ago</td><td class="row-actions"><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
           </tbody>
         </table>
         <div class="row" style="padding: var(--space-3) var(--space-4); justify-content: space-between; border-top: 1px solid var(--color-border);">
