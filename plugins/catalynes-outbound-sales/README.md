@@ -63,4 +63,4 @@ Calibrated to 2026 LinkedIn outreach benchmarks. Sources in [`skills/catalynes-l
 
 ## Author
 
-Catalyne (Ben Karpinski) — ben.kg@negotiating-with-goliath.com
+Catalyne (Ben Kimura-Gross) — ben@thecatalyne.com

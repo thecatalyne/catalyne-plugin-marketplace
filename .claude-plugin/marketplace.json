@@ -26,8 +26,8 @@
       "version": "0.1.0",
       "description": "Catalyne's end-to-end outbound sales workflow: qualify a CSV of leads against an ICP, enrich the qualified leads with LinkedIn data via Apify, and generate two versions of a personalized LinkedIn DM per lead (75-word in-conversation + ≤300-char connection request).",
       "author": {
-        "name": "Ben Karpinski (Catalyne)",
-        "email": "ben.kg@negotiating-with-goliath.com"
+        "name": "Ben Kimura-Gross (Catalyne)",
+        "email": "ben@thecatalyne.com"
       },
       "license": "MIT",
       "keywords": ["sales", "outbound", "lead-qualification", "lead-enrichment", "linkedin", "linkedin-dm", "b2b", "apify"]
